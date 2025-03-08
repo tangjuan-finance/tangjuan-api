@@ -1,7 +1,7 @@
 from app import db
 from app.models import User
 import sqlalchemy as sa
-from tests.unit.model.conftest import create_user
+from .factories import create_user
 
 
 class TestUserModelCase:

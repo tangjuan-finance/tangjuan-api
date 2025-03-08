@@ -1,7 +1,7 @@
 from app import db
 from app.models import Salary
 import sqlalchemy as sa
-from tests.unit.model.conftest import create_user, create_salary
+from .factories import create_user, create_salary
 
 
 class TestSalaryModelCase:

@@ -1,7 +1,7 @@
 from app import db
 from app.models import Age
 import sqlalchemy as sa
-from tests.unit.model.conftest import create_age
+from .conftest import create_age
 
 
 class TestAgeModelCase:
