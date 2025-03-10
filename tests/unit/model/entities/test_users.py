@@ -5,6 +5,17 @@ from .factories import create_user
 
 
 class TestUserModelCase:
+    def test_default_user(self, default_user):
+        assert isinstance(default_user, User)
+
+        # Act
+        default_user_from_db = db.session.scalar(
+            sa.select(User).where(User.username == default_user.username)
+        )
+
+        # Assert
+        assert default_user == default_user_from_db
+
     def test_create_user(self):
         # Arrange
         username = "alice"

@@ -1,15 +1,20 @@
 from app import db
 from app.models import Expense
 import sqlalchemy as sa
-from .factories import create_user, create_entity
+from .factories import create_entity
+# from hypothesis import given, strategies as st
 
 
+# @given(name=st.text(max_size=120), amount=st.integers)
 class TestExpenseModelCase:
-    def test_create_expense(self):
+    def test_create_expense(self, default_user):
         # Arrange
-        owner = create_user()
         expense = create_entity(
-            Expense, owner=owner, start_year=30, name="Good Job", amount=50000
+            Expense,
+            owner=default_user,
+            name="Good Expense",
+            start_year=30,
+            amount=50000,
         )
         # Act
         expense_from_db = db.session.scalar(

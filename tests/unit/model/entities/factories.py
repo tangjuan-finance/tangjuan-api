@@ -1,5 +1,5 @@
 from app import db
-from app.models import User, Salary, Expense
+from app.models import User
 
 
 def create_entity(cls, **kwargs):
@@ -20,17 +20,3 @@ def create_user(
     db.session.add(u)
     db.session.commit()
     return u
-
-
-def create_salary(owner, start_year, name, amount=50000):
-    salary = create_entity(
-        Salary, owner=owner, start_year=start_year, name=name, amount=amount
-    )
-    return salary
-
-
-def create_expense(owner, start_year, name, amount=50000):
-    expense = create_entity(
-        Expense, owner=owner, start_year=start_year, name=name, amount=amount
-    )
-    return expense
