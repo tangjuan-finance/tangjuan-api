@@ -15,8 +15,8 @@ class TimestampMixin:
 
 
 class BaseYearIntervalMixin:
-    start_year: so.Mapped[int] = so.mapped_column(sa.ForeignKey("age.id"))
-    end_year: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey("age.id"))
+    start_year: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
+    end_year: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
 
 
 class BaseDescriptionMixin:
