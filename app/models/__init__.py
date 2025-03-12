@@ -10,7 +10,7 @@ from .entities import (
     Investment,
     House,
     Child,
-    Accident,
+    Risk,
 )
 from .associations import (
     ScenarioExpense,
@@ -39,7 +39,7 @@ __all__ = [
     "Investment",
     "House",
     "Child",
-    "Accident",
+    "Risk",
     "ScenarioExpense",
     "ScenarioSalary",
     "ScenarioInvestment",

@@ -5,7 +5,7 @@ from .salaries import Salary
 from .investments import Investment
 from .houses import House
 from .children import Child
-from .accidents import Accident
+from .risks import Risk
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -16,5 +16,5 @@ __all__ = [
     "Investment",
     "House",
     "Child",
-    "Accident",
+    "Risk",
 ]
