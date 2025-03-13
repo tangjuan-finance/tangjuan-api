@@ -1,33 +1,35 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
+from decimal import Decimal
 from app.models import (
     PrimaryIdMixin,
     TimestampMixin,
     BaseAgeIntervalMixin,
     BaseDescriptionMixin,
-    BaseYearlyGrowthRateMixin,
     BaseAmountMixin,
 )
 
 
-class Expense(
+class Asset(
     PrimaryIdMixin,
     TimestampMixin,
     BaseAgeIntervalMixin,
-    BaseYearlyGrowthRateMixin,
     BaseDescriptionMixin,
     BaseAmountMixin,
     db.Model,
 ):
+    max_yearly_growth_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
+    min_yearly_growth_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
+
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    owner: so.Mapped["User"] = so.relationship(back_populates="expenses")  # noqa: F821
+    owner: so.Mapped["User"] = so.relationship(back_populates="assets")  # noqa: F821
 
     # Relationship to Scenario
-    scenario: so.Mapped[list["ScenarioExpense"]] = so.relationship(  # noqa: F821
-        back_populates="expense"
+    scenario: so.Mapped[list["ScenarioAsset"]] = so.relationship(  # noqa: F821
+        back_populates="asset"
     )
 
     def __repr__(self):
-        return "<Expense {}>".format(self.name)
+        return "<Asset {}>".format(self.name)

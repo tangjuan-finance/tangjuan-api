@@ -2,17 +2,23 @@ from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from app.models import TimestampMixin, BaseDescriptionMixin
+from app.models import (
+    PrimaryIdMixin,
+    TimestampMixin,
+    BaseDescriptionMixin,
+    BaseAmountMixin,
+)
+from decimal import Decimal
 
 
-class House(TimestampMixin, BaseDescriptionMixin, db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    amount: so.Mapped[int] = so.mapped_column(sa.Integer)
-    down_payment: so.Mapped[int] = so.mapped_column(sa.Numeric)
-    interest: so.Mapped[int] = so.mapped_column(sa.Numeric)
-    loan_term: so.Mapped[int] = so.mapped_column(sa.Integer)
-    buy_at_age: so.Mapped[int] = so.mapped_column(sa.ForeignKey("age.id"))
-    sell_at_age: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey("age.id"))
+class House(
+    PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, BaseAmountMixin, db.Model
+):
+    down_payment: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+    interest_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
+    loan_term: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
+    purchase_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
+    sale_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)

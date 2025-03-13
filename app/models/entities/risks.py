@@ -1,20 +1,28 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from app.models import BaseDescriptionMixin
+from app.models import (
+    PrimaryIdMixin,
+    TimestampMixin,
+    BaseDescriptionMixin,
+    BaseAgeIntervalMixin,
+)
 
 
-class Risk(BaseDescriptionMixin, db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    scenarios: so.WriteOnlyMapped["Scenario"] = so.relationship(  # noqa: F821
-        back_populates="risk"
-    )
-    upper_from_salary_ratio: so.Mapped[float] = so.mapped_column(sa.Numeric)
-    lower_from_salary_ratio: so.Mapped[float] = so.mapped_column(sa.Numeric)
+class Risk(
+    PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, BaseAgeIntervalMixin, db.Model
+):
+    max_loss: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+    min_loss: so.Mapped[int] = so.mapped_column(sa.BigInteger)
 
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
     owner: so.Mapped["User"] = so.relationship(back_populates="risks")  # noqa: F821
+
+    # Relationship to Scenario
+    scenario: so.Mapped[list["ScenarioRisk"]] = so.relationship(  # noqa: F821
+        back_populates="risk"
+    )
 
     def __repr__(self):
         return "<Risk {}>".format(self.id)

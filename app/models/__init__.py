@@ -1,16 +1,24 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from .mixins import TimestampMixin, BaseYearIntervalMixin, BaseDescriptionMixin
+from .mixins import (
+    PrimaryIdMixin,
+    TimestampMixin,
+    BaseAgeIntervalMixin,
+    BaseDescriptionMixin,
+    BaseYearlyGrowthRateMixin,
+    BaseAmountMixin,
+)
 from .entities import (
     User,
     Scenario,
     Expense,
     Salary,
-    Investment,
+    Income,
     House,
     Child,
     Risk,
+    Asset,
 )
 from .associations import (
     ScenarioExpense,
@@ -36,16 +44,20 @@ __all__ = [
     "Scenario",
     "Expense",
     "Salary",
-    "Investment",
+    "Income",
     "House",
     "Child",
     "Risk",
+    "Asset",
     "ScenarioExpense",
     "ScenarioSalary",
     "ScenarioInvestment",
     "ScenarioHouse",
     "ScenarioChild",
+    "PrimaryIdMixin",
     "TimestampMixin",
-    "BaseYearIntervalMixin",
+    "BaseAgeIntervalMixin",
     "BaseDescriptionMixin",
+    "BaseYearlyGrowthRateMixin",
+    "BaseAmountMixin",
 ]

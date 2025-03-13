@@ -11,7 +11,7 @@ from app.models import (
 )
 
 
-class Expense(
+class Income(
     PrimaryIdMixin,
     TimestampMixin,
     BaseAgeIntervalMixin,
@@ -22,12 +22,12 @@ class Expense(
 ):
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    owner: so.Mapped["User"] = so.relationship(back_populates="expenses")  # noqa: F821
+    owner: so.Mapped["User"] = so.relationship(back_populates="incomes")  # noqa: F821
 
     # Relationship to Scenario
-    scenario: so.Mapped[list["ScenarioExpense"]] = so.relationship(  # noqa: F821
-        back_populates="expense"
+    scenario: so.Mapped[list["ScenarioIncome"]] = so.relationship(  # noqa: F821
+        back_populates="income"
     )
 
     def __repr__(self):
-        return "<Expense {}>".format(self.name)
+        return "<Income {}>".format(self.name)

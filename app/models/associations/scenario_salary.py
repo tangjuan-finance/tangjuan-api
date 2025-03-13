@@ -1,10 +1,10 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from app.models import BaseYearIntervalMixin
+from app.models import BaseAgeIntervalMixin
 
 
-class ScenarioSalary(BaseYearIntervalMixin, db.Model):
+class ScenarioSalary(BaseAgeIntervalMixin, db.Model):
     left_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id"), primary_key=True
     )
