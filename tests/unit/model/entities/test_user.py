@@ -1,7 +1,7 @@
 from app import db
 from app.models import Account
 import sqlalchemy as sa
-from .factories import create_account
+from ..factories import create_account
 
 
 class TestAccountModelCase:

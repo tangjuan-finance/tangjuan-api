@@ -1,32 +1,25 @@
 from app import db
 from app.models import Income
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestIncomeModelCase:
-    def test_create_income(self, default_account):
-        # Arrange
-        name = "Default Income"
-        amount = 50000
-        max_yearly_growth_rate = 0.5
-        min_yearly_growth_rate = -0.5
-        start_age = 20
-
-        income = create_entity(
-            Income,
-            owner=default_account,
-            name=name,
-            amount=amount,
-            max_yearly_growth_rate=max_yearly_growth_rate,
-            min_yearly_growth_rate=min_yearly_growth_rate,
-            start_age=start_age,
-        )
+    def test_default_income(self, default_income):
         # Act
         income_from_db = db.session.scalar(
-            sa.select(Income).where(Income.name == Income.name)
+            sa.select(Income).where(Income.id == default_income.id)
         )
 
         # Assert
-        assert income_from_db.amount == income.amount
-        assert income_from_db.owner_id == income.owner_id
+        assert income_from_db.name == default_income.name
+        assert income_from_db.amount == default_income.amount
+        assert (
+            income_from_db.max_yearly_growth_rate
+            == default_income.max_yearly_growth_rate
+        )
+        assert (
+            income_from_db.min_yearly_growth_rate
+            == default_income.min_yearly_growth_rate
+        )
+        assert income_from_db.start_age == default_income.start_age
+        assert income_from_db.owner_id == default_income.owner_id

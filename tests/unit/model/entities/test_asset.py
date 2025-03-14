@@ -1,32 +1,23 @@
 from app import db
 from app.models import Asset
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestAssetModelCase:
-    def test_create_asset(self, default_account):
-        # Arrange
-        name = "Default Asset"
-        amount = 50000
-        max_yearly_return_rate = 0.5
-        min_yearly_return_rate = -0.5
-        start_age = 20
-
-        asset = create_entity(
-            Asset,
-            owner=default_account,
-            name=name,
-            amount=amount,
-            max_yearly_return_rate=max_yearly_return_rate,
-            min_yearly_return_rate=min_yearly_return_rate,
-            start_age=start_age,
-        )
+    def test_create_asset(self, default_asset):
         # Act
         asset_from_db = db.session.scalar(
-            sa.select(Asset).where(Asset.name == Asset.name)
+            sa.select(Asset).where(Asset.id == default_asset.id)
         )
 
         # Assert
-        assert asset_from_db.amount == asset.amount
-        assert asset_from_db.owner_id == asset.owner_id
+        assert asset_from_db.name == default_asset.name
+        assert asset_from_db.amount == default_asset.amount
+        assert (
+            asset_from_db.max_yearly_return_rate == default_asset.max_yearly_return_rate
+        )
+        assert (
+            asset_from_db.min_yearly_return_rate == default_asset.min_yearly_return_rate
+        )
+        assert asset_from_db.start_age == default_asset.start_age
+        assert asset_from_db.owner_id == default_asset.owner_id

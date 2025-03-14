@@ -1,30 +1,21 @@
 from app import db
 from app.models import Risk
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestRiskModelCase:
-    def test_create_risk(self, default_account):
+    def test_default_risk(self, default_risk):
         # Arrange
-        name = "Default Risk"
-        principal_amount = 50000
-        interest_rate = 0.5
-        start_age = 20
-        end_age = 50
 
-        risk = create_entity(
-            Risk,
-            owner=default_account,
-            name=name,
-            principal_amount=principal_amount,
-            interest_rate=interest_rate,
-            start_age=start_age,
-            end_age=end_age,
-        )
         # Act
-        risk_from_db = db.session.scalar(sa.select(Risk).where(Risk.name == Risk.name))
+        risk_from_db = db.session.scalar(
+            sa.select(Risk).where(Risk.id == default_risk.id)
+        )
 
         # Assert
-        assert risk_from_db.principal_amount == risk.principal_amount
-        assert risk_from_db.owner_id == risk.owner_id
+        assert risk_from_db.name == default_risk.name
+        assert risk_from_db.principal_amount == default_risk.principal_amount
+        assert risk_from_db.interest_rate == default_risk.interest_rate
+        assert risk_from_db.start_age == default_risk.start_age
+        assert risk_from_db.end_age == default_risk.end_age
+        assert risk_from_db.owner_id == default_risk.owner_id

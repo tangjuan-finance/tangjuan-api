@@ -1,32 +1,19 @@
 from app import db
 from app.models import Liability
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestLiabilityModelCase:
-    def test_create_liability(self, default_account):
-        # Arrange
-        name = "Default Liability"
-        principal_amount = 50000
-        interest_rate = 0.5
-        start_age = 20
-        end_age = 50
-
-        liability = create_entity(
-            Liability,
-            owner=default_account,
-            name=name,
-            principal_amount=principal_amount,
-            interest_rate=interest_rate,
-            start_age=start_age,
-            end_age=end_age,
-        )
+    def test_default_liability(self, default_liability):
         # Act
         liability_from_db = db.session.scalar(
-            sa.select(Liability).where(Liability.name == Liability.name)
+            sa.select(Liability).where(Liability.id == default_liability.id)
         )
 
         # Assert
-        assert liability_from_db.principal_amount == liability.principal_amount
-        assert liability_from_db.owner_id == liability.owner_id
+        assert liability_from_db.name == default_liability.name
+        assert liability_from_db.principal_amount == default_liability.principal_amount
+        assert liability_from_db.interest_rate == default_liability.interest_rate
+        assert liability_from_db.start_age == default_liability.start_age
+        assert liability_from_db.end_age == default_liability.end_age
+        assert liability_from_db.owner_id == default_liability.owner_id

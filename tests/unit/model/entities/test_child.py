@@ -1,28 +1,17 @@
 from app import db
 from app.models import Child
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestChildModelCase:
-    def test_create_child(self, default_account):
-        # Arrange
-        name = "Default Child"
-        birth_age = 34
-        independent_age = 56
-
-        child = create_entity(
-            Child,
-            parent_id=default_account,
-            name=name,
-            birth_age=birth_age,
-            independent_age=independent_age,
-        )
+    def test_default_child(self, default_child):
         # Act
         child_from_db = db.session.scalar(
-            sa.select(Child).where(Child.name == Child.name)
+            sa.select(Child).where(Child.id == default_child.id)
         )
 
         # Assert
-        assert child_from_db.birth_age == child.birth_age
-        assert child_from_db.owner_id == child.owner_id
+        assert child_from_db.name == default_child.name
+        assert child_from_db.birth_age == default_child.birth_age
+        assert child_from_db.independent_age == default_child.independent_age
+        assert child_from_db.parent_id == default_child.parent_id

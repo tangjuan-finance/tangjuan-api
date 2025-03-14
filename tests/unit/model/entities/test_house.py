@@ -1,34 +1,20 @@
 from app import db
 from app.models import House
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestHouseModelCase:
-    def test_create_house(self, default_account):
-        # Arrange
-        name = "Default House"
-        amount = 20000000
-        down_payment = 3000000
-        interest_rate = 3.0
-        loan_term = 40
-        purchase_age = 20
-
-        house = create_entity(
-            House,
-            owner=default_account,
-            name=name,
-            amount=amount,
-            down_payment=down_payment,
-            interest_rate=interest_rate,
-            loan_term=loan_term,
-            purchase_age=purchase_age,
-        )
+    def test_default_house(self, default_house):
         # Act
         house_from_db = db.session.scalar(
-            sa.select(House).where(House.name == House.name)
+            sa.select(House).where(House.id == default_house.id)
         )
 
         # Assert
-        assert house_from_db.amount == house.amount
-        assert house_from_db.owner_id == house.owner_id
+        assert house_from_db.name == default_house.name
+        assert house_from_db.amount == default_house.amount
+        assert house_from_db.down_payment == default_house.down_payment
+        assert house_from_db.interest_rate == default_house.interest_rate
+        assert house_from_db.loan_term == default_house.loan_term
+        assert house_from_db.purchase_age == default_house.purchase_age
+        assert house_from_db.owner_id == default_house.owner_id

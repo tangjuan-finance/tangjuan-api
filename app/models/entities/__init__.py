@@ -6,6 +6,7 @@ from .houses import House
 from .children import Child
 from .risks import Risk
 from .assets import Asset
+from .liabilities import Liability
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "Child",
     "Risk",
     "Asset",
+    "Liability",
 ]

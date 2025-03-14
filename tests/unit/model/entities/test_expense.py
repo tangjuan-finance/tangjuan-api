@@ -1,32 +1,25 @@
 from app import db
 from app.models import Expense
 import sqlalchemy as sa
-from .factories import create_entity
 
 
 class TestExpenseModelCase:
-    def test_create_expense(self, default_account):
-        # Arrange
-        name = "Default Expense"
-        amount = 50000
-        max_yearly_growth_rate = 0.5
-        min_yearly_growth_rate = -0.5
-        start_age = 20
-
-        expense = create_entity(
-            Expense,
-            owner=default_account,
-            name=name,
-            amount=amount,
-            max_yearly_growth_rate=max_yearly_growth_rate,
-            min_yearly_growth_rate=min_yearly_growth_rate,
-            start_age=start_age,
-        )
+    def test_default_expense(self, default_expense):
         # Act
         expense_from_db = db.session.scalar(
-            sa.select(Expense).where(Expense.name == Expense.name)
+            sa.select(Expense).where(Expense.id == default_expense.id)
         )
 
         # Assert
-        assert expense_from_db.amount == expense.amount
-        assert expense_from_db.owner_id == expense.owner_id
+        assert expense_from_db.name == default_expense.name
+        assert expense_from_db.amount == default_expense.amount
+        assert (
+            expense_from_db.max_yearly_growth_rate
+            == default_expense.max_yearly_growth_rate
+        )
+        assert (
+            expense_from_db.min_yearly_growth_rate
+            == default_expense.min_yearly_growth_rate
+        )
+        assert expense_from_db.start_age == default_expense.start_age
+        assert expense_from_db.owner_id == default_expense.owner_id
