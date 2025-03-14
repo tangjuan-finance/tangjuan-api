@@ -19,8 +19,8 @@ class Asset(
     BaseAmountMixin,
     db.Model,
 ):
-    max_yearly_growth_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
-    min_yearly_growth_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
+    max_yearly_return_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
+    min_yearly_return_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
 
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)

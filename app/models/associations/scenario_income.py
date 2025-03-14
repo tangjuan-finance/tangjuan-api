@@ -9,7 +9,7 @@ from app.models import (
 )
 
 
-class ScenarioExpense(
+class ScenarioIncome(
     BaseAgeIntervalOptionalMixin,
     TimestampMixin,
     BaseYearlyGrowthRateMixin,
@@ -20,7 +20,7 @@ class ScenarioExpense(
         sa.ForeignKey("scenario.id"), primary_key=True
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("expense.id"), primary_key=True
+        sa.ForeignKey("income.id"), primary_key=True
     )
-    scenario: so.Mapped["Scenario"] = so.relationship(back_populates="expense")  # noqa: F821
-    expense: so.Mapped["Expense"] = so.relationship(back_populates="scenario")  # noqa: F821
+    scenario: so.Mapped["Scenario"] = so.relationship(back_populates="income")  # noqa: F821
+    income: so.Mapped["Income"] = so.relationship(back_populates="scenario")  # noqa: F821

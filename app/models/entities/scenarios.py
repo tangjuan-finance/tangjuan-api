@@ -26,6 +26,9 @@ class Scenario(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     house: so.Mapped[list["ScenarioHouse"]] = so.relationship(back_populates="scenario")  # noqa: F821
     child: so.Mapped[list["ScenarioChild"]] = so.relationship(back_populates="scenario")  # noqa: F821
     risk: so.Mapped[list["ScenarioRisk"]] = so.relationship(back_populates="scenario")  # noqa: F821
+    liability: so.Mapped[list["ScenarioLiability"]] = so.relationship(  # noqa: F821
+        back_populates="scenario"
+    )
 
     def __repr__(self):
         return "<Scenario {}>".format(self.name)

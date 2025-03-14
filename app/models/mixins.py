@@ -17,10 +17,10 @@ class PrimaryIdMixin:
 
 
 class TimestampMixin:
-    created: so.Mapped[datetime] = so.mapped_column(
+    created_at: so.Mapped[datetime] = so.mapped_column(
         default=lambda: datetime.now(timezone.utc)
     )
-    updated: so.Mapped[datetime] = so.mapped_column(
+    updated_at: so.Mapped[datetime] = so.mapped_column(
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
@@ -28,6 +28,11 @@ class TimestampMixin:
 
 class BaseAgeIntervalMixin:
     start_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
+    end_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
+
+
+class BaseAgeIntervalOptionalMixin:
+    start_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
     end_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
 
 
@@ -43,3 +48,7 @@ class BaseYearlyGrowthRateMixin:
 
 class BaseAmountMixin:
     amount: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+
+
+class BaseMemoMixin:
+    memo: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)

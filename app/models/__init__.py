@@ -8,6 +8,8 @@ from .mixins import (
     BaseDescriptionMixin,
     BaseYearlyGrowthRateMixin,
     BaseAmountMixin,
+    BaseMemoMixin,
+    BaseAgeIntervalOptionalMixin,
 )
 from .entities import (
     Account,
@@ -21,10 +23,12 @@ from .entities import (
 )
 from .associations import (
     ScenarioExpense,
-    ScenarioSalary,
-    ScenarioInvestment,
+    ScenarioIncome,
+    ScenarioAsset,
     ScenarioHouse,
     ScenarioChild,
+    ScenarioLiability,
+    ScenarioRisk,
 )
 
 
@@ -48,14 +52,18 @@ __all__ = [
     "Risk",
     "Asset",
     "ScenarioExpense",
-    "ScenarioSalary",
-    "ScenarioInvestment",
+    "ScenarioIncome",
+    "ScenarioAsset",
     "ScenarioHouse",
     "ScenarioChild",
+    "ScenarioLiability",
+    "ScenarioRisk",
     "PrimaryIdMixin",
     "TimestampMixin",
     "BaseAgeIntervalMixin",
     "BaseDescriptionMixin",
     "BaseYearlyGrowthRateMixin",
     "BaseAmountMixin",
+    "BaseMemoMixin",
+    "BaseAgeIntervalOptionalMixin",
 ]
