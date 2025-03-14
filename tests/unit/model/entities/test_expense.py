@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestExpenseModelCase:
-    def test_create_expense(self, default_user):
+    def test_create_expense(self, default_account):
         # Arrange
         name = "Default Expense"
         amount = 50000
@@ -15,7 +15,7 @@ class TestExpenseModelCase:
 
         expense = create_entity(
             Expense,
-            owner=default_user,
+            owner=default_account,
             name=name,
             amount=amount,
             max_yearly_growth_rate=max_yearly_growth_rate,

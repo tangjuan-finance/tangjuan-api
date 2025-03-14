@@ -10,8 +10,10 @@ class Child(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     independent_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
-    parent_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    parent: so.Mapped["User"] = so.relationship(back_populates="children")  # noqa: F821
+    parent_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey("account.id"), index=True
+    )
+    parent: so.Mapped["Account"] = so.relationship(back_populates="children")  # noqa: F821
 
     # Relationship to Scenario
     scenario: so.Mapped[list["ScenarioChild"]] = so.relationship(back_populates="child")  # noqa: F821

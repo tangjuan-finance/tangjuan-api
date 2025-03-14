@@ -3,7 +3,7 @@ from app.api.errors.bad_request import (
     EmailDuplicationError,
     EmailFormatError,
 )
-from app.models import User
+from app.models import Account
 from app import db
 import sqlalchemy as sa
 from cryptography.fernet import InvalidToken
@@ -13,8 +13,8 @@ import re
 
 def validate_username(username: str):
     """Check if username already exists."""
-    user = db.session.scalar(sa.select(User).where(User.username == username))
-    if user is not None:
+    account = db.session.scalar(sa.select(Account).where(Account.username == username))
+    if account is not None:
         raise UserNameDuplicationError(errors={"username": "Username already taken"})
 
 
@@ -28,8 +28,8 @@ def validate_email_format(email: str):
 def validate_email(email: str):
     """Check if email format incorrect and already exists."""
 
-    user = db.session.scalar(sa.select(User).where(User.email == email))
-    if user is not None:
+    account = db.session.scalar(sa.select(Account).where(Account.email == email))
+    if account is not None:
         raise EmailDuplicationError(
             errors={"email": "Email address already registered"}
         )

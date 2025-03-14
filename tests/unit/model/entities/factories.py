@@ -1,5 +1,5 @@
 from app import db
-from app.models import User
+from app.models import Account
 
 
 def create_entity(cls, **kwargs):
@@ -9,13 +9,13 @@ def create_entity(cls, **kwargs):
     return entity
 
 
-def create_user(
+def create_account(
     username="alice",
     email="alice@example.com",
     password="bird",
     about_me="Alice likes cute bird.",
 ):
-    u = User(username=username, email=email, about_me=about_me)
+    u = Account(username=username, email=email, about_me=about_me)
     u.set_password(password)
     db.session.add(u)
     db.session.commit()

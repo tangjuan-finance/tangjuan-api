@@ -1,44 +1,43 @@
 from app import db
-from app.models import User
+from app.models import Account
 import sqlalchemy as sa
-from .factories import create_user
+from .factories import create_account
 
 
-class TestUserModelCase:
-    def test_default_user(self, default_user):
-        assert isinstance(default_user, User)
+class TestAccountModelCase:
+    def test_default_account(self, default_account):
+        assert isinstance(default_account, Account)
 
         # Act
         default_user_from_db = db.session.scalar(
-            sa.select(User).where(User.username == default_user.username)
+            sa.select(Account).where(Account.username == default_account.username)
         )
 
         # Assert
-        assert default_user == default_user_from_db
+        assert default_account == default_user_from_db
 
-    def test_create_user(self):
+    def test_create_account(self):
         # Arrange
         username = "alice"
         email = "alice@example.com"
         password = "bird"
         about_me = "Alice likes cute bird."
 
-        user = create_user(
+        account = create_account(
             username=username, email=email, password=password, about_me=about_me
         )
 
         # Act
-        user_from_db = db.session.scalar(
-            sa.select(User).where(User.username == user.username)
+        account_from_db = db.session.scalar(
+            sa.select(Account).where(Account.username == account.username)
         )
         # Assert
-        assert user_from_db.username == user.username
-        assert user_from_db.email == user.email
-        assert user_from_db.about_me == user.about_me
-        assert user_from_db.check_password(password)
+        assert account_from_db.username == account.username
+        assert account_from_db.email == account.email
+        assert account_from_db.check_password(password)
 
     def test_password_hashing(self):
-        u = User(username="susan", email="susan@example.com")
+        u = Account(username="susan", email="susan@example.com")
         u.set_password("cat")
         assert not u.check_password("dog")
         assert u.check_password("cat")
@@ -48,23 +47,19 @@ class TestUserModelCase:
         username = "使用者"
         email = "user@example.com"
         password = "cat"
-        about_me = "關於使用者的一切都是秘密"
 
-        user = create_user(
-            username=username, email=email, password=password, about_me=about_me
-        )
+        user = create_account(username=username, email=email, password=password)
 
         # Act
         user_from_db = db.session.scalar(
-            sa.select(User).where(User.username == user.username)
+            sa.select(Account).where(Account.username == user.username)
         )
 
         # Assert
         assert user_from_db.username == username
-        assert user_from_db.about_me == about_me
 
     def test_avatar(self):
-        u = User(username="john", email="john@example.com")
+        u = Account(username="john", email="john@example.com")
         assert u.avatar(128) == (
             "https://www.gravatar.com/avatar/"
             "d4c74594d841139328695756648b6bd6"
@@ -72,15 +67,15 @@ class TestUserModelCase:
         )
 
 
-class TestUserOwnershipModelCase:
+class TestAccountOwnershipModelCase:
     def test_password_hashing(self):
-        u = User(username="susan", email="susan@example.com")
+        u = Account(username="susan", email="susan@example.com")
         u.set_password("cat")
         assert not u.check_password("dog")
         assert u.check_password("cat")
 
     def test_avatar(self):
-        u = User(username="john", email="john@example.com")
+        u = Account(username="john", email="john@example.com")
         assert u.avatar(128) == (
             "https://www.gravatar.com/avatar/"
             "d4c74594d841139328695756648b6bd6"

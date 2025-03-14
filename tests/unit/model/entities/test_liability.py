@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestLiabilityModelCase:
-    def test_create_liability(self, default_user):
+    def test_create_liability(self, default_account):
         # Arrange
         name = "Default Liability"
         principal_amount = 50000
@@ -15,7 +15,7 @@ class TestLiabilityModelCase:
 
         liability = create_entity(
             Liability,
-            owner=default_user,
+            owner=default_account,
             name=name,
             principal_amount=principal_amount,
             interest_rate=interest_rate,

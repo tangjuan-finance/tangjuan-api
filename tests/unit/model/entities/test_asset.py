@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestAssetModelCase:
-    def test_create_asset(self, default_user):
+    def test_create_asset(self, default_account):
         # Arrange
         name = "Default Asset"
         amount = 50000
@@ -15,7 +15,7 @@ class TestAssetModelCase:
 
         asset = create_entity(
             Asset,
-            owner=default_user,
+            owner=default_account,
             name=name,
             amount=amount,
             max_yearly_return_rate=max_yearly_return_rate,

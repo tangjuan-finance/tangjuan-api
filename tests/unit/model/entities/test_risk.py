@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestRiskModelCase:
-    def test_create_risk(self, default_user):
+    def test_create_risk(self, default_account):
         # Arrange
         name = "Default Risk"
         principal_amount = 50000
@@ -15,7 +15,7 @@ class TestRiskModelCase:
 
         risk = create_entity(
             Risk,
-            owner=default_user,
+            owner=default_account,
             name=name,
             principal_amount=principal_amount,
             interest_rate=interest_rate,

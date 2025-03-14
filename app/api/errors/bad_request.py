@@ -29,10 +29,10 @@ class EmailFormatError(BaseCustomHTTPException):
     code = 400
 
 
-class UserNotFoundError(BaseCustomHTTPException):
+class AccountNotFoundError(BaseCustomHTTPException):
     """Raised when a validation error occurs."""
 
-    description = "User is not founded"
+    description = "Account is not founded"
     code = 400
 
 

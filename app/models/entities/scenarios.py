@@ -10,8 +10,8 @@ class Scenario(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     asset_allocation_percentage: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(3, 2))
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    owner: so.Mapped["User"] = so.relationship(back_populates="scenarios")  # noqa: F821
+    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner: so.Mapped["Account"] = so.relationship(back_populates="scenarios")  # noqa: F821
 
     # Many-to-Many Relationship
     expense: so.Mapped[list["ScenarioExpense"]] = so.relationship(  # noqa: F821

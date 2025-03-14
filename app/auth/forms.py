@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 import sqlalchemy as sa
 from app import db
-from app.models import User
+from app.models import Account
 
 
 class LoginForm(FlaskForm):
@@ -23,11 +23,13 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField(("註冊"))
 
     def validate_username(self, username):
-        user = db.session.scalar(sa.select(User).where(User.username == username.data))
+        user = db.session.scalar(
+            sa.select(Account).where(Account.username == username.data)
+        )
         if user is not None:
             raise ValidationError("請使用別的使用者名稱")
 
     def validate_email(self, email):
-        user = db.session.scalar(sa.select(User).where(User.email == email.data))
+        user = db.session.scalar(sa.select(Account).where(Account.email == email.data))
         if user is not None:
             raise ValidationError("請使用別的電子信箱")

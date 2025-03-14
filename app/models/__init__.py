@@ -10,10 +10,9 @@ from .mixins import (
     BaseAmountMixin,
 )
 from .entities import (
-    User,
+    Account,
     Scenario,
     Expense,
-    Salary,
     Income,
     House,
     Child,
@@ -40,10 +39,9 @@ class Age(db.Model):
 
 # Define __all__ to specify the public interface
 __all__ = [
-    "User",
+    "Account",
     "Scenario",
     "Expense",
-    "Salary",
     "Income",
     "House",
     "Child",

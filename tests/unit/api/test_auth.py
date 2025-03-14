@@ -1,6 +1,6 @@
 import pytest
 from app import db
-from app.models import User
+from app.models import Account
 from flask import url_for
 from app.api.utils.validation import validate_token
 from app.api.utils.encryption import encrypt_data, decrypt_data
@@ -78,11 +78,10 @@ class TestAuthRegistrationApiCase:
         username = "alice"
         email = "alice@example.com"
         password = "bird"
-        about_me = "Alice likes cute bird."
 
-        u = User(username=username, email=email, about_me=about_me)
-        u.set_password(password)
-        db.session.add(u)
+        a = Account(username=username, email=email)
+        a.set_password(password)
+        db.session.add(a)
         db.session.commit()
 
         # Arrange: Test valid email input
@@ -158,12 +157,12 @@ class TestAuthRegistrationApiCase:
         session_token = mock_get_session_token(session_id)
         assert session_token is not None
         assert decrypt_data(session_token, mode="authentication") == {
-            "userid": User.query.filter_by(username=username).first().id
+            "accountid": Account.query.filter_by(username=username).first().id
         }
 
         # Assert: Confirm user creation in database
-        user = sa.select(User).where(User.username == username)
-        assert db.session.scalar(user) is not None
+        account = sa.select(Account).where(Account.username == username)
+        assert db.session.scalar(account) is not None
 
     def test_fake_token_imcomplete_registration(self, client):
         # Arrange: Set up test data
@@ -210,9 +209,9 @@ class TestAuthRegistrationApiCase:
 
         # Assert: Check response status and message
         assert response.status_code == 400
-        assert response.json["error"]["code"] == "UserNameNotFoundError"
-        assert response.json["error"]["message"] == "Username is required"
-        assert response.json["error"]["fields"]["username"] == "Username is required"
+        assert response.json["error"]["code"] == "AccountNameNotFoundError"
+        assert response.json["error"]["message"] == "Accountname is required"
+        assert response.json["error"]["fields"]["username"] == "Accountname is required"
 
     def test_no_password_imcomplete_registration(self, client):
         # Arrange: Set up test data
@@ -255,11 +254,13 @@ class TestAuthRegistrationApiCase:
         )
 
         # Assert: Check response status and message
-        # UserNameDuplicationError(errors={"username": "Username already taken."})
+        # AccountNameDuplicationError(errors={"username": "Accountname already taken."})
         assert response.status_code == 400
-        assert response.json["error"]["code"] == "UserNameDuplicationError"
-        assert response.json["error"]["message"] == "Username already taken"
-        assert response.json["error"]["fields"]["username"] == "Username already taken"
+        assert response.json["error"]["code"] == "AccountNameDuplicationError"
+        assert response.json["error"]["message"] == "Accountname already taken"
+        assert (
+            response.json["error"]["fields"]["username"] == "Accountname already taken"
+        )
 
 
 @pytest.mark.usefixtures("client")
@@ -271,7 +272,7 @@ class TestAuthLoginApiCase:
         email = "default@example.com"
         password = "secret"
 
-        user = db.session.scalar(sa.select(User).where(User.email == email))
+        account = db.session.scalar(sa.select(Account).where(Account.email == email))
 
         # Act: Send a POST request to Login
         response = client.post(
@@ -285,11 +286,11 @@ class TestAuthLoginApiCase:
         session_id = response.json["payload"]["session_id"]
         session_token = get_session_token(session_id)
 
-        retrieve_user_id = validate_token(session_token, mode="authentication")[
-            "userid"
+        retrieve_account_id = validate_token(session_token, mode="authentication")[
+            "accountid"
         ]
 
-        assert user.id == retrieve_user_id
+        assert account.id == retrieve_account_id
 
     def test_missing_info_incomplete_login(self, client):
         # Arrange: Create a user for test
@@ -334,9 +335,9 @@ class TestAuthLoginApiCase:
         # Assert: Check response status and message
         # Assert: Check response status and message
         assert response.status_code == 400
-        assert response.json["error"]["code"] == "UserNotFoundError"
-        assert response.json["error"]["message"] == "User is not founded"
-        assert response.json["error"]["fields"]["user"] == "User is not founded"
+        assert response.json["error"]["code"] == "AccountNotFoundError"
+        assert response.json["error"]["message"] == "Account is not founded"
+        assert response.json["error"]["fields"]["user"] == "Account is not founded"
 
     def test_incorrect_pw_incomplete_login(self, client, monkeypatch):
         # Arrange: Create a user for test

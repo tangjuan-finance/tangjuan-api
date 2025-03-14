@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.models import Account
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -15,7 +15,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.scalar(
-            sa.select(User).where(User.username == form.username.data)
+            sa.select(Account).where(Account.username == form.username.data)
         )
         if user is None or not user.check_password(form.password.data):
             flash("使用者名稱或密碼錯誤")
@@ -40,7 +40,7 @@ def register():
         return redirect(url_for("main.index"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = Account(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()

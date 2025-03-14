@@ -23,8 +23,8 @@ class Asset(
     min_yearly_growth_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    owner: so.Mapped["User"] = so.relationship(back_populates="assets")  # noqa: F821
+    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner: so.Mapped["Account"] = so.relationship(back_populates="assets")  # noqa: F821
 
     # Relationship to Scenario
     scenario: so.Mapped[list["ScenarioAsset"]] = so.relationship(  # noqa: F821

@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestHouseModelCase:
-    def test_create_house(self, default_user):
+    def test_create_house(self, default_account):
         # Arrange
         name = "Default House"
         amount = 20000000
@@ -16,7 +16,7 @@ class TestHouseModelCase:
 
         house = create_entity(
             House,
-            owner=default_user,
+            owner=default_account,
             name=name,
             amount=amount,
             down_payment=down_payment,

@@ -1,7 +1,7 @@
 import pytest
 from app import create_app, db
 from tests.conftest import TestConfig
-from app.models import User
+from app.models import Account
 
 
 @pytest.fixture(scope="module")
@@ -18,15 +18,14 @@ def client():
     # Initialize the database
     db.create_all()
 
-    # Create default user
+    # Create default account
     username = "default"
     email = "default@example.com"
     password = "secret"
-    about_me = "Default likes secrets."
 
-    u = User(username=username, email=email, about_me=about_me)
-    u.set_password(password)
-    db.session.add(u)
+    account = Account(username=username, email=email)
+    account.set_password(password)
+    db.session.add(account)
     db.session.commit()
 
     # Use the app's test client for the test

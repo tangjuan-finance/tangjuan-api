@@ -5,7 +5,7 @@ from .factories import create_entity
 
 
 class TestChildModelCase:
-    def test_create_child(self, default_user):
+    def test_create_child(self, default_account):
         # Arrange
         name = "Default Child"
         birth_age = 34
@@ -13,7 +13,7 @@ class TestChildModelCase:
 
         child = create_entity(
             Child,
-            parent_id=default_user,
+            parent_id=default_account,
             name=name,
             birth_age=birth_age,
             independent_age=independent_age,

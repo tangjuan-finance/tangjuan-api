@@ -2,7 +2,7 @@ from app.api import bp
 from app.api.errors.bad_request import (
     EmailNotFoundError,
     PasswordNotFoundError,
-    UserNotFoundError,
+    AccountNotFoundError,
     PasswordInvalidError,
     UserNameNotFoundError,
 )
@@ -10,7 +10,7 @@ from app.api.errors.unauthorized import InvalidRegistrationTokenError
 from cryptography.fernet import InvalidToken
 from flask import request, jsonify, url_for
 from app import db
-from app.models import User
+from app.models import Account
 import sqlalchemy as sa
 
 from app.api.utils.encryption import encrypt_data
@@ -45,11 +45,11 @@ def login():
         # Raise a BadRequest with a custom error message
         raise PasswordNotFoundError(errors={"password": "Password is required"})
 
-    user = db.session.scalar(sa.select(User).where(User.email == email))
-    if user is None:
-        raise UserNotFoundError(errors={"user": "User is not founded"})
+    account = db.session.scalar(sa.select(Account).where(Account.email == email))
+    if account is None:
+        raise AccountNotFoundError(errors={"account": "Account is not founded"})
 
-    if not user.check_password(password):
+    if not account.check_password(password):
         raise PasswordInvalidError(errors={"password": "Password is incorrect"})
         #     flash("使用者名稱或密碼錯誤")
         #     return redirect(url_for("auth.login"))
@@ -57,7 +57,7 @@ def login():
         # next_page = request.args.get("next")
 
     # Generate session token and save to Redis
-    session_token = encrypt_data({"userid": user.id}, mode="authentication")
+    session_token = encrypt_data({"accountid": account.id}, mode="authentication")
     session_id = save_session_token(session_token)
 
     # Return session ID to frontend
@@ -103,7 +103,7 @@ def create_registration():
 
 @bp.route("/register/<token>", methods=["POST"])
 def complete_registration(token):
-    """Step 2: Register the user with username and password."""
+    """Step 2: Register the account with username and password."""
     # Validate the token
     try:
         data = validate_token(token, mode="registration")
@@ -124,17 +124,19 @@ def complete_registration(token):
     validate_username(username)
 
     # Create user
-    new_user = User(email=data["email"], username=username)
-    new_user.set_password(password)
+    new_account = Account(email=data["email"], username=username)
+    new_account.set_password(password)
 
     # Save user to database
-    db.session.add(new_user)
+    db.session.add(new_account)
     db.session.commit()
-    verified_user = db.session.scalar(
-        sa.select(User).where(User.username == new_user.username)
+    verified_account = db.session.scalar(
+        sa.select(Account).where(Account.username == new_account.username)
     )
     # Generate session token and save to Redis
-    session_token = encrypt_data({"userid": verified_user.id}, mode="authentication")
+    session_token = encrypt_data(
+        {"accountid": verified_account.id}, mode="authentication"
+    )
     session_id = save_session_token(session_token)
 
     # Return session ID to frontend

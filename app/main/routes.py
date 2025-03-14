@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 import sqlalchemy as sa
 from app import db
 from app.main.forms import EditProfileForm, IndexAnonyServiceForm
-from app.models import User
+from app.models import Account
 from app.main import bp
 
 
@@ -96,7 +96,7 @@ def dashboard():
 @bp.route("/user/<username>")
 @login_required
 def user(username):
-    user = db.first_or_404(sa.select(User).where(User.username == username))
+    user = db.first_or_404(sa.select(Account).where(Account.username == username))
     return render_template("user.html", user=user)
 
 

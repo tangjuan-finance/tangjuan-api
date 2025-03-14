@@ -13,8 +13,8 @@ class Liability(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     end_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), index=True)
-    owner: so.Mapped["User"] = so.relationship(back_populates="liabilities")  # noqa: F821
+    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner: so.Mapped["Account"] = so.relationship(back_populates="liabilities")  # noqa: F821
 
     # Relationship to Scenario
     scenario: so.Mapped[list["ScenarioLiability"]] = so.relationship(  # noqa: F821

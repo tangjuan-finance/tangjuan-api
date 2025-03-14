@@ -1,7 +1,6 @@
-from .users import User
+from .accounts import Account
 from .scenarios import Scenario
 from .expenses import Expense
-from .salaries import Salary
 from .incomes import Income
 from .houses import House
 from .children import Child
@@ -10,10 +9,9 @@ from .assets import Asset
 
 # Define __all__ to specify the public interface
 __all__ = [
-    "User",
+    "Account",
     "Scenario",
     "Expense",
-    "Salary",
     "Income",
     "House",
     "Child",
