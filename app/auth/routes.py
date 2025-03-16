@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
-from app.models import Account
+from app.infrastructure.models import Account
 
 
 @bp.route("/login", methods=["GET", "POST"])

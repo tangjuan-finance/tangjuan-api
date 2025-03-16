@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import create_app, db
-from app.models import Account, ScenarioExpense, Scenario, Expense
+from app.infrastructure.models import Account, ScenarioExpense, Scenario, Expense
 
 app = create_app()
 

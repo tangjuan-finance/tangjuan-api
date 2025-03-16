@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField, FloatField, Integer
 from wtforms.validators import ValidationError, DataRequired, Length, NumberRange
 import sqlalchemy as sa
 from app import db
-from app.models import Account
+from app.infrastructure.models import Account
 
 
 class EditProfileForm(FlaskForm):

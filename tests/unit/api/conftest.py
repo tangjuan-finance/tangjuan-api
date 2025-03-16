@@ -1,7 +1,7 @@
 import pytest
 from app import create_app, db
 from tests.conftest import TestConfig
-from app.models import Account
+from app.infrastructure.models import Account
 
 
 @pytest.fixture(scope="module")

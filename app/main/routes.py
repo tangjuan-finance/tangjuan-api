@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 import sqlalchemy as sa
 from app import db
 from app.main.forms import EditProfileForm, IndexAnonyServiceForm
-from app.models import Account
+from app.infrastructure.models import Account
 from app.main import bp
 
 

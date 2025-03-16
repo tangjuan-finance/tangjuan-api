@@ -10,7 +10,7 @@ from app.api.errors.unauthorized import InvalidRegistrationTokenError
 from cryptography.fernet import InvalidToken
 from flask import request, jsonify, url_for
 from app import db
-from app.models import Account
+from app.infrastructure.models import Account
 import sqlalchemy as sa
 
 from app.api.utils.encryption import encrypt_data

@@ -1,6 +1,6 @@
 # import pytest
 # from app import db
-# from app.models import Account
+# from app.infrastructure.models import Account
 # from flask import url_for
 # from app.api.utils.validation import validate_token
 # from app.api.utils.encryption import encrypt_data, decrypt_data

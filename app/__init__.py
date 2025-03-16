@@ -79,4 +79,4 @@ def create_app(config_class=Config):
     return app
 
 
-from app import models  # noqa: E402, F401
+from app.infrastructure import models  # noqa: E402, F401

@@ -3,7 +3,7 @@ from app.api.errors.bad_request import (
     EmailDuplicationError,
     EmailFormatError,
 )
-from app.models import Account
+from app.infrastructure.models import Account
 from app import db
 import sqlalchemy as sa
 from cryptography.fernet import InvalidToken
