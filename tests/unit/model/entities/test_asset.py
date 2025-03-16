@@ -20,4 +20,6 @@ class TestAssetModelCase:
             asset_from_db.min_yearly_return_rate == default_asset.min_yearly_return_rate
         )
         assert asset_from_db.start_age == default_asset.start_age
+        assert asset_from_db.created_at == default_asset.created_at
+        assert asset_from_db.updated_at == default_asset.updated_at
         assert asset_from_db.owner_id == default_asset.owner_id

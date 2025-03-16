@@ -37,7 +37,7 @@ class BaseAgeIntervalOptionalMixin:
 
 
 class BaseDescriptionMixin:
-    name: so.Mapped[str] = so.mapped_column(sa.String(128))
+    name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
 
 
@@ -47,7 +47,16 @@ class BaseYearlyGrowthRateMixin:
 
 
 class BaseAmountMixin:
-    amount: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+    amount: so.Mapped[int] = so.mapped_column(sa.BigInteger, index=True)
+
+
+class BaseYearlyGrowthRateOptionalMixin:
+    max_yearly_growth_rate: so.Mapped[Optional[Decimal]] = so.mapped_column(
+        sa.DECIMAL(5, 2)
+    )
+    min_yearly_growth_rate: so.Mapped[Optional[Decimal]] = so.mapped_column(
+        sa.DECIMAL(5, 2)
+    )
 
 
 class BaseMemoMixin:

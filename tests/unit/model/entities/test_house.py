@@ -17,4 +17,6 @@ class TestHouseModelCase:
         assert house_from_db.interest_rate == default_house.interest_rate
         assert house_from_db.loan_term == default_house.loan_term
         assert house_from_db.purchase_age == default_house.purchase_age
+        assert house_from_db.created_at == default_house.created_at
+        assert house_from_db.updated_at == default_house.updated_at
         assert house_from_db.owner_id == default_house.owner_id

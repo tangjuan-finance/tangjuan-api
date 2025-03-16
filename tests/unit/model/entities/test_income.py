@@ -22,4 +22,6 @@ class TestIncomeModelCase:
             == default_income.min_yearly_growth_rate
         )
         assert income_from_db.start_age == default_income.start_age
+        assert income_from_db.created_at == default_income.created_at
+        assert income_from_db.updated_at == default_income.updated_at
         assert income_from_db.owner_id == default_income.owner_id

@@ -4,7 +4,7 @@ from app import db
 from app.models import (
     BaseAgeIntervalOptionalMixin,
     TimestampMixin,
-    BaseYearlyGrowthRateMixin,
+    BaseYearlyGrowthRateOptionalMixin,
     BaseMemoMixin,
 )
 
@@ -12,7 +12,7 @@ from app.models import (
 class ScenarioExpense(
     BaseAgeIntervalOptionalMixin,
     TimestampMixin,
-    BaseYearlyGrowthRateMixin,
+    BaseYearlyGrowthRateOptionalMixin,
     BaseMemoMixin,
     db.Model,
 ):

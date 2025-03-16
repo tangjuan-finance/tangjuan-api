@@ -2,13 +2,14 @@ from app import db
 from app.models import Scenario, Liability, ScenarioLiability
 import sqlalchemy as sa
 from ..factories import create_entity
+from decimal import Decimal
 
 
 class TestScenarioLiabilityModelCase:
     def test_default_scenario_liability(self, default_liability, default_scenario):
         # Arrange
 
-        allocation_percentage = 0.6
+        allocation_percentage = Decimal("0.60")
 
         association = create_entity(
             ScenarioLiability,
@@ -30,3 +31,5 @@ class TestScenarioLiabilityModelCase:
         assert association.scenario == scenario_from_db
         assert association.liability == liability_from_db
         assert association.allocation_percentage == allocation_percentage
+        assert association.created_at == association.created_at
+        assert association.updated_at == association.updated_at

@@ -17,10 +17,10 @@ class Scenario(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     expense: so.Mapped[list["ScenarioExpense"]] = so.relationship(  # noqa: F821
         back_populates="scenario"
     )
-    salary: so.Mapped[list["ScenarioSalary"]] = so.relationship(  # noqa: F821
+    income: so.Mapped[list["ScenarioIncome"]] = so.relationship(  # noqa: F821
         back_populates="scenario"
     )
-    investment: so.Mapped[list["ScenarioInvestment"]] = so.relationship(  # noqa: F821
+    asset: so.Mapped[list["ScenarioAsset"]] = so.relationship(  # noqa: F821
         back_populates="scenario"
     )
     house: so.Mapped[list["ScenarioHouse"]] = so.relationship(back_populates="scenario")  # noqa: F821

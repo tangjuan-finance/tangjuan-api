@@ -2,13 +2,14 @@ from app import db
 from app.models import Scenario, Asset, ScenarioAsset
 import sqlalchemy as sa
 from ..factories import create_entity
+from decimal import Decimal
 
 
 class TestScenarioAssetModelCase:
     def test_default_scenario_asset(self, default_asset, default_scenario):
         # Arrange
 
-        allocation_percentage = 0.6
+        allocation_percentage = Decimal("0.60")
 
         association = create_entity(
             ScenarioAsset,
@@ -30,3 +31,5 @@ class TestScenarioAssetModelCase:
         assert association.scenario == scenario_from_db
         assert association.asset == asset_from_db
         assert association.allocation_percentage == allocation_percentage
+        assert association.created_at == association.created_at
+        assert association.updated_at == association.updated_at

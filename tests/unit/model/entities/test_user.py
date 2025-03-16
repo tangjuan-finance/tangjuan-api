@@ -21,11 +21,8 @@ class TestAccountModelCase:
         username = "alice"
         email = "alice@example.com"
         password = "bird"
-        about_me = "Alice likes cute bird."
 
-        account = create_account(
-            username=username, email=email, password=password, about_me=about_me
-        )
+        account = create_account(username=username, email=email, password=password)
 
         # Act
         account_from_db = db.session.scalar(

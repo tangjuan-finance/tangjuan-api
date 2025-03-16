@@ -13,9 +13,8 @@ def create_account(
     username="alice",
     email="alice@example.com",
     password="bird",
-    about_me="Alice likes cute bird.",
 ):
-    u = Account(username=username, email=email, about_me=about_me)
+    u = Account(username=username, email=email)
     u.set_password(password)
     db.session.add(u)
     db.session.commit()

@@ -27,7 +27,7 @@ class Account(PrimaryIdMixin, TimestampMixin, db.Model):
         back_populates="owner"
     )
     houses: so.WriteOnlyMapped["House"] = so.relationship(back_populates="owner")  # noqa: F821
-    children: so.WriteOnlyMapped["Child"] = so.relationship(back_populates="owner")  # noqa: F821
+    children: so.WriteOnlyMapped["Child"] = so.relationship(back_populates="parent")  # noqa: F821
     risks: so.WriteOnlyMapped["Risk"] = so.relationship(back_populates="owner")  # noqa: F821
 
     def __repr__(self):

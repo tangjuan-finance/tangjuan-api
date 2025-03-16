@@ -25,3 +25,5 @@ class TestScenarioHouseModelCase:
         assert association.right_id == house_from_db.id
         assert association.scenario == scenario_from_db
         assert association.house == house_from_db
+        assert association.created_at == association.created_at
+        assert association.updated_at == association.updated_at

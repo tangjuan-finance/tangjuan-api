@@ -25,3 +25,5 @@ class TestScenarioRiskModelCase:
         assert association.right_id == risk_from_db.id
         assert association.scenario == scenario_from_db
         assert association.risk == risk_from_db
+        assert association.created_at == association.created_at
+        assert association.updated_at == association.updated_at

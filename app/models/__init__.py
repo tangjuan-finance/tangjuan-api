@@ -1,6 +1,3 @@
-import sqlalchemy as sa
-import sqlalchemy.orm as so
-from app import db
 from .mixins import (
     PrimaryIdMixin,
     TimestampMixin,
@@ -10,6 +7,7 @@ from .mixins import (
     BaseAmountMixin,
     BaseMemoMixin,
     BaseAgeIntervalOptionalMixin,
+    BaseYearlyGrowthRateOptionalMixin,
 )
 from .entities import (
     Account,
@@ -31,15 +29,6 @@ from .associations import (
     ScenarioLiability,
     ScenarioRisk,
 )
-
-
-# Validation Tables
-class Age(db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    year: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-
-    def __repr__(self):
-        return "<Age {} years>".format(self.year)
 
 
 # Define __all__ to specify the public interface
@@ -68,4 +57,5 @@ __all__ = [
     "BaseAmountMixin",
     "BaseMemoMixin",
     "BaseAgeIntervalOptionalMixin",
+    "BaseYearlyGrowthRateOptionalMixin",
 ]

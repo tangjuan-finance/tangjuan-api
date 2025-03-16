@@ -17,4 +17,6 @@ class TestScenarioModelCase:
             == default_scenario.asset_allocation_percentage
         )
         assert scenario_from_db.retire_age == default_scenario.retire_age
+        assert scenario_from_db.created_at == default_scenario.created_at
+        assert scenario_from_db.updated_at == default_scenario.updated_at
         assert scenario_from_db.owner_id == default_scenario.owner_id

@@ -59,19 +59,17 @@ def default_scenario(default_account):
 @pytest.fixture(scope="class")
 def default_risk(default_account):
     name = "Default Risk"
-    principal_amount = 50000
-    interest_rate = 0.5
+    max_loss = 100000
+    min_loss = 50000
     start_age = 20
-    end_age = 50
 
     risk = create_entity(
         Risk,
         owner=default_account,
         name=name,
-        principal_amount=principal_amount,
-        interest_rate=interest_rate,
         start_age=start_age,
-        end_age=end_age,
+        max_loss=max_loss,
+        min_loss=min_loss,
     )
     yield risk
 
@@ -166,7 +164,7 @@ def default_child(default_account):
 
     child = create_entity(
         Child,
-        parent_id=default_account,
+        parent=default_account,
         name=name,
         birth_age=birth_age,
         independent_age=independent_age,

@@ -25,3 +25,5 @@ class TestScenarioExpenseModelCase:
         assert association.right_id == expense_from_db.id
         assert association.scenario == scenario_from_db
         assert association.expense == expense_from_db
+        assert association.created_at == association.created_at
+        assert association.updated_at == association.updated_at

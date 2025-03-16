@@ -14,8 +14,10 @@ class TestRiskModelCase:
 
         # Assert
         assert risk_from_db.name == default_risk.name
-        assert risk_from_db.principal_amount == default_risk.principal_amount
-        assert risk_from_db.interest_rate == default_risk.interest_rate
+        assert risk_from_db.max_loss == default_risk.max_loss
+        assert risk_from_db.min_loss == default_risk.min_loss
         assert risk_from_db.start_age == default_risk.start_age
         assert risk_from_db.end_age == default_risk.end_age
+        assert risk_from_db.created_at == default_risk.created_at
+        assert risk_from_db.updated_at == default_risk.updated_at
         assert risk_from_db.owner_id == default_risk.owner_id
