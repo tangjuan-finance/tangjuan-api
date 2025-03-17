@@ -28,7 +28,7 @@ def init_db():
 
 
 @pytest.fixture(scope="class")
-def default_account():
+def default_account_domain():
     username = "default"
     email = "default@example.com"
     password = "default$ercet"
@@ -41,14 +41,14 @@ def default_account():
 
 
 @pytest.fixture(scope="class")
-def default_scenario(default_account):
+def default_scenario(default_account_domain):
     name = "Default Scenario"
     asset_allocation_percentage = 0.7
     retire_age = 20
 
     scenario = create_entity(
         Scenario,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         asset_allocation_percentage=asset_allocation_percentage,
         retire_age=retire_age,
@@ -57,7 +57,7 @@ def default_scenario(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_risk(default_account):
+def default_risk(default_account_domain):
     name = "Default Risk"
     max_loss = 100000
     min_loss = 50000
@@ -65,7 +65,7 @@ def default_risk(default_account):
 
     risk = create_entity(
         Risk,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         start_age=start_age,
         max_loss=max_loss,
@@ -75,7 +75,7 @@ def default_risk(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_liability(default_account):
+def default_liability(default_account_domain):
     name = "Default Liability"
     principal_amount = 50000
     interest_rate = 0.5
@@ -84,7 +84,7 @@ def default_liability(default_account):
 
     liability = create_entity(
         Liability,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         principal_amount=principal_amount,
         interest_rate=interest_rate,
@@ -95,7 +95,7 @@ def default_liability(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_income(default_account):
+def default_income(default_account_domain):
     name = "Default Income"
     amount = 50000
     max_yearly_growth_rate = 0.5
@@ -104,7 +104,7 @@ def default_income(default_account):
 
     income = create_entity(
         Income,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         amount=amount,
         max_yearly_growth_rate=max_yearly_growth_rate,
@@ -115,7 +115,7 @@ def default_income(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_house(default_account):
+def default_house(default_account_domain):
     name = "Default House"
     amount = 20000000
     down_payment = 3000000
@@ -125,7 +125,7 @@ def default_house(default_account):
 
     house = create_entity(
         House,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         amount=amount,
         down_payment=down_payment,
@@ -137,7 +137,7 @@ def default_house(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_expense(default_account):
+def default_expense(default_account_domain):
     name = "Default Expense"
     amount = 50000
     max_yearly_growth_rate = 0.5
@@ -146,7 +146,7 @@ def default_expense(default_account):
 
     expense = create_entity(
         Expense,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         amount=amount,
         max_yearly_growth_rate=max_yearly_growth_rate,
@@ -157,14 +157,14 @@ def default_expense(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_child(default_account):
+def default_child(default_account_domain):
     name = "Default Child"
     birth_age = 34
     independent_age = 56
 
     child = create_entity(
         Child,
-        parent=default_account,
+        parent=default_account_domain,
         name=name,
         birth_age=birth_age,
         independent_age=independent_age,
@@ -173,7 +173,7 @@ def default_child(default_account):
 
 
 @pytest.fixture(scope="class")
-def default_asset(default_account):
+def default_asset(default_account_domain):
     name = "Default Asset"
     amount = 50000
     max_yearly_return_rate = 0.5
@@ -182,7 +182,7 @@ def default_asset(default_account):
 
     asset = create_entity(
         Asset,
-        owner=default_account,
+        owner=default_account_domain,
         name=name,
         amount=amount,
         max_yearly_return_rate=max_yearly_return_rate,

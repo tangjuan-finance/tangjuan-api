@@ -5,16 +5,18 @@ from ..factories import create_account
 
 
 class TestAccountModelCase:
-    def test_default_account(self, default_account):
-        assert isinstance(default_account, Account)
+    def test_default_account_domain(self, default_account_domain):
+        assert isinstance(default_account_domain, Account)
 
         # Act
         default_user_from_db = db.session.scalar(
-            sa.select(Account).where(Account.username == default_account.username)
+            sa.select(Account).where(
+                Account.username == default_account_domain.username
+            )
         )
 
         # Assert
-        assert default_account == default_user_from_db
+        assert default_account_domain == default_user_from_db
 
     def test_create_account(self):
         # Arrange
