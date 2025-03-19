@@ -109,7 +109,7 @@ class TestScenarioDomainCase:
             ),
         ],
     )
-    def test_add_expense_to_scenario_domain(
+    def test_add_resource_to_scenario_domain(
         default_scenario_domain,
         resource_factory,
         resource_attr,
