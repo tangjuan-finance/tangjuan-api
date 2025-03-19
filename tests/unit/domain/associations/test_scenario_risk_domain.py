@@ -1,11 +1,20 @@
 # from app.domain.entities import RiskDomain
+from app.domain.association import ScenarioRiskDomain
+from tests.unit.factories import RiskDomainFactory
 
 
 class TestRiskDomainCase:
-    def test_create_risk_domain(default_risk_domain, default_account_domain):
+    def test_create_risk_domain():
+        # Arrange
+        default_max_loss = 100000
+        risk = RiskDomainFactory(name="risk", max_loss=default_max_loss)
+        max_loss = 500000
+        # Act
+        scenario_risk = ScenarioRiskDomain(
+            risk=risk,
+            max_loss=max_loss,
+        )
         # Assert
-        assert default_risk_domain.name == "Default Risk Domain"
-        assert default_risk_domain.max_loss == 100000
-        assert default_risk_domain.min_loss == 50000
-        assert default_risk_domain.start_age == 20
-        assert default_risk_domain.owner_id == default_account_domain.id
+        assert scenario_risk.risk.name == "risk"
+        assert scenario_risk.max_loss != default_max_loss
+        assert scenario_risk.max_loss == max_loss

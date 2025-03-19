@@ -1,5 +1,6 @@
 # from app.domain.entities import IncomeDomain
 from decimal import Decimal
+from tests.unit.factories import IncomeDomainFactory
 
 
 class TestIncomeDomainCase:
@@ -11,3 +12,27 @@ class TestIncomeDomainCase:
         assert default_income_domain.min_yearly_growth_rate == Decimal("-0.5")
         assert default_income_domain.start_age == 20
         assert default_income_domain.owner_id == default_account_domain.id
+
+    def test_factory_income_domain():
+        # Arrange
+        name = "Default Income Domain"
+        amount = 50000
+        max_yearly_growth_rate = Decimal("0.5")
+        min_yearly_growth_rate = Decimal("-0.5")
+        start_age = 20
+
+        # Act
+        income = IncomeDomainFactory(
+            name=name,
+            amount=amount,
+            max_yearly_growth_rate=max_yearly_growth_rate,
+            min_yearly_growth_rate=min_yearly_growth_rate,
+            start_age=start_age,
+        )
+
+        # Assert
+        assert income.name == name
+        assert income.amount == amount
+        assert income.max_yearly_growth_rate == max_yearly_growth_rate
+        assert income.min_yearly_growth_rate == min_yearly_growth_rate
+        assert income.start_age == start_age

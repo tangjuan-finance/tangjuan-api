@@ -1,12 +1,23 @@
 # from app.domain.entities import LiabilityDomain
+from app.domain.association import ScenarioLiabilityDomain
+from tests.unit.factories import LiabilityDomainFactory
+from decimal import Decimal
 
 
 class TestLiabilityDomainCase:
     def test_create_liability_domain(default_liability_domain, default_account_domain):
+        # Arrange
+        default_interest_rate = Decimal("0.5")
+        liability = LiabilityDomainFactory(
+            name="liability", interest_rate=default_interest_rate
+        )
+        interest_rate = Decimal("0.7")
+        # Act
+        scenario_liability = ScenarioLiabilityDomain(
+            liability=liability,
+            interest_rate=interest_rate,
+        )
         # Assert
-        assert default_liability_domain.name == "Default Liability Domain"
-        assert default_liability_domain.principal_amount == 50000
-        assert default_liability_domain.interest_rate == 0.5
-        assert default_liability_domain.start_age == 20
-        assert default_liability_domain.end_age == 50
-        assert default_liability_domain.owner_id == default_account_domain.id
+        assert scenario_liability.liability.name == "liability"
+        assert scenario_liability.interest_rate != default_interest_rate
+        assert scenario_liability.interest_rate == interest_rate

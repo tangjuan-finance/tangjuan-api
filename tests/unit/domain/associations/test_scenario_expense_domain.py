@@ -1,24 +1,22 @@
-# from app.domain.associations import ScenarioExpenseDomain
-# from tests.unit.factories import ExpenseDomainFactory
+from app.domain.association import ScenarioExpenseDomain
+from tests.unit.factories import ExpenseDomainFactory
+from decimal import Decimal
 
 
-# class TestScenarioExpenseDomainCase:
-#     def test_create_scenario_expense_domain(
-#         default_expense_domain, default_account_domain
-#     ):
-#         # Assign
-#         expense1 = ExpenseDomainFactory(
-#             name="expense1",
-#         )
-#         expense2 = ExpenseDomainFactory(
-#             name="expense2",
-#         )
-#         # Act
-#         scenario_expense = ScenarioExpenseDomain()
-#         # Assert
-#         assert default_expense_domain.name == "Default Expense Domain"
-#         assert default_expense_domain.amount == 50000
-#         assert default_expense_domain.max_yearly_growth_rate == 0.5
-#         assert default_expense_domain.min_yearly_growth_rate == -0.5
-#         assert default_expense_domain.start_age == 20
-#         assert default_expense_domain.owner_id == default_account_domain.id
+class TestScenarioExpenseDomainCase:
+    def test_create_scenario_expense_domain():
+        # Arrange
+        default_max_yearly_growth_rate = Decimal("0.2")
+        expense = ExpenseDomainFactory(
+            name="expense", max_yearly_growth_rate=default_max_yearly_growth_rate
+        )
+        max_yearly_growth_rate = Decimal("0.7")
+        # Act
+        scenario_expense = ScenarioExpenseDomain(
+            expense=expense,
+            max_yearly_growth_rate=max_yearly_growth_rate,
+        )
+        # Assert
+        assert scenario_expense.expense.name == "expense"
+        assert scenario_expense.max_yearly_growth_rate != default_max_yearly_growth_rate
+        assert scenario_expense.max_yearly_growth_rate == max_yearly_growth_rate
