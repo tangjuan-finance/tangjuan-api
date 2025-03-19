@@ -10,11 +10,12 @@ from app.domain.entities import (
     AssetDomain,
     LiabilityDomain,
 )
+from decimal import Decimal
 
 
 @pytest.fixture(scope="class")
 def default_account_domain():
-    username = "Default Account Domain"
+    username = "default"
     email = "default@example.com"
     password = "default$ercet"
 
@@ -42,8 +43,8 @@ def default_child_domain(default_account_domain):
 def default_asset_domain(default_account_domain):
     name = "Default Asset Domain"
     amount = 50000
-    max_yearly_return_rate = 0.5
-    min_yearly_return_rate = -0.5
+    max_yearly_return_rate = Decimal("0.5")
+    min_yearly_return_rate = Decimal("-0.5")
     start_age = 20
 
     asset = AssetDomain(
@@ -61,8 +62,8 @@ def default_asset_domain(default_account_domain):
 def default_expense_domain(default_account_domain):
     name = "Default Expense Domain"
     amount = 50000
-    max_yearly_growth_rate = 0.5
-    min_yearly_growth_rate = -0.5
+    max_yearly_growth_rate = Decimal("0.5")
+    min_yearly_growth_rate = Decimal("-0.5")
     start_age = 20
 
     expense = ExpenseDomain(
@@ -81,7 +82,7 @@ def default_house_domain(default_account_domain):
     name = "Default House Domain"
     amount = 20000000
     down_payment = 3000000
-    interest_rate = 3.0
+    interest_rate = Decimal("3")
     loan_term = 40
     purchase_age = 20
 
@@ -101,8 +102,8 @@ def default_house_domain(default_account_domain):
 def default_income_domain(default_account_domain):
     name = "Default Income Domain"
     amount = 50000
-    max_yearly_growth_rate = 0.5
-    min_yearly_growth_rate = -0.5
+    max_yearly_growth_rate = Decimal("0.5")
+    min_yearly_growth_rate = Decimal("-0.5")
     start_age = 20
 
     income = IncomeDomain(
@@ -120,7 +121,7 @@ def default_income_domain(default_account_domain):
 def default_liability_domain(default_account_domain):
     name = "Default Liability Domain"
     principal_amount = 50000
-    interest_rate = 0.5
+    interest_rate = Decimal("0.5")
     start_age = 20
     end_age = 50
 
@@ -155,7 +156,7 @@ def default_risk_domain(default_account_domain):
 @pytest.fixture(scope="class")
 def default_scenario_domain(default_account_domain):
     name = "Default Scenario Domain"
-    asset_allocation_percentage = 0.7
+    asset_allocation_percentage = Decimal("0.7")
     retire_age = 20
 
     scenario = ScenarioDomain(

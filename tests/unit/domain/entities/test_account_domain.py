@@ -1,4 +1,4 @@
-class TestHouseDomainCase:
+class TestAccountDomainCase:
     def test_default_account_domain(default_account_domain):
         # Assert
         assert default_account_domain.username == "default"
