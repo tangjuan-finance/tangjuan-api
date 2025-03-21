@@ -1,5 +1,5 @@
 import pytest
-from app.domain.entity import (
+from app.domain.entities import (
     AccountDomain,
     ScenarioDomain,
     ExpenseDomain,

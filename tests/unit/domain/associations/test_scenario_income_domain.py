@@ -1,5 +1,5 @@
 # from app.domain.entities import IncomeDomain
-from app.domain.association import ScenarioIncomeDomain
+from app.domain.associations import ScenarioIncomeDomain
 from tests.unit.factories import IncomeDomainFactory
 from decimal import Decimal
 

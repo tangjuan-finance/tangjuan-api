@@ -1,5 +1,5 @@
 # from app.domain.entities import LiabilityDomain
-from app.domain.association import ScenarioLiabilityDomain
+from app.domain.associations import ScenarioLiabilityDomain
 from tests.unit.factories import LiabilityDomainFactory
 from decimal import Decimal
 

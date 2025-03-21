@@ -1,4 +1,4 @@
-from app.domain.association import ScenarioAssetDomain
+from app.domain.associations import ScenarioAssetDomain
 from tests.unit.factories import AssetDomainFactory
 from decimal import Decimal
 

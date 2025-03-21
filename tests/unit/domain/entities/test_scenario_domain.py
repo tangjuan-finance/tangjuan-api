@@ -11,7 +11,7 @@ from tests.unit.factories import (
     AssetDomainFactory,
     LiabilityDomainFactory,
 )
-from app.domain.entity import (
+from app.domain.entities import (
     ExpenseDomain,
     IncomeDomain,
     HouseDomain,

@@ -1,4 +1,4 @@
-from app.domain.association import ScenarioChildDomain
+from app.domain.associations import ScenarioChildDomain
 from tests.unit.factories import ChildDomainFactory
 
 

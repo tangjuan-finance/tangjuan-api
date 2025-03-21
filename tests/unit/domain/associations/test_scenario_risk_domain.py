@@ -1,5 +1,5 @@
 # from app.domain.entities import RiskDomain
-from app.domain.association import ScenarioRiskDomain
+from app.domain.associations import ScenarioRiskDomain
 from tests.unit.factories import RiskDomainFactory
 
 

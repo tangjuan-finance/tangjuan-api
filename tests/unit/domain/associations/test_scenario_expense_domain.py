@@ -1,4 +1,4 @@
-from app.domain.association import ScenarioExpenseDomain
+from app.domain.associations import ScenarioExpenseDomain
 from tests.unit.factories import ExpenseDomainFactory
 from decimal import Decimal
 
