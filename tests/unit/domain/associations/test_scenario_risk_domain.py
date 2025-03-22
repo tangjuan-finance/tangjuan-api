@@ -4,7 +4,7 @@ from tests.unit.factories import RiskDomainFactory
 
 
 class TestRiskDomainCase:
-    def test_create_risk_domain():
+    def test_create_risk_domain(self):
         # Arrange
         default_max_loss = 100000
         risk = RiskDomainFactory(name="risk", max_loss=default_max_loss)

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 
 # Every Entity should have id, created_at, and updated_at
-@dataclass
+@dataclass(kw_only=True)
 class EntityDomain(ABC):
     id: str
     created_at: datetime

@@ -5,7 +5,7 @@ from decimal import Decimal
 
 
 class TestIncomeDomainCase:
-    def test_create_income_domain():
+    def test_create_income_domain(self):
         # Arrange
         default_max_yearly_growth_rate = Decimal("0.2")
         income = IncomeDomainFactory(

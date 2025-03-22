@@ -4,7 +4,7 @@ from decimal import Decimal
 
 
 class TestAssetDomainCase:
-    def test_create_asset_domain(default_asset_domain, default_account_domain):
+    def test_create_asset_domain(self, default_asset_domain, default_account_domain):
         # Arrange
         default_max_yearly_return_rate = Decimal("0.2")
         asset = AssetDomainFactory(

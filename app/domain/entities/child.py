@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional, Callable
 from .base import ResourceDomain
+from .account import AccountDomain
 
 
 @dataclass(kw_only=True)
 class ChildDomain(ResourceDomain):
-    parent_id: str
-    amount: int
+    parent: AccountDomain
     birth_age: int
     independent_age: Optional[int] = None
 

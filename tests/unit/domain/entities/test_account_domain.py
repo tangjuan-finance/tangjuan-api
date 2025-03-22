@@ -1,28 +1,29 @@
 from tests.unit.factories import AccountDomainFactory
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class TestAccountDomainCase:
-    def test_default_account_domain(default_account_domain):
+    def test_default_account_domain(self, default_account_domain):
         # Assert
         assert default_account_domain.username == "default"
         assert default_account_domain.email == "default@example.com"
-        assert default_account_domain.check_password("default$ercet")
+        assert check_password_hash(
+            default_account_domain.password_hash, "default$ercet"
+        )
 
-    def test_factory_account_domain():
+    def test_factory_account_domain(self):
         # Arrange
         username = "default"
         email = "default@example.com"
         password = "default$ercet"
+        password_hash = generate_password_hash(password)
 
         # Act
         account = AccountDomainFactory(
-            username="default",
-            email="default@example.com",
+            username=username, email=email, password_hash=password_hash
         )
-
-        account.set_password(password)
 
         # Assert
         assert account.username == username
         assert account.email == email
-        assert account.check_password(password)
+        assert account.password_hash == password_hash

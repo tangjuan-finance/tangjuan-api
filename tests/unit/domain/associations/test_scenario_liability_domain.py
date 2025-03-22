@@ -5,7 +5,9 @@ from decimal import Decimal
 
 
 class TestLiabilityDomainCase:
-    def test_create_liability_domain(default_liability_domain, default_account_domain):
+    def test_create_liability_domain(
+        self, default_liability_domain, default_account_domain
+    ):
         # Arrange
         default_interest_rate = Decimal("0.5")
         liability = LiabilityDomainFactory(

@@ -10,9 +10,32 @@ from app.domain.entities import (
     RiskDomain,
     ScenarioDomain,
 )
+from nanoid import generate
+from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash
+import faker
+
+faker = faker.Faker()
 
 
-class AccountDomainFactory(factory.Factory):
+class BaseDomainFactory(factory.Factory):
+    @factory.lazy_attribute
+    def id(self):
+        id = generate(size=13)
+        return id
+
+    @factory.lazy_attribute
+    def created_at(self):
+        created_at = datetime.now(timezone.utc)
+        return created_at
+
+    @factory.lazy_attribute
+    def updated_at(self):
+        updated_at = datetime.now(timezone.utc)
+        return updated_at
+
+
+class AccountDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for AccountDomain"""
 
     class Meta:
@@ -21,14 +44,18 @@ class AccountDomainFactory(factory.Factory):
     username = factory.Faker("user_name")
     email = factory.Faker("email")
 
-    @factory.post_generation
-    def set_password(obj, create, extracted, **kwargs):
-        """Set default password"""
-        password = extracted if extracted else factory.Faker("password", length=12)
-        obj.set_password(password)
+    @factory.lazy_attribute
+    def password_hash(self):
+        password_hash = generate_password_hash(faker.password(length=12))
+        return password_hash
+
+    @factory.lazy_attribute
+    def last_seen(self):
+        last_seen = datetime.now(timezone.utc)
+        return last_seen
 
 
-class ChildDomainFactory(factory.Factory):
+class ChildDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for ChildDomain"""
 
     class Meta:
@@ -37,10 +64,10 @@ class ChildDomainFactory(factory.Factory):
     name = factory.Faker("text", max_nb_chars=20)
     birth_age = factory.Faker("random_int", min=20, max=50)
     independent_age = factory.LazyAttribute(lambda o: o.birth_age + 20)
-    owner = factory.SubFactory(AccountDomainFactory)
+    parent = factory.SubFactory(AccountDomainFactory)
 
 
-class AssetDomainFactory(factory.Factory):
+class AssetDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for AssetDomain"""
 
     class Meta:
@@ -58,7 +85,7 @@ class AssetDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class ExpenseDomainFactory(factory.Factory):
+class ExpenseDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for ExpenseDomain"""
 
     class Meta:
@@ -76,7 +103,7 @@ class ExpenseDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class HouseDomainFactory(factory.Factory):
+class HouseDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for HouseDomain"""
 
     class Meta:
@@ -93,7 +120,7 @@ class HouseDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class IncomeDomainFactory(factory.Factory):
+class IncomeDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for IncomeDomain"""
 
     class Meta:
@@ -111,7 +138,7 @@ class IncomeDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class LiabilityDomainFactory(factory.Factory):
+class LiabilityDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for LiabilityDomain"""
 
     class Meta:
@@ -127,7 +154,7 @@ class LiabilityDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class RiskDomainFactory(factory.Factory):
+class RiskDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for RiskDomain"""
 
     class Meta:
@@ -140,7 +167,7 @@ class RiskDomainFactory(factory.Factory):
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class ScenarioDomainFactory(factory.Factory):
+class ScenarioDomainFactory(BaseDomainFactory, factory.Factory):
     """Factory for ScenarioDomain"""
 
     class Meta:

@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from typing import Optional, Callable
 from decimal import Decimal
 from .base import ResourceDomain
+from .account import AccountDomain
 
 
 @dataclass(kw_only=True)
 class HouseDomain(ResourceDomain):
-    owner_id: str
+    owner: AccountDomain
     amount: int
     down_payment: int
     interest_rate: Decimal

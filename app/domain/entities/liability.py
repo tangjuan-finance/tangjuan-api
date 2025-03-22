@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from typing import Callable
 from decimal import Decimal
 from .base import ResourceDomain
+from .account import AccountDomain
 
 
 @dataclass(kw_only=True)
 class LiabilityDomain(ResourceDomain):
-    owner_id: str
+    owner: AccountDomain
     principal_amount: int
     interest_rate: Decimal
     start_age: int

@@ -3,7 +3,7 @@ from tests.unit.factories import ChildDomainFactory
 
 
 class TestChildDomainCase:
-    def test_create_child_domain(default_child_domain, default_account_domain):
+    def test_create_child_domain(self, default_child_domain, default_account_domain):
         # Arrange
         default_birth_age = 34
         child = ChildDomainFactory(name="child", birth_age=default_birth_age)

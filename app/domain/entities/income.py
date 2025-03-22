@@ -3,11 +3,12 @@ from typing import Callable
 from decimal import Decimal
 from .base import ResourceDomain
 from .mixin import BaseAgeIntervalMixin
+from .account import AccountDomain
 
 
 @dataclass(kw_only=True)
 class IncomeDomain(ResourceDomain, BaseAgeIntervalMixin):
-    owner_id: str
+    owner: AccountDomain
     amount: int
     max_yearly_growth_rate: Decimal
     min_yearly_growth_rate: Decimal

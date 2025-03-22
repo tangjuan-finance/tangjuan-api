@@ -4,7 +4,7 @@ from decimal import Decimal
 
 
 class TestHouseDomainCase:
-    def test_create_house_domain():
+    def test_create_house_domain(self):
         # Arrange
         default_interest_rate = Decimal("3.0")
         house = HouseDomainFactory(name="house", interest_rate=default_interest_rate)

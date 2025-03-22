@@ -4,7 +4,7 @@ from decimal import Decimal
 
 
 class TestScenarioExpenseDomainCase:
-    def test_create_scenario_expense_domain():
+    def test_create_scenario_expense_domain(self):
         # Arrange
         default_max_yearly_growth_rate = Decimal("0.2")
         expense = ExpenseDomainFactory(
