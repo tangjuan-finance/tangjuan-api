@@ -5,12 +5,12 @@ from .base import ResourceDomain
 from .mixin import BaseAgeIntervalMixin
 
 
-@dataclass
+@dataclass(kw_only=True)
 class ExpenseDomain(ResourceDomain, BaseAgeIntervalMixin):
     owner_id: str
     amount: int
     max_yearly_growth_rate: Decimal
     min_yearly_growth_rate: Decimal
 
-    def simulate_by_year(self, simulate_func: Callable[[Decimal], Decimal]) -> Decimal:
+    def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
         return simulate_func(self.amount)

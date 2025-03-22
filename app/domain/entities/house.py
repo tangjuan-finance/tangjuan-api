@@ -4,7 +4,7 @@ from decimal import Decimal
 from .base import ResourceDomain
 
 
-@dataclass
+@dataclass(kw_only=True)
 class HouseDomain(ResourceDomain):
     owner_id: str
     amount: int
@@ -12,7 +12,7 @@ class HouseDomain(ResourceDomain):
     interest_rate: Decimal
     loan_term: int
     purchase_age: int
-    sale_age: Optional[int]
+    sale_age: Optional[int] = None
 
-    def simulate_by_year(self, simulate_func: Callable[[Decimal], Decimal]) -> Decimal:
+    def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
         return simulate_func(self.amount)

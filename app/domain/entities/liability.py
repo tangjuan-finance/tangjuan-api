@@ -4,7 +4,7 @@ from decimal import Decimal
 from .base import ResourceDomain
 
 
-@dataclass
+@dataclass(kw_only=True)
 class LiabilityDomain(ResourceDomain):
     owner_id: str
     principal_amount: int
@@ -12,7 +12,5 @@ class LiabilityDomain(ResourceDomain):
     start_age: int
     end_age: int
 
-    def simulate_by_year(
-        self, simulate_func: Callable[[Decimal, Decimal], Decimal]
-    ) -> Decimal:
+    def simulate_by_year(self, simulate_func: Callable[[int, int], int]) -> int:
         return simulate_func(self.amount)

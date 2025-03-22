@@ -34,7 +34,7 @@ class ChildDomainFactory(factory.Factory):
     class Meta:
         model = ChildDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     birth_age = factory.Faker("random_int", min=20, max=50)
     independent_age = factory.LazyAttribute(lambda o: o.birth_age + 20)
     owner = factory.SubFactory(AccountDomainFactory)
@@ -46,7 +46,7 @@ class AssetDomainFactory(factory.Factory):
     class Meta:
         model = AssetDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=10000, max=1000000)
     max_yearly_return_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.06, max_value=1.0
@@ -64,7 +64,7 @@ class ExpenseDomainFactory(factory.Factory):
     class Meta:
         model = ExpenseDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=1000, max=100000)
     max_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
@@ -82,7 +82,7 @@ class HouseDomainFactory(factory.Factory):
     class Meta:
         model = HouseDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=100000, max=5000000)
     down_payment = factory.Faker("random_int", min=10000, max=500000)
     interest_rate = factory.Faker(
@@ -99,7 +99,7 @@ class IncomeDomainFactory(factory.Factory):
     class Meta:
         model = IncomeDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=20000, max=200000)
     max_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
@@ -117,7 +117,7 @@ class LiabilityDomainFactory(factory.Factory):
     class Meta:
         model = LiabilityDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     principal_amount = factory.Faker("random_int", min=1000, max=1000000)
     interest_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.2
@@ -133,7 +133,7 @@ class RiskDomainFactory(factory.Factory):
     class Meta:
         model = RiskDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     max_loss = factory.Faker("random_int", min=10000, max=500000)
     min_loss = factory.Faker("random_int", min=5000, max=10000)
     start_age = factory.Faker("random_int", min=20, max=65)
@@ -146,7 +146,7 @@ class ScenarioDomainFactory(factory.Factory):
     class Meta:
         model = ScenarioDomain
 
-    name = factory.Faker("text", max_nb_chars=20).rstrip(".")
+    name = factory.Faker("text", max_nb_chars=20)
     asset_allocation_percentage = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.0, max_value=1.0
     )

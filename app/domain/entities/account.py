@@ -3,7 +3,7 @@ from .base import EntityDomain
 from datetime import datetime
 
 
-@dataclass
+@dataclass(kw_only=True)
 class AccountDomain(EntityDomain):
     username: str
     email: str

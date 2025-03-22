@@ -14,8 +14,8 @@ class EntityDomain(ABC):
 
 # Each Resource should have name and description
 # Resources could be simulated by year
-@dataclass
-class ResourceDomain(ABC, EntityDomain):
+@dataclass(kw_only=True)
+class ResourceDomain(EntityDomain):
     name: str
     description: Optional[str] = None
 
