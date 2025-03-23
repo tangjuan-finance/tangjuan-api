@@ -2,22 +2,28 @@
 from app.domain.associations import ScenarioIncomeDomain
 from tests.unit.factories import IncomeDomainFactory
 from decimal import Decimal
+from datetime import datetime, timezone
 
 
 class TestIncomeDomainCase:
-    def test_create_income_domain(self):
+    def test_create_scenario_income_domain(self, default_scenario_domain):
         # Arrange
+        name = "income for scenario"
+
         default_max_yearly_growth_rate = Decimal("0.2")
         income = IncomeDomainFactory(
-            name="income", max_yearly_growth_rate=default_max_yearly_growth_rate
+            name=name, max_yearly_growth_rate=default_max_yearly_growth_rate
         )
         max_yearly_growth_rate = Decimal("0.7")
         # Act
         scenario_income = ScenarioIncomeDomain(
+            scenario=default_scenario_domain,
             income=income,
             max_yearly_growth_rate=max_yearly_growth_rate,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
         # Assert
-        assert scenario_income.income.name == "income"
+        assert scenario_income.income.name == name
         assert scenario_income.max_yearly_growth_rate != default_max_yearly_growth_rate
         assert scenario_income.max_yearly_growth_rate == max_yearly_growth_rate

@@ -112,6 +112,7 @@ class TestScenarioDomainCase:
         ],
     )
     def test_add_resource_to_scenario_domain(
+        self,
         default_scenario_domain,
         resource_factory,
         resource_attr,
