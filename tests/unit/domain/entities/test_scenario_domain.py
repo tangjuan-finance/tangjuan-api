@@ -11,15 +11,17 @@ from tests.unit.factories import (
     AssetDomainFactory,
     LiabilityDomainFactory,
 )
-from app.domain.entities import (
-    ExpenseDomain,
-    IncomeDomain,
-    HouseDomain,
-    ChildDomain,
-    RiskDomain,
-    AssetDomain,
-    LiabilityDomain,
+
+from app.domain.associations import (
+    ScenarioExpenseDomain,
+    ScenarioIncomeDomain,
+    ScenarioHouseDomain,
+    ScenarioChildDomain,
+    ScenarioRiskDomain,
+    ScenarioAssetDomain,
+    ScenarioLiabilityDomain,
 )
+from datetime import datetime, timezone
 
 
 class TestScenarioDomainCase:
@@ -28,35 +30,36 @@ class TestScenarioDomainCase:
     ):
         # Assert
         assert default_scenario_domain.name == "Default Scenario Domain"
-        assert default_scenario_domain.scenario_allocation_percentage == Decimal("0.7")
+        assert default_scenario_domain.asset_allocation_percentage == Decimal("0.7")
         assert default_scenario_domain.retire_age == 20
         assert default_scenario_domain.owner == default_account_domain
 
     def test_factory_scenario_domain(self):
         # Arrange
         name = "Default Scenario Domain"
-        scenario_allocation_percentage = Decimal("0.7")
+        asset_allocation_percentage = Decimal("0.7")
         retire_age = 20
 
         # Act
         scenario = ScenarioDomainFactory(
             name=name,
-            scenario_allocation_percentage=scenario_allocation_percentage,
+            asset_allocation_percentage=asset_allocation_percentage,
             retire_age=retire_age,
         )
 
         # Assert
         assert scenario.name == name
-        assert scenario.scenario_allocation_percentage == scenario_allocation_percentage
+        assert scenario.asset_allocation_percentage == asset_allocation_percentage
         assert scenario.retire_age == retire_age
 
-    @pytest.mark.parametrize(
-        "resource_factory, resource_attr, resource_class, resource_field, resource_data, update_data",
-        [
+    resource_param = {
+        "param": "resource_factory, resource_attr, resource_name, resource_association_cls, resource_field, resource_data, update_data",
+        "payload": [
             (
                 ExpenseDomainFactory,
                 "expenses",
-                ExpenseDomain,
+                "expense",
+                ScenarioExpenseDomain,
                 "max_yearly_growth_rate",
                 {"max_yearly_growth_rate": Decimal("0.2")},
                 {"max_yearly_growth_rate": Decimal("0.7")},
@@ -64,7 +67,8 @@ class TestScenarioDomainCase:
             (
                 IncomeDomainFactory,
                 "incomes",
-                IncomeDomain,
+                "income",
+                ScenarioIncomeDomain,
                 "max_yearly_growth_rate",
                 {"max_yearly_growth_rate": Decimal("0.2")},
                 {"max_yearly_growth_rate": Decimal("0.7")},
@@ -72,7 +76,8 @@ class TestScenarioDomainCase:
             (
                 HouseDomainFactory,
                 "houses",
-                HouseDomain,
+                "house",
+                ScenarioHouseDomain,
                 "interest_rate",
                 {"interest_rate": Decimal("3.0")},
                 {"interest_rate": Decimal("5.0")},
@@ -80,7 +85,8 @@ class TestScenarioDomainCase:
             (
                 ChildDomainFactory,
                 "children",
-                ChildDomain,
+                "child",
+                ScenarioChildDomain,
                 "birth_age",
                 {"birth_age": 34},
                 {"birth_age": 26},
@@ -88,7 +94,8 @@ class TestScenarioDomainCase:
             (
                 RiskDomainFactory,
                 "risks",
-                RiskDomain,
+                "risk",
+                ScenarioRiskDomain,
                 "max_loss",
                 {"max_loss": 100000},
                 {"max_loss": 500000},
@@ -96,66 +103,85 @@ class TestScenarioDomainCase:
             (
                 AssetDomainFactory,
                 "assets",
-                AssetDomain,
-                "max_yearly_return_rate",
-                {"max_yearly_return_rate": Decimal("0.2")},
-                {"max_yearly_return_rate": Decimal("0.7")},
+                "asset",
+                ScenarioAssetDomain,
+                "allocation_percentage",
+                {"allocation_percentage": Decimal("0.2")},
+                {"allocation_percentage": Decimal("0.7")},
             ),
             (
                 LiabilityDomainFactory,
                 "liabilities",
-                LiabilityDomain,
-                "interest_rate",
-                {"interest_rate": Decimal("0.5")},
-                {"interest_rate": Decimal("0.7")},
+                "liability",
+                ScenarioLiabilityDomain,
+                "allocation_percentage",
+                {"allocation_percentage": Decimal("0.5")},
+                {"allocation_percentage": Decimal("0.7")},
             ),
         ],
-    )
+    }
+
+    @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
     def test_add_resource_to_scenario_domain(
         self,
         default_scenario_domain,
         resource_factory,
         resource_attr,
-        resource_class,
+        resource_name,
+        resource_association_cls,
         resource_field,
         resource_data,
         update_data,
     ):
-        # Arrange
+        # Arrange: Generate the resource instance
         resource_instance = (
             resource_factory()
         )  # Use the factory to generate the resource with the data
 
-        # Act: Add an expense to the scenario
-        default_scenario_domain.add_resource(resource_instance, **resource_data)
+        # Act: Add the resource to the scenario domain by creating and adding association
+        resource_association = resource_association_cls(
+            scenario=default_scenario_domain,
+            **{resource_name: resource_instance},
+            **resource_data,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+        default_scenario_domain._add_association(resource_association)
 
-        # Assert: Ensure the expense is added and amount is correct
-        assert resource_instance in getattr(default_scenario_domain, resource_attr)
-        assert (
-            getattr(getattr(default_scenario_domain, resource_attr)[0], resource_field)
-            == resource_data[resource_field]
+        # Assert: Ensure the resource has been correctly added to the scenario domain
+        resource_collection = getattr(default_scenario_domain, resource_attr)
+
+        # Retrieve the association using resource_instance from the collection
+        assoc = next(
+            (
+                assoc
+                for assoc in resource_collection
+                if getattr(assoc, resource_name) == resource_instance
+            ),
+            None,
         )
 
-        # Act: Get expense id
-        resource_id = resource_instance.id
+        # Assert the association matches the expected resource_association
+        assert assoc == resource_association
 
-        # Assert: Could retrieve expense by id
-        assert (
-            default_scenario_domain.get_resource_by_id(resource_class, resource_id)
-            == resource_instance
+        # Assert that the resource field in the association is correctly set
+        assert getattr(assoc, resource_field) == resource_data[resource_field]
+
+        # Assert: Ensure association can be retrieved by resource instance
+        retrieved_association = default_scenario_domain.get_association_by_resource(
+            resource_instance
         )
+        assert retrieved_association == resource_association
 
-        # Act: Update the expense amount
-        default_scenario_domain.update_resource(resource_instance, **update_data)
+        # Act: Update the resource data in the association
+        default_scenario_domain._update_association(resource_association, **update_data)
 
-        # Assert: Ensure the expense amount is updated correctly
-        assert (
-            getattr(getattr(default_scenario_domain, resource_attr)[0], resource_field)
-            == update_data[resource_field]
-        )
+        # Assert: Ensure the resource data is updated correctly
+        updated_field_value = getattr(resource_collection[0], resource_field)
+        assert updated_field_value == update_data[resource_field]
 
-        # Act: Delete the expense
-        default_scenario_domain.delete_resource(resource_instance)
+        # Act: Delete the resource association from the scenario
+        default_scenario_domain._delete_association(resource_association)
 
-        # Assert: Ensure the expense is removed from the scenario
+        # Assert: Ensure the resource is removed from the scenario domain
         assert len(getattr(default_scenario_domain, resource_attr)) == 0

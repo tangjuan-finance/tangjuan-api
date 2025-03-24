@@ -12,4 +12,4 @@ if TYPE_CHECKING:
 class ScenarioLiabilityDomain(BaseAssociationDomain, BaseAgeIntervalMixin):
     liability: "LiabilityDomain"  # Use a forward reference (string)
     allocation_percentage: Decimal
-    interest_rate: Optional[Decimal]
+    interest_rate: Optional[Decimal] = None

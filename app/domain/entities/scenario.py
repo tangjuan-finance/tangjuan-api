@@ -1,68 +1,136 @@
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from decimal import Decimal
 from .base import EntityDomain
-from .account import AccountDomain
-from ..associations import (
-    ScenarioExpenseDomain,
-    ScenarioIncomeDomain,
-    ScenarioHouseDomain,
-    ScenarioChildDomain,
-    ScenarioRiskDomain,
-    ScenarioAssetDomain,
-    ScenarioLiabilityDomain,
-)
+from types import MappingProxyType
 
-from .mapper import resources_type_map
 
-# Mapping of class names to actual classes
-scenario_association_classes = {
-    "expense": ScenarioExpenseDomain,
-    "income": ScenarioIncomeDomain,
-    "house": ScenarioHouseDomain,
-    "child": ScenarioChildDomain,
-    "risk": ScenarioRiskDomain,
-    "asset": ScenarioAssetDomain,
-    "liability": ScenarioLiabilityDomain,
-}
+if TYPE_CHECKING:
+    from .account import AccountDomain
+    from ..associations import (
+        ScenarioExpenseDomain,
+        ScenarioIncomeDomain,
+        ScenarioHouseDomain,
+        ScenarioChildDomain,
+        ScenarioRiskDomain,
+        ScenarioAssetDomain,
+        ScenarioLiabilityDomain,
+    )
 
 
 @dataclass(kw_only=True)
 class ScenarioDomain(EntityDomain):
-    owner: AccountDomain
+    owner: "AccountDomain"
     name: str
     asset_allocation_percentage: Decimal
     retire_age: int
     description: Optional[str] = None
 
     # Resource collections
-    expenses: List[ScenarioExpenseDomain] = field(default_factory=list)
-    incomes: List[ScenarioIncomeDomain] = field(default_factory=list)
-    houses: List[ScenarioHouseDomain] = field(default_factory=list)
-    children: List[ScenarioChildDomain] = field(default_factory=list)
-    risks: List[ScenarioRiskDomain] = field(default_factory=list)
-    assets: List[ScenarioAssetDomain] = field(default_factory=list)
-    liabilities: List[ScenarioLiabilityDomain] = field(default_factory=list)
+    expenses: List["ScenarioExpenseDomain"] = field(default_factory=list)
+    incomes: List["ScenarioIncomeDomain"] = field(default_factory=list)
+    houses: List["ScenarioHouseDomain"] = field(default_factory=list)
+    children: List["ScenarioChildDomain"] = field(default_factory=list)
+    risks: List["ScenarioRiskDomain"] = field(default_factory=list)
+    assets: List["ScenarioAssetDomain"] = field(default_factory=list)
+    liabilities: List["ScenarioLiabilityDomain"] = field(default_factory=list)
 
-    def add_resource(self, resource_instance, **resource_data):
-        """Adding a resource instance to the corresponding collections."""
-        resource_cls = type(resource_instance).__name__
-        if resource_cls not in resources_type_map:
-            KeyError(f"Invalid resource class: {resource_cls}")
-        else:
-            resource_type = resources_type_map[resource_cls]
+    _VALID_RESOURCE_TYPES = frozenset(
+        {"child", "liability", "expense", "income", "house", "risk", "asset"}
+    )
+    _COLLECTION_MAPPING = MappingProxyType(
+        {
+            "child": "children",
+            "liability": "liabilities",
+            "expense": "expenses",
+            "income": "incomes",
+            "house": "houses",
+            "risk": "risks",
+            "asset": "assets",
+        }
+    )
 
-        cls_obj = scenario_association_classes[resource_type["name"]]
-        association = cls_obj(
-            scenario=self,
-            **{
-                resource_type["name"]: resource_instance
-            },  # Dynamically set the right parameter
-            **resource_data,
+    def _get_resource_type(self, obj) -> str:
+        """Extracts the resource type from the given object."""
+        resource_type = (
+            type(obj).__name__.replace("Scenario", "").replace("Domain", "").lower()
+        )
+        if resource_type not in self._VALID_RESOURCE_TYPES:
+            raise ValueError(f"Invalid resource type: {resource_type}")
+        return resource_type
+
+    def _get_collection(self, resource_type) -> str:
+        """Get collection by mapping a resource type to its corresponding collection name."""
+        collection_name = self._COLLECTION_MAPPING[resource_type]
+        return getattr(self, collection_name)
+
+    def get_association_by_resource(self, resource):
+        """Get the association object from the corresponding collection by its resource id."""
+        resource_type = self._get_resource_type(resource)
+        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+
+        association = [
+            association
+            for association in collection
+            if getattr(association, resource_type) == resource
+        ]
+
+        association = next(
+            (
+                assoc
+                for assoc in collection
+                if getattr(assoc, resource_type) == resource
+            ),
+            None,
         )
 
-        # Append to the correct collection
-        collection = getattr(self, resource_type["name"])
+        if association is None:
+            return None
+        return association
+
+    def _add_association(self, association):
+        """Add the association object to the corresponding collection."""
+        resource_type = self._get_resource_type(association)
+        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+
+        if association in collection:
+            raise ValueError(f"Association already exists in {collection.__name__}")
         collection.append(association)
 
-        return association
+    def _update_association(self, association, **param):
+        """Update the association object from the corresponding collection by given parameters."""
+        resource_type = self._get_resource_type(association)
+        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+
+        return_association = next(
+            (assoc for assoc in collection if assoc == association),
+            None,
+        )
+
+        if return_association is None:
+            raise ValueError(
+                f"Association not found in the collection: {resource_type}"
+            )
+
+        for k, v in param.items():
+            if hasattr(return_association, k):
+                setattr(return_association, k, v)
+            else:
+                raise AttributeError(f"Association does not have attribute: {k}")
+
+        return return_association
+
+    def _delete_association(self, association):
+        """Delete the association object from the corresponding collection"""
+        resource_type = self._get_resource_type(association)
+        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+
+        # Ensure the association is in the collection before removing
+        if association not in collection:
+            raise ValueError(
+                f"Association {association} not found in the collection: {resource_type}"
+            )
+
+        collection.remove(association)
+
+        return None
