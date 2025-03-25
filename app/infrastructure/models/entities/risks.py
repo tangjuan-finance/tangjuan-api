@@ -16,12 +16,16 @@ class Risk(
     min_loss: so.Mapped[int] = so.mapped_column(sa.BigInteger)
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey("account.id"), index=True, ondelete="CASCADE"
+    )
     owner: so.Mapped["Account"] = so.relationship(back_populates="risks")  # noqa: F821
 
     # Relationship to Scenario
     scenario: so.Mapped[list["ScenarioRisk"]] = so.relationship(  # noqa: F821
-        back_populates="risk"
+        back_populates="risk",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Risk or its associations are removed
     )
 
     def __repr__(self):

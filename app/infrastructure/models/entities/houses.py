@@ -21,11 +21,17 @@ class House(
     sale_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey("account.id"), index=True, ondelete="CASCADE"
+    )
     owner: so.Mapped["Account"] = so.relationship(back_populates="houses")  # noqa: F821
 
     # Relationship to Scenario
-    scenario: so.Mapped[list["ScenarioHouse"]] = so.relationship(back_populates="house")  # noqa: F821
+    scenario: so.Mapped[list["ScenarioHouse"]] = so.relationship(  # noqa: F821
+        back_populates="house",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when House or its associations are removed
+    )
 
     def __repr__(self):
         return "<House {}>".format(self.name)

@@ -7,10 +7,14 @@ from app.infrastructure.models import TimestampMixin, BaseMemoMixin
 
 class ScenarioChild(TimestampMixin, BaseMemoMixin, db.Model):
     left_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("scenario.id"), primary_key=True
+        sa.ForeignKey("scenario.id"),
+        primary_key=True,
+        ondelete="CASCADE",
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("child.id"), primary_key=True
+        sa.ForeignKey("child.id"),
+        primary_key=True,
+        ondelete="CASCADE",
     )
     birth_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
     independent_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)

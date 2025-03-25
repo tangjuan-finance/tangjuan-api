@@ -14,24 +14,46 @@ class Scenario(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     asset_allocation_percentage: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(3, 2))
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey("account.id"), index=True, ondelete="CASCADE"
+    )
     owner: so.Mapped["Account"] = so.relationship(back_populates="scenarios")  # noqa: F821
 
     # Many-to-Many Relationship
     expense: so.Mapped[list["ScenarioExpense"]] = so.relationship(  # noqa: F821
-        back_populates="scenario"
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
     )
     income: so.Mapped[list["ScenarioIncome"]] = so.relationship(  # noqa: F821
-        back_populates="scenario"
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
     )
     asset: so.Mapped[list["ScenarioAsset"]] = so.relationship(  # noqa: F821
-        back_populates="scenario"
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
     )
-    house: so.Mapped[list["ScenarioHouse"]] = so.relationship(back_populates="scenario")  # noqa: F821
-    child: so.Mapped[list["ScenarioChild"]] = so.relationship(back_populates="scenario")  # noqa: F821
-    risk: so.Mapped[list["ScenarioRisk"]] = so.relationship(back_populates="scenario")  # noqa: F821
+    house: so.Mapped[list["ScenarioHouse"]] = so.relationship(  # noqa: F821
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
+    )
+    child: so.Mapped[list["ScenarioChild"]] = so.relationship(  # noqa: F821
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
+    )  # noqa: F821
+    risk: so.Mapped[list["ScenarioRisk"]] = so.relationship(  # noqa: F821
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
+    )
     liability: so.Mapped[list["ScenarioLiability"]] = so.relationship(  # noqa: F821
-        back_populates="scenario"
+        back_populates="scenario",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Scenario or its associations are removed
     )
 
     def __repr__(self):

@@ -15,12 +15,16 @@ class Child(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
 
     # Ownership
     parent_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("account.id"), index=True
+        sa.ForeignKey("account.id"), index=True, ondelete="CASCADE"
     )
     parent: so.Mapped["Account"] = so.relationship(back_populates="children")  # noqa: F821
 
     # Relationship to Scenario
-    scenario: so.Mapped[list["ScenarioChild"]] = so.relationship(back_populates="child")  # noqa: F821
+    scenario: so.Mapped[list["ScenarioChild"]] = so.relationship(  # noqa: F821
+        back_populates="child",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Child or its associations are removed
+    )
 
     def __repr__(self):
         return "<Child {}>".format(self.name)

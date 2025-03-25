@@ -17,12 +17,16 @@ class Liability(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     end_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("account.id"), index=True)
+    owner_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey("account.id"), index=True, ondelete="CASCADE"
+    )
     owner: so.Mapped["Account"] = so.relationship(back_populates="liabilities")  # noqa: F821
 
     # Relationship to Scenario
     scenario: so.Mapped[list["ScenarioLiability"]] = so.relationship(  # noqa: F821
-        back_populates="liability"
+        back_populates="liability",
+        passive_deletes=True,
+        cascade="all, delete-orphan",  # Ensures association deletion when Liability or its associations are removed
     )
 
     def __repr__(self):

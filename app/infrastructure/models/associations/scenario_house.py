@@ -8,10 +8,14 @@ from decimal import Decimal
 
 class ScenarioHouse(TimestampMixin, BaseMemoMixin, db.Model):
     left_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("scenario.id"), primary_key=True
+        sa.ForeignKey("scenario.id"),
+        primary_key=True,
+        ondelete="CASCADE",
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("house.id"), primary_key=True
+        sa.ForeignKey("house.id"),
+        primary_key=True,
+        ondelete="CASCADE",
     )
 
     down_payment: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
