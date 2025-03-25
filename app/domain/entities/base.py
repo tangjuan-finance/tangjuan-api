@@ -7,9 +7,9 @@ from abc import ABC, abstractmethod
 # Every Entity should have id, created_at, and updated_at
 @dataclass(kw_only=True)
 class EntityDomain(ABC):
-    id: str
-    created_at: datetime
-    updated_at: datetime
+    id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 # Each Resource should have name and description

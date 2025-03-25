@@ -13,7 +13,7 @@ class TestAccountRepoCase:
         # Act: Save the account domain using the repo and return the saved entity
         account_from_repo = AccountRepo.create(account)
         account_from_db = db.session.scalar(
-            sa.select(Account).where(Account.id == account.id)
+            sa.select(Account).where(Account.id == account_from_repo.id)
         )
 
         # Assert: Ensure the values match between the domain object and the saved record
@@ -45,19 +45,21 @@ class TestAccountRepoCase:
         assert updated_account.id == account_from_db.id
         assert updated_account.username == account_from_db.username
         assert updated_account.created_at == account_from_db.created_at
-        assert updated_account.updated_at != account_from_db.updated_at
+        assert updated_account.updated_at == account_from_db.updated_at
+        # Update_at from updated_account should be different from the previous account domain (the one before update)
+        assert updated_account.updated_at != account_from_repo.updated_at
 
     def test_get_account_domain_by_id_through_repo(self):
         # Arrange: Create an account domain using the factory
         account = AccountDomainFactory()
-        AccountRepo.create(account)
+        account_from_repo = AccountRepo.create(account)
 
         # Act: Update the account domain object (before saving)
-        account_get_by_id = AccountRepo.get_by_id(account.id)
+        account_get_by_id = AccountRepo.get_by_id(account_from_repo.id)
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert account_get_by_id.id == account.id
-        assert account_get_by_id.username == account.username
+        assert account_get_by_id.id == account_from_repo.id
+        assert account_get_by_id.username == account_from_repo.username
 
     def test_get_account_domain_list_through_repo(self):
         # Arrange: Create an account domain using the factory
@@ -78,7 +80,7 @@ class TestAccountRepoCase:
         account_from_repo = AccountRepo.create(account)
 
         # Act: Delete the account domain object
-        AccountRepo.delete(account_from_repo)
+        AccountRepo.delete_by_id(account_from_repo.id)
 
         # Assert: Ensure the account record is deleted from the database
         assert (

@@ -1,6 +1,8 @@
 import pytest
 from app import create_app, db
 from tests.conftest import TestConfig
+from tests.unit.factories import AccountDomainFactory
+from app.repository.entities import AccountRepo
 
 
 # Using Factory to generate domain object, so each object should be indenpendent in database record
@@ -14,3 +16,9 @@ def init_db():
     db.session.remove()
     db.drop_all()
     app_context.pop()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def default_account(init_db):
+    account = AccountDomainFactory()
+    yield AccountRepo.create(account)
