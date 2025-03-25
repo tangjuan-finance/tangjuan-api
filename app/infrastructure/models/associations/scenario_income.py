@@ -17,14 +17,12 @@ class ScenarioIncome(
     db.Model,
 ):
     left_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("scenario.id"),
+        sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("income.id"),
+        sa.ForeignKey("income.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     scenario: so.Mapped["Scenario"] = so.relationship(back_populates="income")  # noqa: F821
     income: so.Mapped["Income"] = so.relationship(back_populates="scenario")  # noqa: F821

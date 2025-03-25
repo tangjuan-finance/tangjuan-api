@@ -17,14 +17,12 @@ class ScenarioLiability(
     allocation_percentage: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(3, 2))
 
     left_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("scenario.id"),
+        sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("liability.id"),
+        sa.ForeignKey("liability.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     scenario: so.Mapped["Scenario"] = so.relationship(back_populates="liability")  # noqa: F821
     liability: so.Mapped["Liability"] = so.relationship(back_populates="scenario")  # noqa: F821

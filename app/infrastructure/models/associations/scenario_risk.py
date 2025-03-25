@@ -16,14 +16,12 @@ class ScenarioRisk(
     min_loss: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
 
     left_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("scenario.id"),
+        sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     right_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey("risk.id"),
+        sa.ForeignKey("risk.id", ondelete="CASCADE"),
         primary_key=True,
-        ondelete="CASCADE",
     )
     scenario: so.Mapped["Scenario"] = so.relationship(back_populates="risk")  # noqa: F821
     risk: so.Mapped["Risk"] = so.relationship(back_populates="scenario")  # noqa: F821
