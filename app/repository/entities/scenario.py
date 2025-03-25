@@ -1,136 +1,122 @@
-from dataclasses import dataclass, field
-from typing import Optional, List, TYPE_CHECKING
-from decimal import Decimal
-from .base import EntityRepo
-from types import MappingProxyType
+from app.domain.entities import ScenarioDomain
+from app.infrastructure.models import Scenario, Account
+from app import db
+import sqlalchemy as sa
+from .account import AccountRepo
 
 
-if TYPE_CHECKING:
-    from .account import AccountRepo
-    from ..associations import (
-        ScenarioExpenseRepo,
-        ScenarioIncomeRepo,
-        ScenarioHouseRepo,
-        ScenarioChildRepo,
-        ScenarioRiskRepo,
-        ScenarioAssetRepo,
-        ScenarioLiabilityRepo,
-    )
-
-
-@dataclass(kw_only=True)
-class ScenarioRepo(EntityRepo):
-    owner: "AccountRepo"
-    name: str
-    asset_allocation_percentage: Decimal
-    retire_age: int
-    description: Optional[str] = None
-
-    # Resource collections
-    expenses: List["ScenarioExpenseRepo"] = field(default_factory=list)
-    incomes: List["ScenarioIncomeRepo"] = field(default_factory=list)
-    houses: List["ScenarioHouseRepo"] = field(default_factory=list)
-    children: List["ScenarioChildRepo"] = field(default_factory=list)
-    risks: List["ScenarioRiskRepo"] = field(default_factory=list)
-    assets: List["ScenarioAssetRepo"] = field(default_factory=list)
-    liabilities: List["ScenarioLiabilityRepo"] = field(default_factory=list)
-
-    _VALID_RESOURCE_TYPES = frozenset(
-        {"child", "liability", "expense", "income", "house", "risk", "asset"}
-    )
-    _COLLECTION_MAPPING = MappingProxyType(
-        {
-            "child": "children",
-            "liability": "liabilities",
-            "expense": "expenses",
-            "income": "incomes",
-            "house": "houses",
-            "risk": "risks",
-            "asset": "assets",
-        }
-    )
-
-    def _get_resource_type(self, obj) -> str:
-        """Extracts the resource type from the given object."""
-        resource_type = (
-            type(obj).__name__.replace("Scenario", "").replace("Repo", "").lower()
+class ScenarioRepo:
+    @staticmethod
+    def create(scenario: ScenarioDomain) -> ScenarioDomain:
+        """Given a DomainObject, store it in the database and return the stored object."""
+        # Instance with required attr
+        scenario_model = Scenario(
+            name=scenario.name,
+            asset_allocation_percentage=scenario.asset_allocation_percentage,
+            retire_age=scenario.retire_age,
         )
-        if resource_type not in self._VALID_RESOURCE_TYPES:
-            raise ValueError(f"Invalid resource type: {resource_type}")
-        return resource_type
 
-    def _get_collection(self, resource_type) -> str:
-        """Get collection by mapping a resource type to its corresponding collection name."""
-        collection_name = self._COLLECTION_MAPPING[resource_type]
-        return getattr(self, collection_name)
+        # Set optional attributes if present in the domain object
+        optional_attributes = ["description"]
+        for attr in optional_attributes:
+            setattr(scenario_model, attr, getattr(scenario, attr, None))
 
-    def get_association_by_resource(self, resource):
-        """Get the association object from the corresponding collection by its resource id."""
-        resource_type = self._get_resource_type(resource)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+        owner = db.session.scalar(
+            sa.select(Account).where(Account.id == scenario.owner.id)
+        )
+        if not owner:
+            raise ValueError(f"Account with id {scenario.owner.id} not found")
 
-        association = [
-            association
-            for association in collection
-            if getattr(association, resource_type) == resource
+        scenario_model.owner = owner
+
+        # Save the Scenario model to the database
+        db.session.add(scenario_model)
+        db.session.commit()
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRepo._map_to_domain(scenario_model, owner.id)
+
+    @staticmethod
+    def save(scenario: ScenarioDomain) -> ScenarioDomain:
+        """Given an existing DomainObject, update it in the database and return the updated object."""
+        # Get scenario_model from database
+        scenario_model = db.session.scalar(
+            sa.select(Scenario).where(Scenario.id == scenario.id)
+        )
+        if not scenario_model:
+            raise ValueError("Scenario not found")
+
+        owner = db.session.scalar(
+            sa.select(Account).where(Account.id == scenario.owner.id)
+        )
+        if not owner:
+            raise ValueError(f"Account with id {scenario.owner.id} not found")
+
+        # Update Scenario Model
+        scenario_model.name = scenario.name
+        scenario_model.asset_allocation_percentage = (
+            scenario.asset_allocation_percentage
+        )
+        scenario_model.retire_age = scenario.retire_age
+        scenario_model.owner = owner
+
+        # Set optional attributes if present in the domain object
+        optional_attributes = ["description"]
+        for attr in optional_attributes:
+            origin_attr = getattr(scenario_model, attr)
+            setattr(scenario_model, attr, getattr(scenario, attr, origin_attr))
+
+        db.session.commit()
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRepo._map_to_domain(scenario_model, owner.id)
+
+    @staticmethod
+    def get_by_id(scenario_id: int) -> ScenarioDomain | None:
+        """Retrieve an scenario by ID and return as DomainObject."""
+        # Get scenario_model from database
+        scenario_model = db.session.scalar(
+            sa.select(Scenario).where(Scenario.id == scenario_id)
+        )
+        if not scenario_model:
+            return None
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRepo._map_to_domain(scenario_model, scenario_model.owner.id)
+
+    @staticmethod
+    def get_list() -> list[ScenarioDomain]:
+        """Retrieve all scenarios and return as a list of DomainObjects."""
+        scenario_model_list = db.session.scalars(sa.select(Scenario)).all()
+        return [
+            ScenarioRepo._map_to_domain(exp, exp.owner.id)
+            for exp in scenario_model_list
         ]
 
-        association = next(
-            (
-                assoc
-                for assoc in collection
-                if getattr(assoc, resource_type) == resource
-            ),
-            None,
+    @staticmethod
+    def delete_by_id(scenario_id: int) -> None:
+        """Given an scenario ID, remove it from the database."""
+        # Get scenario_model from database
+        scenario_model = db.session.scalar(
+            sa.select(Scenario).where(Scenario.id == scenario_id)
         )
-
-        if association is None:
-            return None
-        return association
-
-    def _add_association(self, association):
-        """Add the association object to the corresponding collection."""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
-
-        if association in collection:
-            raise ValueError(f"Association already exists in {collection.__name__}")
-        collection.append(association)
-
-    def _update_association(self, association, **param):
-        """Update the association object from the corresponding collection by given parameters."""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
-
-        return_association = next(
-            (assoc for assoc in collection if assoc == association),
-            None,
-        )
-
-        if return_association is None:
-            raise ValueError(
-                f"Association not found in the collection: {resource_type}"
-            )
-
-        for k, v in param.items():
-            if hasattr(return_association, k):
-                setattr(return_association, k, v)
-            else:
-                raise AttributeError(f"Association does not have attribute: {k}")
-
-        return return_association
-
-    def _delete_association(self, association):
-        """Delete the association object from the corresponding collection"""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
-
-        # Ensure the association is in the collection before removing
-        if association not in collection:
-            raise ValueError(
-                f"Association {association} not found in the collection: {resource_type}"
-            )
-
-        collection.remove(association)
+        if scenario_model:
+            db.session.delete(scenario_model)
+            db.session.commit()
 
         return None
+
+    @staticmethod
+    def _map_to_domain(scenario_model: Scenario, owner_id: str) -> ScenarioDomain:
+        """Helper method to map the Scenario model to a Domain Object."""
+        owner_domain = AccountRepo.get_by_id(owner_id)
+        return ScenarioDomain(
+            id=scenario_model.id,
+            name=scenario_model.name,
+            asset_allocation_percentage=scenario_model.asset_allocation_percentage,
+            retire_age=scenario_model.retire_age,
+            created_at=scenario_model.created_at,
+            updated_at=scenario_model.updated_at,
+            description=scenario_model.description,
+            owner=owner_domain,
+        )

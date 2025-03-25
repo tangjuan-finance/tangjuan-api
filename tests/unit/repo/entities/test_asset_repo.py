@@ -6,13 +6,15 @@ from app import db
 
 
 class TestAssetRepoCase:
-    def test_create_asset_domain_through_repo(self):
+    def test_create_asset_domain_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
-        asset = AssetDomainFactory()
+        asset = AssetDomainFactory(owner=default_account)
 
         # Act: Save the asset domain using the repo and return the saved entity
         asset_from_repo = AssetRepo.create(asset)
-        asset_from_db = db.session.scalar(sa.select(Asset).where(Asset.id == asset.id))
+        asset_from_db = db.session.scalar(
+            sa.select(Asset).where(Asset.id == asset_from_repo.id)
+        )
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert asset_from_repo.id == asset_from_db.id
@@ -27,13 +29,13 @@ class TestAssetRepoCase:
             == asset_from_db.min_yearly_return_rate
         )
         assert asset_from_repo.start_age == asset_from_db.start_age
-        assert asset_from_repo.owner == asset_from_db.owner
+        assert asset_from_repo.owner.id == asset_from_db.owner.id
         assert asset_from_repo.created_at == asset_from_db.created_at
         assert asset_from_repo.updated_at == asset_from_db.updated_at
 
-    def test_update_asset_domain_through_repo(self):
+    def test_update_asset_domain_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
-        asset = AssetDomainFactory()
+        asset = AssetDomainFactory(owner=default_account)
         asset_from_repo = AssetRepo.create(asset)
         updated_name = "Updated Asset Domain"
 
@@ -52,40 +54,42 @@ class TestAssetRepoCase:
         assert updated_asset.id == asset_from_db.id
         assert updated_asset.name == asset_from_db.name
         assert updated_asset.created_at == asset_from_db.created_at
-        assert updated_asset.updated_at != asset_from_db.updated_at
+        assert updated_asset.updated_at == asset_from_db.updated_at
+        # Update_at from updated_asset should be different from the previous asset domain (the one before update)
+        assert updated_asset.updated_at != asset_from_repo.updated_at
 
-    def test_get_asset_domain_by_id_through_repo(self):
+    def test_get_asset_domain_by_id_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
-        asset = AssetDomainFactory()
-        AssetRepo.create(asset)
+        asset = AssetDomainFactory(owner=default_account)
+        asset_from_repo = AssetRepo.create(asset)
 
         # Act: Update the asset domain object (before saving)
-        asset_get_by_id = AssetRepo.get_by_id(asset.id)
+        asset_get_by_id = AssetRepo.get_by_id(asset_from_repo.id)
 
-        # Assert: Ensure the values match between the domain object and the saved record
-        assert asset_get_by_id.id == asset.id
-        assert asset_get_by_id.name == asset.name
+        # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
+        assert asset_get_by_id.id == asset_from_repo.id
+        assert asset_get_by_id.name == asset_from_repo.name
 
-    def test_get_asset_domain_list_through_repo(self):
+    def test_get_asset_domain_list_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
         origin_asset_list_length = len(AssetRepo.get_list())
 
         # Act: Create 5 new asset domains
         for _ in range(5):
-            asset = AssetDomainFactory()
+            asset = AssetDomainFactory(owner=default_account)
             AssetRepo.create(asset)
 
         # Assert: Ensure the list length is increased by 5
         updated_asset_list_length = len(AssetRepo.get_list())
         assert updated_asset_list_length == (origin_asset_list_length + 5)
 
-    def test_delete_asset_domain_through_repo(self):
+    def test_delete_asset_domain_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
-        asset = AssetDomainFactory()
+        asset = AssetDomainFactory(owner=default_account)
         asset_from_repo = AssetRepo.create(asset)
 
         # Act: Delete the asset domain object
-        AssetRepo.delete(asset_from_repo)
+        AssetRepo.delete_by_id(asset_from_repo.id)
 
         # Assert: Ensure the asset record is deleted from the database
         assert (
