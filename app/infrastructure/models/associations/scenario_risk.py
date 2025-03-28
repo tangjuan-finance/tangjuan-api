@@ -15,11 +15,11 @@ class ScenarioRisk(
     max_loss: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
     min_loss: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
 
-    left_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    right_id: so.Mapped[int] = so.mapped_column(
+    risk_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("risk.id", ondelete="CASCADE"),
         primary_key=True,
     )

@@ -6,11 +6,11 @@ from app.infrastructure.models import TimestampMixin, BaseMemoMixin
 
 
 class ScenarioChild(TimestampMixin, BaseMemoMixin, db.Model):
-    left_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    right_id: so.Mapped[int] = so.mapped_column(
+    child_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("child.id", ondelete="CASCADE"),
         primary_key=True,
     )

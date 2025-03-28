@@ -16,11 +16,11 @@ class ScenarioLiability(
     interest_rate: so.Mapped[Optional[Decimal]] = so.mapped_column(sa.DECIMAL(5, 2))
     allocation_percentage: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(3, 2))
 
-    left_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    right_id: so.Mapped[int] = so.mapped_column(
+    liability_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("liability.id", ondelete="CASCADE"),
         primary_key=True,
     )

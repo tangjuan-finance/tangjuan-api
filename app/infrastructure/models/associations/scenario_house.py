@@ -7,11 +7,11 @@ from decimal import Decimal
 
 
 class ScenarioHouse(TimestampMixin, BaseMemoMixin, db.Model):
-    left_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    right_id: so.Mapped[int] = so.mapped_column(
+    house_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("house.id", ondelete="CASCADE"),
         primary_key=True,
     )

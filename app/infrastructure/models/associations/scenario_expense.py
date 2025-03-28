@@ -20,7 +20,7 @@ class ScenarioExpense(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    right_id: so.Mapped[int] = so.mapped_column(
+    expense_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("expense.id", ondelete="CASCADE"),
         primary_key=True,
     )
