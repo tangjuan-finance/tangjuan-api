@@ -12,9 +12,9 @@ class TestRiskRepoCase:
 
         # Act: Save the risk domain using the repo and return the saved entity
         risk_from_repo = RiskRepo.create(risk)
-        risk_from_db = db.session.scalar(
+        risk_from_db = db.session.scalars(
             sa.select(Risk).where(Risk.id == risk_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert risk_from_repo.id == risk_from_db.id
@@ -39,9 +39,9 @@ class TestRiskRepoCase:
         updated_risk = RiskRepo.save(risk_from_repo)
 
         # Query the database to verify the updated risk record
-        risk_from_db = db.session.scalar(
+        risk_from_db = db.session.scalars(
             sa.select(Risk).where(Risk.id == risk_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_risk.id == risk_from_db.id

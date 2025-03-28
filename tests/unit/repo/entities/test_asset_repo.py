@@ -12,9 +12,9 @@ class TestAssetRepoCase:
 
         # Act: Save the asset domain using the repo and return the saved entity
         asset_from_repo = AssetRepo.create(asset)
-        asset_from_db = db.session.scalar(
+        asset_from_db = db.session.scalars(
             sa.select(Asset).where(Asset.id == asset_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert asset_from_repo.id == asset_from_db.id
@@ -46,9 +46,9 @@ class TestAssetRepoCase:
         updated_asset = AssetRepo.save(asset_from_repo)
 
         # Query the database to verify the updated asset record
-        asset_from_db = db.session.scalar(
+        asset_from_db = db.session.scalars(
             sa.select(Asset).where(Asset.id == asset_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_asset.id == asset_from_db.id

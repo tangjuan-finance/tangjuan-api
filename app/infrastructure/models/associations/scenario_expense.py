@@ -16,7 +16,7 @@ class ScenarioExpense(
     BaseMemoMixin,
     db.Model,
 ):
-    left_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )

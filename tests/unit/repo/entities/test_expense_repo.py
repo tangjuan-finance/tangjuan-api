@@ -12,9 +12,9 @@ class TestExpenseRepoCase:
 
         # Act: Save the expense domain using the repo and return the saved entity
         expense_from_repo = ExpenseRepo.create(expense)
-        expense_from_db = db.session.scalar(
+        expense_from_db = db.session.scalars(
             sa.select(Expense).where(Expense.id == expense_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert expense_from_repo.id == expense_from_db.id
@@ -46,9 +46,9 @@ class TestExpenseRepoCase:
         updated_expense = ExpenseRepo.save(expense_from_repo)
 
         # Query the database to verify the updated expense record
-        expense_from_db = db.session.scalar(
+        expense_from_db = db.session.scalars(
             sa.select(Expense).where(Expense.id == expense_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_expense.id == expense_from_db.id

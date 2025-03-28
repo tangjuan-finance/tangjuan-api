@@ -12,9 +12,9 @@ class TestScenarioDomainCase:
 
         # Act: Save the scenario domain using the repo and return the saved entity
         scenario_from_repo = ScenarioRepo.create(scenario)
-        scenario_from_db = db.session.scalar(
+        scenario_from_db = db.session.scalars(
             sa.select(Scenario).where(Scenario.id == scenario_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert scenario_from_repo.id == scenario_from_db.id
@@ -41,9 +41,9 @@ class TestScenarioDomainCase:
         updated_scenario = ScenarioRepo.save(scenario_from_repo)
 
         # Query the database to verify the updated scenario record
-        scenario_from_db = db.session.scalar(
+        scenario_from_db = db.session.scalars(
             sa.select(Scenario).where(Scenario.id == scenario_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_scenario.id == scenario_from_db.id

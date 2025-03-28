@@ -12,9 +12,9 @@ class TestChildRepoCase:
 
         # Act: Save the child domain using the repo and return the saved entity
         child_from_repo = ChildRepo.create(child)
-        child_from_db = db.session.scalar(
+        child_from_db = db.session.scalars(
             sa.select(Child).where(Child.id == child_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert child_from_repo.id == child_from_db.id
@@ -38,9 +38,9 @@ class TestChildRepoCase:
         updated_child = ChildRepo.save(child_from_repo)
 
         # Query the database to verify the updated child record
-        child_from_db = db.session.scalar(
+        child_from_db = db.session.scalars(
             sa.select(Child).where(Child.id == child_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_child.id == child_from_db.id

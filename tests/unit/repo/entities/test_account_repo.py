@@ -12,9 +12,9 @@ class TestAccountRepoCase:
 
         # Act: Save the account domain using the repo and return the saved entity
         account_from_repo = AccountRepo.create(account)
-        account_from_db = db.session.scalar(
+        account_from_db = db.session.scalars(
             sa.select(Account).where(Account.id == account_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert account_from_repo.id == account_from_db.id
@@ -37,9 +37,9 @@ class TestAccountRepoCase:
         updated_account = AccountRepo.save(account_from_repo)
 
         # Query the database to verify the updated account record
-        account_from_db = db.session.scalar(
+        account_from_db = db.session.scalars(
             sa.select(Account).where(Account.id == account_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_account.id == account_from_db.id

@@ -12,9 +12,9 @@ class TestIncomeRepoCase:
 
         # Act: Save the income domain using the repo and return the saved entity
         income_from_repo = IncomeRepo.create(income)
-        income_from_db = db.session.scalar(
+        income_from_db = db.session.scalars(
             sa.select(Income).where(Income.id == income_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert income_from_repo.id == income_from_db.id
@@ -46,9 +46,9 @@ class TestIncomeRepoCase:
         updated_income = IncomeRepo.save(income_from_repo)
 
         # Query the database to verify the updated income record
-        income_from_db = db.session.scalar(
+        income_from_db = db.session.scalars(
             sa.select(Income).where(Income.id == income_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_income.id == income_from_db.id

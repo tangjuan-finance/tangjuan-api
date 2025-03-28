@@ -12,9 +12,9 @@ class TestLiabilityRepoCase:
 
         # Act: Save the liability domain using the repo and return the saved entity
         liability_from_repo = LiabilityRepo.create(liability)
-        liability_from_db = db.session.scalar(
+        liability_from_db = db.session.scalars(
             sa.select(Liability).where(Liability.id == liability_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert liability_from_repo.id == liability_from_db.id
@@ -42,9 +42,9 @@ class TestLiabilityRepoCase:
         updated_liability = LiabilityRepo.save(liability_from_repo)
 
         # Query the database to verify the updated liability record
-        liability_from_db = db.session.scalar(
+        liability_from_db = db.session.scalars(
             sa.select(Liability).where(Liability.id == liability_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_liability.id == liability_from_db.id

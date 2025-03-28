@@ -12,9 +12,9 @@ class TestHouseRepoCase:
 
         # Act: Save the house domain using the repo and return the saved entity
         house_from_repo = HouseRepo.create(house)
-        house_from_db = db.session.scalar(
+        house_from_db = db.session.scalars(
             sa.select(House).where(House.id == house_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert house_from_repo.id == house_from_db.id
@@ -41,9 +41,9 @@ class TestHouseRepoCase:
         updated_house = HouseRepo.save(house_from_repo)
 
         # Query the database to verify the updated house record
-        house_from_db = db.session.scalar(
+        house_from_db = db.session.scalars(
             sa.select(House).where(House.id == house_from_repo.id)
-        )
+        ).one()
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_house.id == house_from_db.id
