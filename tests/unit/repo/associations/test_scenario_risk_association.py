@@ -18,13 +18,13 @@ class TestRiskRepoCase:
 
     def test_create_scenario_risk_assoc_through_repo(self, new_scenario, new_risk):
         # Arrange: Create an risk and a scenario domain using the factory
-        default_max_yearly_growth_rate = 100000
-        new_risk.max_yearly_growth_rate = default_max_yearly_growth_rate
-        assoc_max_yearly_growth_rate = 500000
+        default_max_loss = 100000
+        new_risk.max_loss = default_max_loss
+        assoc_max_loss = 500000
         assoc_domain = ScenarioRiskDomain(
             risk=new_risk,
             scenario=new_scenario,
-            max_yearly_growth_rate=assoc_max_yearly_growth_rate,
+            max_loss=assoc_max_loss,
         )
 
         # Act: Save the risk domain to the scenario domain by ScenarioRiskRepo, and get the association obj back from database
@@ -40,36 +40,24 @@ class TestRiskRepoCase:
         # Assert: Ensure the values match between the domain object and the saved record
         assert scenario_risk_from_repo.risk.id == scenario_risk_from_db.risk_id
         assert scenario_risk_from_repo.scenario.id == scenario_risk_from_db.scenario_id
-        assert (
-            scenario_risk_from_repo.max_yearly_growth_rate
-            == scenario_risk_from_db.max_yearly_growth_rate
-        )
-        assert (
-            scenario_risk_from_repo.max_yearly_growth_rate
-            == assoc_max_yearly_growth_rate
-        )
-        assert (
-            scenario_risk_from_repo.risk.max_yearly_growth_rate
-            == default_max_yearly_growth_rate
-        )
-        assert (
-            scenario_risk_from_repo.max_yearly_growth_rate
-            != scenario_risk_from_repo.risk.max_yearly_growth_rate
-        )
+        assert scenario_risk_from_repo.max_loss == scenario_risk_from_db.max_loss
+        assert scenario_risk_from_repo.max_loss == assoc_max_loss
+        assert scenario_risk_from_repo.risk.max_loss == default_max_loss
+        assert scenario_risk_from_repo.max_loss != scenario_risk_from_repo.risk.max_loss
 
     def test_update_scenario_risk_assoc_through_repo(self, new_scenario, new_risk):
         # Arrange: Adding a risk to scenario using the ScenarioRiskRepo
-        default_max_yearly_growth_rate = 500000
+        default_max_loss = 500000
         assoc_domain = ScenarioRiskDomain(
             risk=new_risk,
             scenario=new_scenario,
-            max_yearly_growth_rate=default_max_yearly_growth_rate,
+            max_loss=default_max_loss,
         )
         scenario_risk_from_repo = ScenarioRiskRepo.create(assoc_domain)
-        updated_max_yearly_growth_rate = 200000
+        updated_max_loss = 200000
 
         # Act: Update the risk domain object (before saving)
-        scenario_risk_from_repo.max_yearly_growth_rate = updated_max_yearly_growth_rate
+        scenario_risk_from_repo.max_loss = updated_max_loss
 
         # Save the updated object through the repository and get the result
         updated_scenario_risk = ScenarioRiskRepo.save(scenario_risk_from_repo)
@@ -85,14 +73,8 @@ class TestRiskRepoCase:
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_scenario_risk.risk.id == scenario_risk_from_db.risk_id
         assert updated_scenario_risk.scenario.id == scenario_risk_from_db.scenario_id
-        assert (
-            updated_scenario_risk.max_yearly_growth_rate
-            == updated_max_yearly_growth_rate
-        )
-        assert (
-            updated_scenario_risk.max_yearly_growth_rate
-            == scenario_risk_from_db.max_yearly_growth_rate
-        )
+        assert updated_scenario_risk.max_loss == updated_max_loss
+        assert updated_scenario_risk.max_loss == scenario_risk_from_db.max_loss
         assert updated_scenario_risk.created_at == scenario_risk_from_db.created_at
         assert updated_scenario_risk.updated_at == scenario_risk_from_db.updated_at
         # Update_at from updated_risk should be different from the previous risk domain (the one before update)

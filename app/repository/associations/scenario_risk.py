@@ -1,14 +1,161 @@
-from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
-from .base import BaseAssociationRepo
-from .mixin import BaseAgeIntervalMixin
+from app.domain.associations import ScenarioRiskDomain
+from app.domain.entities import ScenarioDomain, RiskDomain
+from app.infrastructure.models import ScenarioRisk, Scenario, Risk
+from app.repository.entities import ScenarioRepo, RiskRepo
+from app import db
+import sqlalchemy as sa
+from sqlalchemy.orm.exc import NoResultFound
 
-if TYPE_CHECKING:
-    from ..entities import RiskRepo  # Imported only for type hints
 
+class ScenarioRiskRepo:
+    @staticmethod
+    def create(assoc: ScenarioRiskDomain) -> ScenarioRiskDomain:
+        """Given an Associaiton Domain Object, store it in the database and return the stored object."""
+        # Check if the association already exists
+        existing_assoc = ScenarioRiskRepo._get_assoc_model_by_cid(
+            assoc.scenario.id, assoc.risk.id
+        )
+        if existing_assoc:
+            raise ValueError(
+                f"Scenario Risk Record with scenario_id {assoc.scenario.id}, risk_id {assoc.risk.id} already exists!"
+            )
 
-@dataclass(kw_only=True)
-class ScenarioRiskRepo(BaseAssociationRepo, BaseAgeIntervalMixin):
-    risk: "RiskRepo"  # Use a forward reference (string)
-    max_loss: Optional[int] = None
-    min_loss: Optional[int] = None
+        try:
+            scenario_model = ScenarioRiskRepo._get_scenario_model_by_id(
+                assoc.scenario.id
+            )
+            risk_model = ScenarioRiskRepo._get_risk_model_by_id(assoc.risk.id)
+        except ValueError as e:
+            raise ValueError(str(e))
+
+        # Instance with required attr
+        # Optional attr would be None, which is set in Domain Definition
+        assoc_model = ScenarioRisk(
+            scenario=scenario_model,
+            risk=risk_model,
+            max_loss=assoc.max_loss,
+            min_loss=assoc.min_loss,
+            start_age=assoc.start_age,
+            end_age=assoc.end_age,
+            memo=assoc.memo,
+        )
+
+        # Save the Risk model to the database
+        db.session.add(assoc_model)
+        db.session.commit()
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRiskRepo._map_to_domain(assoc_model, assoc.scenario, assoc.risk)
+
+    @staticmethod
+    def save(assoc: ScenarioRiskDomain) -> ScenarioRiskDomain:
+        """Given an existing DomainObject, update it in the database and return the updated object."""
+        # Get risk_model from database
+        existing_assoc = ScenarioRiskRepo._get_assoc_model_by_cid(
+            assoc.scenario.id, assoc.risk.id
+        )
+        if not existing_assoc:
+            raise ValueError(
+                f"Scenario Risk Record with scenario_id {assoc.scenario.id}, risk_id {assoc.risk.id} not found"
+            )
+        # As existing_assoc is query by scenario.id and risk.id, both id of existing_assoc would be the same as assoc
+        existing_assoc.max_loss = assoc.max_loss
+        existing_assoc.min_loss = assoc.min_loss
+        existing_assoc.start_age = assoc.start_age
+        existing_assoc.end_age = assoc.end_age
+        existing_assoc.memo = assoc.memo
+
+        db.session.commit()
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRiskRepo._map_to_domain(
+            existing_assoc, assoc.scenario, assoc.risk
+        )
+
+    @staticmethod
+    def get_by_id(scenario_id: str, risk_id: str) -> ScenarioRiskDomain | None:
+        """Retrieve an risk by ID and return as DomainObject."""
+        # Get risk_model from database
+        existing_assoc = ScenarioRiskRepo._get_assoc_model_by_cid(scenario_id, risk_id)
+
+        if not existing_assoc:
+            return None
+
+        scenario_domain = ScenarioRepo.get_by_id(existing_assoc.scenario_id)
+        risk_domain = RiskRepo.get_by_id(existing_assoc.risk_id)
+
+        # Return the domain object with attributes populated from the database
+        return ScenarioRiskRepo._map_to_domain(
+            existing_assoc, scenario_domain, risk_domain
+        )
+
+    @staticmethod
+    def get_list() -> list[ScenarioRiskDomain]:
+        """Retrieve all risks and return as a list of DomainObjects."""
+        assoc_model_list = db.session.scalars(sa.select(ScenarioRisk)).all()
+
+        return [
+            ScenarioRiskRepo._map_to_domain(
+                assoc,
+                ScenarioRepo.get_by_id(assoc.scenario_id),
+                RiskRepo.get_by_id(assoc.risk_id),
+            )
+            for assoc in assoc_model_list
+        ]
+
+    @staticmethod
+    def delete_by_id(scenario_id: str, risk_id: str) -> None:
+        """Given an risk ID, remove it from the database."""
+        # Get risk_model from database
+        existing_assoc = ScenarioRiskRepo._get_assoc_model_by_cid(scenario_id, risk_id)
+
+        if existing_assoc:
+            db.session.delete(existing_assoc)
+            db.session.commit()
+
+        return None
+
+    @staticmethod
+    def _map_to_domain(
+        assoc_model: ScenarioRisk, scenario: ScenarioDomain, risk: RiskDomain
+    ) -> ScenarioRiskDomain:
+        """Helper method to map the ScenarioRisk model to a ScenarioRiskDomain object."""
+        return ScenarioRiskDomain(
+            scenario=scenario,
+            risk=risk,
+            max_loss=assoc_model.max_loss,
+            min_loss=assoc_model.min_loss,
+            start_age=assoc_model.start_age,
+            end_age=assoc_model.end_age,
+            memo=assoc_model.memo,
+            created_at=assoc_model.created_at,
+            updated_at=assoc_model.updated_at,
+        )
+
+    @staticmethod
+    def _get_assoc_model_by_cid(scenario_id: str, risk_id: str) -> ScenarioRisk:
+        assoc = db.session.scalar(
+            sa.select(ScenarioRisk).where(
+                (ScenarioRisk.scenario_id == scenario_id)
+                & (ScenarioRisk.risk_id == risk_id)
+            )
+        )
+        return assoc
+
+    @staticmethod
+    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        try:
+            scenario_model = db.session.get_one(Scenario, scenario_id)
+        except NoResultFound:
+            raise ValueError("Scenario not found!")
+
+        return scenario_model
+
+    @staticmethod
+    def _get_risk_model_by_id(risk_id: str) -> Risk:
+        try:
+            risk_model = db.session.get_one(Risk, risk_id)
+        except NoResultFound:
+            raise ValueError("Risk not found!")
+
+        return risk_model
