@@ -12,5 +12,6 @@ if TYPE_CHECKING:
 class BaseAssociationDomain(ABC):
     scenario: "ScenarioDomain"  # Use a forward reference (string)
     memo: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
+    # created_at and updated_at is given by orm
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

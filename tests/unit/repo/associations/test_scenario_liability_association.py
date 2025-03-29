@@ -1,17 +1,16 @@
 from app.repository.associations import ScenarioLiabilityRepo
 from app.infrastructure.models.associations import ScenarioLiability
 from app.domain.associations import ScenarioLiabilityDomain
-from tests.unit.factories import LiabilityDomainFactory, ScenarioDomainFactory
 import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
+from tests.unit.repo.factories import create_scenario, create_liability
+
 
 class TestLiabilityRepoCase:
-    def _create_assoc(self, default_account):
-        scenario = ScenarioDomainFactory(owner=default_account)
-        liability = LiabilityDomainFactory(owner=default_account)
-        allocation_percentage = Decimal("0.35")
+    @staticmethod
+    def _create_assoc(liability, scenario, allocation_percentage):
         assoc_domain = ScenarioLiabilityDomain(
             liability=liability,
             scenario=scenario,
@@ -19,19 +18,17 @@ class TestLiabilityRepoCase:
         )
         return ScenarioLiabilityRepo.create(assoc_domain)
 
-    def test_create_scenario_liability_assoc_through_repo(self, default_account):
+    def test_create_scenario_liability_assoc_through_repo(
+        self, new_scenario, new_liability
+    ):
         # Arrange: Create an liability and a scenario domain using the factory
         default_interest_rate = Decimal("0.2")
-        allocation_percentage = Decimal("0.35")
-        scenario = ScenarioDomainFactory(owner=default_account)
-        liability = LiabilityDomainFactory(
-            owner=default_account,
-            interest_rate=default_interest_rate,
-        )
+        new_liability.interest_rate = default_interest_rate
         assoc_interest_rate = Decimal("0.7")
+        allocation_percentage = Decimal("0.35")
         assoc_domain = ScenarioLiabilityDomain(
-            liability=liability,
-            scenario=scenario,
+            liability=new_liability,
+            scenario=new_scenario,
             interest_rate=assoc_interest_rate,
             allocation_percentage=allocation_percentage,
         )
@@ -39,7 +36,7 @@ class TestLiabilityRepoCase:
         # Act: Save the liability domain to the scenario domain by ScenarioLiabilityRepo, and get the association obj back from database
         scenario_liability_from_repo = ScenarioLiabilityRepo.create(assoc_domain)
 
-        scenario_liability_from_db = db.session.scalar(
+        scenario_liability_from_db = db.session.scalars(
             sa.select(ScenarioLiability).where(
                 (
                     ScenarioLiability.scenario_id
@@ -54,9 +51,6 @@ class TestLiabilityRepoCase:
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert (
-            scenario_liability_from_repo.allocation_percentage == allocation_percentage
-        )
-        assert (
             scenario_liability_from_repo.liability.id
             == scenario_liability_from_db.liability_id
         )
@@ -68,6 +62,13 @@ class TestLiabilityRepoCase:
             scenario_liability_from_repo.interest_rate
             == scenario_liability_from_db.interest_rate
         )
+        assert (
+            scenario_liability_from_repo.allocation_percentage == allocation_percentage
+        )
+        assert (
+            scenario_liability_from_repo.allocation_percentage
+            == scenario_liability_from_db.allocation_percentage
+        )
         assert scenario_liability_from_repo.interest_rate == assoc_interest_rate
         assert (
             scenario_liability_from_repo.liability.interest_rate
@@ -78,15 +79,15 @@ class TestLiabilityRepoCase:
             != scenario_liability_from_repo.liability.interest_rate
         )
 
-    def test_update_scenario_liability_assoc_through_repo(self, default_account):
+    def test_update_scenario_liability_assoc_through_repo(
+        self, new_scenario, new_liability
+    ):
         # Arrange: Adding a liability to scenario using the ScenarioLiabilityRepo
-        scenario = ScenarioDomainFactory(owner=default_account)
-        liability = LiabilityDomainFactory(owner=default_account)
         default_interest_rate = Decimal("0.7")
         allocation_percentage = Decimal("0.35")
         assoc_domain = ScenarioLiabilityDomain(
-            liability=liability,
-            scenario=scenario,
+            liability=new_liability,
+            scenario=new_scenario,
             interest_rate=default_interest_rate,
             allocation_percentage=allocation_percentage,
         )
@@ -143,9 +144,15 @@ class TestLiabilityRepoCase:
             > scenario_liability_from_repo.updated_at
         )
 
-    def test_get_scenario_liability_assoc_by_id_through_repo(self, default_account):
+    def test_get_scenario_liability_assoc_by_id_through_repo(
+        self, new_scenario, new_liability
+    ):
         # Arrange: Create an liability domain using the factory
-        scenario_liability_from_repo = self._create_assoc(default_account)
+        scenario_liability_from_repo = self._create_assoc(
+            liability=new_liability,
+            scenario=new_scenario,
+            allocation_percentage=Decimal("0.35"),
+        )
 
         # Act: Update the liability domain object (before saving)
         scenario_liability_get_by_id = ScenarioLiabilityRepo.get_by_id(
@@ -155,12 +162,12 @@ class TestLiabilityRepoCase:
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_liability_get_by_id.scenario_id
-            == scenario_liability_from_repo.scenario_id
+            scenario_liability_get_by_id.scenario.id
+            == scenario_liability_from_repo.scenario.id
         )
         assert (
-            scenario_liability_get_by_id.liability_id
-            == scenario_liability_from_repo.liability_id
+            scenario_liability_get_by_id.liability.id
+            == scenario_liability_from_repo.liability.id
         )
 
     def test_get_scenario_liability_assoc_list_through_repo(self, default_account):
@@ -169,22 +176,37 @@ class TestLiabilityRepoCase:
 
         # Act: Create 5 new liability domains
         for _ in range(5):
-            self._create_assoc(default_account)
+            new_scenario = create_scenario(default_account)
+            new_liability = create_liability(default_account)
+            self._create_assoc(
+                liability=new_liability,
+                scenario=new_scenario,
+                allocation_percentage=Decimal("0.35"),
+            )
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(ScenarioLiabilityRepo.get_list())
         assert updated_list_length == (origin_repo_list_length + 5)
 
-    def test_delete_scenario_liability_assoc_through_repo(self, default_account):
+    def test_delete_scenario_liability_assoc_through_repo(
+        self, new_scenario, new_liability
+    ):
         # Arrange: Create an liability domain using the factory
-        scenario_liability_from_repo = self._create_assoc(default_account)
+        scenario_liability_from_repo = self._create_assoc(
+            liability=new_liability,
+            scenario=new_scenario,
+            allocation_percentage=Decimal("0.35"),
+        )
 
         # Act: Delete the liability domain object
-        ScenarioLiabilityRepo.delete_by_id(scenario_liability_from_repo.id)
+        ScenarioLiabilityRepo.delete_by_id(
+            scenario_id=scenario_liability_from_repo.scenario.id,
+            liability_id=scenario_liability_from_repo.liability.id,
+        )
 
         # Assert: Ensure the liability record is deleted from the database
-        scenario_liability_from_db = db.session.scalars(
-            sa.select(ScenarioLiabilityRepo).where(
+        scenario_liability_from_db = db.session.scalar(
+            sa.select(ScenarioLiability).where(
                 (
                     ScenarioLiability.scenario_id
                     == scenario_liability_from_repo.scenario.id

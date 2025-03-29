@@ -1,40 +1,39 @@
 from app.repository.associations import ScenarioExpenseRepo
 from app.infrastructure.models.associations import ScenarioExpense
 from app.domain.associations import ScenarioExpenseDomain
-from tests.unit.factories import ExpenseDomainFactory, ScenarioDomainFactory
 import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
+from tests.unit.repo.factories import create_scenario, create_expense
+
 
 class TestExpenseRepoCase:
-    def _create_assoc(self, default_account):
-        scenario = ScenarioDomainFactory(owner=default_account)
-        expense = ExpenseDomainFactory(owner=default_account)
+    @staticmethod
+    def _create_assoc(expense, scenario):
         assoc_domain = ScenarioExpenseDomain(
             expense=expense,
             scenario=scenario,
         )
         return ScenarioExpenseRepo.create(assoc_domain)
 
-    def test_create_scenario_expense_assoc_through_repo(self, default_account):
+    def test_create_scenario_expense_assoc_through_repo(
+        self, new_scenario, new_expense
+    ):
         # Arrange: Create an expense and a scenario domain using the factory
         default_max_yearly_growth_rate = Decimal("0.2")
-        scenario = ScenarioDomainFactory(owner=default_account)
-        expense = ExpenseDomainFactory(
-            owner=default_account, max_yearly_growth_rate=default_max_yearly_growth_rate
-        )
+        new_expense.max_yearly_growth_rate = default_max_yearly_growth_rate
         assoc_max_yearly_growth_rate = Decimal("0.7")
         assoc_domain = ScenarioExpenseDomain(
-            expense=expense,
-            scenario=scenario,
+            expense=new_expense,
+            scenario=new_scenario,
             max_yearly_growth_rate=assoc_max_yearly_growth_rate,
         )
 
         # Act: Save the expense domain to the scenario domain by ScenarioExpenseRepo, and get the association obj back from database
         scenario_expense_from_repo = ScenarioExpenseRepo.create(assoc_domain)
 
-        scenario_expense_from_db = db.session.scalar(
+        scenario_expense_from_db = db.session.scalars(
             sa.select(ScenarioExpense).where(
                 (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario.id)
                 & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense.id)
@@ -66,14 +65,14 @@ class TestExpenseRepoCase:
             != scenario_expense_from_repo.expense.max_yearly_growth_rate
         )
 
-    def test_update_scenario_expense_assoc_through_repo(self, default_account):
+    def test_update_scenario_expense_assoc_through_repo(
+        self, new_scenario, new_expense
+    ):
         # Arrange: Adding a expense to scenario using the ScenarioExpenseRepo
-        scenario = ScenarioDomainFactory(owner=default_account)
-        expense = ExpenseDomainFactory(owner=default_account)
         default_max_yearly_growth_rate = Decimal("0.7")
         assoc_domain = ScenarioExpenseDomain(
-            expense=expense,
-            scenario=scenario,
+            expense=new_expense,
+            scenario=new_scenario,
             max_yearly_growth_rate=default_max_yearly_growth_rate,
         )
         scenario_expense_from_repo = ScenarioExpenseRepo.create(assoc_domain)
@@ -121,9 +120,13 @@ class TestExpenseRepoCase:
             updated_scenario_expense.updated_at > scenario_expense_from_repo.updated_at
         )
 
-    def test_get_scenario_expense_assoc_by_id_through_repo(self, default_account):
+    def test_get_scenario_expense_assoc_by_id_through_repo(
+        self, new_scenario, new_expense
+    ):
         # Arrange: Create an expense domain using the factory
-        scenario_expense_from_repo = self._create_assoc(default_account)
+        scenario_expense_from_repo = self._create_assoc(
+            expense=new_expense, scenario=new_scenario
+        )
 
         # Act: Update the expense domain object (before saving)
         scenario_expense_get_by_id = ScenarioExpenseRepo.get_by_id(
@@ -133,12 +136,12 @@ class TestExpenseRepoCase:
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_expense_get_by_id.scenario_id
-            == scenario_expense_from_repo.scenario_id
+            scenario_expense_get_by_id.scenario.id
+            == scenario_expense_from_repo.scenario.id
         )
         assert (
-            scenario_expense_get_by_id.expense_id
-            == scenario_expense_from_repo.expense_id
+            scenario_expense_get_by_id.expense.id
+            == scenario_expense_from_repo.expense.id
         )
 
     def test_get_scenario_expense_assoc_list_through_repo(self, default_account):
@@ -147,22 +150,31 @@ class TestExpenseRepoCase:
 
         # Act: Create 5 new expense domains
         for _ in range(5):
-            self._create_assoc(default_account)
+            new_scenario = create_scenario(default_account)
+            new_expense = create_expense(default_account)
+            self._create_assoc(expense=new_expense, scenario=new_scenario)
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(ScenarioExpenseRepo.get_list())
         assert updated_list_length == (origin_repo_list_length + 5)
 
-    def test_delete_scenario_expense_assoc_through_repo(self, default_account):
+    def test_delete_scenario_expense_assoc_through_repo(
+        self, new_scenario, new_expense
+    ):
         # Arrange: Create an expense domain using the factory
-        scenario_expense_from_repo = self._create_assoc(default_account)
+        scenario_expense_from_repo = self._create_assoc(
+            expense=new_expense, scenario=new_scenario
+        )
 
         # Act: Delete the expense domain object
-        ScenarioExpenseRepo.delete_by_id(scenario_expense_from_repo.id)
+        ScenarioExpenseRepo.delete_by_id(
+            scenario_id=scenario_expense_from_repo.scenario.id,
+            expense_id=scenario_expense_from_repo.expense.id,
+        )
 
         # Assert: Ensure the expense record is deleted from the database
-        scenario_expense_from_db = db.session.scalars(
-            sa.select(ScenarioExpenseRepo).where(
+        scenario_expense_from_db = db.session.scalar(
+            sa.select(ScenarioExpense).where(
                 (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario.id)
                 & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense.id)
             )

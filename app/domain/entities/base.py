@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 @dataclass(kw_only=True)
 class EntityDomain(ABC):
     id: Optional[str] = None
+    # created_at and updated_at is given by orm
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

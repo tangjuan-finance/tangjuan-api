@@ -1,37 +1,36 @@
 from app.repository.associations import ScenarioChildRepo
 from app.infrastructure.models.associations import ScenarioChild
 from app.domain.associations import ScenarioChildDomain
-from tests.unit.factories import ChildDomainFactory, ScenarioDomainFactory
 import sqlalchemy as sa
 from app import db
 
+from tests.unit.repo.factories import create_scenario, create_child
+
 
 class TestChildRepoCase:
-    def _create_assoc(self, default_account):
-        scenario = ScenarioDomainFactory(owner=default_account)
-        child = ChildDomainFactory(owner=default_account)
+    @staticmethod
+    def _create_assoc(child, scenario):
         assoc_domain = ScenarioChildDomain(
             child=child,
             scenario=scenario,
         )
         return ScenarioChildRepo.create(assoc_domain)
 
-    def test_create_scenario_child_assoc_through_repo(self, default_account):
+    def test_create_scenario_child_assoc_through_repo(self, new_scenario, new_child):
         # Arrange: Create an child and a scenario domain using the factory
-        default_birth_age = 24
-        scenario = ScenarioDomainFactory(owner=default_account)
-        child = ChildDomainFactory(owner=default_account, birth_age=default_birth_age)
+        default_birth_age = 34
+        new_child.birth_age = default_birth_age
         assoc_birth_age = 26
         assoc_domain = ScenarioChildDomain(
-            child=child,
-            scenario=scenario,
+            child=new_child,
+            scenario=new_scenario,
             birth_age=assoc_birth_age,
         )
 
         # Act: Save the child domain to the scenario domain by ScenarioChildRepo, and get the association obj back from database
         scenario_child_from_repo = ScenarioChildRepo.create(assoc_domain)
 
-        scenario_child_from_db = db.session.scalar(
+        scenario_child_from_db = db.session.scalars(
             sa.select(ScenarioChild).where(
                 (ScenarioChild.scenario_id == scenario_child_from_repo.scenario.id)
                 & (ScenarioChild.child_id == scenario_child_from_repo.child.id)
@@ -51,18 +50,16 @@ class TestChildRepoCase:
             != scenario_child_from_repo.child.birth_age
         )
 
-    def test_update_scenario_child_assoc_through_repo(self, default_account):
+    def test_update_scenario_child_assoc_through_repo(self, new_scenario, new_child):
         # Arrange: Adding a child to scenario using the ScenarioChildRepo
-        scenario = ScenarioDomainFactory(owner=default_account)
-        child = ChildDomainFactory(owner=default_account)
-        default_birth_age = 28
+        default_birth_age = 26
         assoc_domain = ScenarioChildDomain(
-            child=child,
-            scenario=scenario,
+            child=new_child,
+            scenario=new_scenario,
             birth_age=default_birth_age,
         )
         scenario_child_from_repo = ScenarioChildRepo.create(assoc_domain)
-        updated_birth_age = 32
+        updated_birth_age = 28
 
         # Act: Update the child domain object (before saving)
         scenario_child_from_repo.birth_age = updated_birth_age
@@ -88,9 +85,11 @@ class TestChildRepoCase:
         # Update_at from updated_child should be different from the previous child domain (the one before update)
         assert updated_scenario_child.updated_at > scenario_child_from_repo.updated_at
 
-    def test_get_scenario_child_assoc_by_id_through_repo(self, default_account):
+    def test_get_scenario_child_assoc_by_id_through_repo(self, new_scenario, new_child):
         # Arrange: Create an child domain using the factory
-        scenario_child_from_repo = self._create_assoc(default_account)
+        scenario_child_from_repo = self._create_assoc(
+            child=new_child, scenario=new_scenario
+        )
 
         # Act: Update the child domain object (before saving)
         scenario_child_get_by_id = ScenarioChildRepo.get_by_id(
@@ -100,9 +99,9 @@ class TestChildRepoCase:
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_child_get_by_id.scenario_id == scenario_child_from_repo.scenario_id
+            scenario_child_get_by_id.scenario.id == scenario_child_from_repo.scenario.id
         )
-        assert scenario_child_get_by_id.child_id == scenario_child_from_repo.child_id
+        assert scenario_child_get_by_id.child.id == scenario_child_from_repo.child.id
 
     def test_get_scenario_child_assoc_list_through_repo(self, default_account):
         # Arrange: Create an child domain using the factory
@@ -110,22 +109,29 @@ class TestChildRepoCase:
 
         # Act: Create 5 new child domains
         for _ in range(5):
-            self._create_assoc(default_account)
+            new_scenario = create_scenario(default_account)
+            new_child = create_child(default_account)
+            self._create_assoc(child=new_child, scenario=new_scenario)
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(ScenarioChildRepo.get_list())
         assert updated_list_length == (origin_repo_list_length + 5)
 
-    def test_delete_scenario_child_assoc_through_repo(self, default_account):
+    def test_delete_scenario_child_assoc_through_repo(self, new_scenario, new_child):
         # Arrange: Create an child domain using the factory
-        scenario_child_from_repo = self._create_assoc(default_account)
+        scenario_child_from_repo = self._create_assoc(
+            child=new_child, scenario=new_scenario
+        )
 
         # Act: Delete the child domain object
-        ScenarioChildRepo.delete_by_id(scenario_child_from_repo.id)
+        ScenarioChildRepo.delete_by_id(
+            scenario_id=scenario_child_from_repo.scenario.id,
+            child_id=scenario_child_from_repo.child.id,
+        )
 
         # Assert: Ensure the child record is deleted from the database
-        scenario_child_from_db = db.session.scalars(
-            sa.select(ScenarioChildRepo).where(
+        scenario_child_from_db = db.session.scalar(
+            sa.select(ScenarioChild).where(
                 (ScenarioChild.scenario_id == scenario_child_from_repo.scenario.id)
                 & (ScenarioChild.child_id == scenario_child_from_repo.child.id)
             )
