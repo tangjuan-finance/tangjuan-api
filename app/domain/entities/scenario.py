@@ -2,8 +2,6 @@ from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 from decimal import Decimal
 from .base import EntityDomain
-from types import MappingProxyType
-
 
 if TYPE_CHECKING:
     from .account import AccountDomain
@@ -16,6 +14,7 @@ if TYPE_CHECKING:
         ScenarioAssetDomain,
         ScenarioLiabilityDomain,
     )
+    from app.mapper.resource_mapper import ResourceMapper
 
 
 @dataclass(kw_only=True)
@@ -35,39 +34,19 @@ class ScenarioDomain(EntityDomain):
     assets: List["ScenarioAssetDomain"] = field(default_factory=list)
     liabilities: List["ScenarioLiabilityDomain"] = field(default_factory=list)
 
-    _VALID_RESOURCE_TYPES = frozenset(
-        {"child", "liability", "expense", "income", "house", "risk", "asset"}
-    )
-    _COLLECTION_MAPPING = MappingProxyType(
-        {
-            "child": "children",
-            "liability": "liabilities",
-            "expense": "expenses",
-            "income": "incomes",
-            "house": "houses",
-            "risk": "risks",
-            "asset": "assets",
-        }
-    )
-
-    def _get_resource_type(self, obj) -> str:
-        """Extracts the resource type from the given object."""
-        resource_type = (
-            type(obj).__name__.replace("Scenario", "").replace("Domain", "").lower()
-        )
-        if resource_type not in self._VALID_RESOURCE_TYPES:
-            raise ValueError(f"Invalid resource type: {resource_type}")
-        return resource_type
-
-    def _get_collection(self, resource_type) -> str:
+    def _get_collection(self, mapper: "ResourceMapper"):
         """Get collection by mapping a resource type to its corresponding collection name."""
-        collection_name = self._COLLECTION_MAPPING[resource_type]
-        return getattr(self, collection_name)
+        return getattr(self, mapper.collection_type)
 
     def get_association_by_resource(self, resource):
         """Get the association object from the corresponding collection by its resource id."""
-        resource_type = self._get_resource_type(resource)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+        from app.mapper.resource_mapper import ResourceMapper
+
+        resource_mapper = ResourceMapper.from_domain(resource)
+        resource_type = resource_mapper.resource_type
+        collection = self._get_collection(
+            resource_mapper
+        )  # e.g., "expenses", "incomes"
 
         association = [
             association
@@ -90,8 +69,12 @@ class ScenarioDomain(EntityDomain):
 
     def _add_association(self, association):
         """Add the association object to the corresponding collection."""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+        from app.mapper.resource_mapper import ResourceMapper
+
+        resource_mapper = ResourceMapper.from_assoc(association)
+        collection = self._get_collection(
+            resource_mapper
+        )  # e.g., "expenses", "incomes"
 
         if association in collection:
             raise ValueError(f"Association already exists in {collection.__name__}")
@@ -99,8 +82,13 @@ class ScenarioDomain(EntityDomain):
 
     def _update_association(self, association, **param):
         """Update the association object from the corresponding collection by given parameters."""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+        from app.mapper.resource_mapper import ResourceMapper
+
+        resource_mapper = ResourceMapper.from_assoc(association)
+        resource_type = resource_mapper.resource_type
+        collection = self._get_collection(
+            resource_mapper
+        )  # e.g., "expenses", "incomes"
 
         return_association = next(
             (assoc for assoc in collection if assoc == association),
@@ -122,8 +110,13 @@ class ScenarioDomain(EntityDomain):
 
     def _delete_association(self, association):
         """Delete the association object from the corresponding collection"""
-        resource_type = self._get_resource_type(association)
-        collection = self._get_collection(resource_type)  # e.g., "expenses", "incomes"
+        from app.mapper.resource_mapper import ResourceMapper
+
+        resource_mapper = ResourceMapper.from_assoc(association)
+        resource_type = resource_mapper.resource_type
+        collection = self._get_collection(
+            resource_mapper
+        )  # e.g., "expenses", "incomes"
 
         # Ensure the association is in the collection before removing
         if association not in collection:

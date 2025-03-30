@@ -14,15 +14,15 @@ class TestScenarioExpenseModelCase:
         )
         # Act
         expense_from_db = db.session.scalar(
-            sa.select(Expense).where(Expense.id == association.right_id)
+            sa.select(Expense).where(Expense.id == association.expense_id)
         )
         scenario_from_db = db.session.scalar(
-            sa.select(Scenario).where(Scenario.id == association.left_id)
+            sa.select(Scenario).where(Scenario.id == association.scenario_id)
         )
 
         # Assert
-        assert association.left_id == scenario_from_db.id
-        assert association.right_id == expense_from_db.id
+        assert association.scenario_id == scenario_from_db.id
+        assert association.expense_id == expense_from_db.id
         assert association.scenario == scenario_from_db
         assert association.expense == expense_from_db
         assert association.created_at == association.created_at

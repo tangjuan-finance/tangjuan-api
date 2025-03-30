@@ -13,6 +13,7 @@ from app.infrastructure.models import (
 )
 from tests.conftest import TestConfig
 from .factories import create_entity
+from werkzeug.security import generate_password_hash
 
 
 @pytest.fixture(scope="class", autouse=True)
@@ -32,9 +33,9 @@ def default_account_domain():
     username = "default"
     email = "default@example.com"
     password = "default$ercet"
+    password_hash = generate_password_hash(password)
 
-    u = Account(username=username, email=email)
-    u.set_password(password)
+    u = Account(username=username, email=email, password_hash=password_hash)
     db.session.add(u)
     db.session.commit()
     yield u

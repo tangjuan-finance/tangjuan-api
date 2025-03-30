@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 
 
-class TestScenarioDomainCase:
+class TestScenarioRepoCase:
     def test_create_scenario_domain_through_repo(self, default_account):
         # Arrange: Create an scenario domain using the factory
         scenario = ScenarioDomainFactory(owner=default_account)

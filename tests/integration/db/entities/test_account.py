@@ -2,6 +2,7 @@ from app import db
 from app.infrastructure.models import Account
 import sqlalchemy as sa
 from ..factories import create_account
+from werkzeug.security import check_password_hash
 
 
 class TestAccountModelCase:
@@ -33,13 +34,7 @@ class TestAccountModelCase:
         # Assert
         assert account_from_db.username == account.username
         assert account_from_db.email == account.email
-        assert account_from_db.check_password(password)
-
-    def test_password_hashing(self):
-        u = Account(username="susan", email="susan@example.com")
-        u.set_password("cat")
-        assert not u.check_password("dog")
-        assert u.check_password("cat")
+        assert check_password_hash(account_from_db.password_hash, password)
 
     def test_create_user_in_CJK(self):
         # Arrange
@@ -67,12 +62,6 @@ class TestAccountModelCase:
 
 
 class TestAccountOwnershipModelCase:
-    def test_password_hashing(self):
-        u = Account(username="susan", email="susan@example.com")
-        u.set_password("cat")
-        assert not u.check_password("dog")
-        assert u.check_password("cat")
-
     def test_avatar(self):
         u = Account(username="john", email="john@example.com")
         assert u.avatar(128) == (

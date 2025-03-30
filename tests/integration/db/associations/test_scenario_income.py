@@ -14,15 +14,15 @@ class TestScenarioIncomeModelCase:
         )
         # Act
         income_from_db = db.session.scalar(
-            sa.select(Income).where(Income.id == association.right_id)
+            sa.select(Income).where(Income.id == association.income_id)
         )
         scenario_from_db = db.session.scalar(
-            sa.select(Scenario).where(Scenario.id == association.left_id)
+            sa.select(Scenario).where(Scenario.id == association.scenario_id)
         )
 
         # Assert
-        assert association.left_id == scenario_from_db.id
-        assert association.right_id == income_from_db.id
+        assert association.scenario_id == scenario_from_db.id
+        assert association.income_id == income_from_db.id
         assert association.scenario == scenario_from_db
         assert association.income == income_from_db
         assert association.created_at == association.created_at

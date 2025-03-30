@@ -5,6 +5,7 @@ from .scenario_child import ScenarioChildDomain
 from .scenario_risk import ScenarioRiskDomain
 from .scenario_asset import ScenarioAssetDomain
 from .scenario_liability import ScenarioLiabilityDomain
+from .base import BaseAssociationDomain
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "ScenarioRiskDomain",
     "ScenarioAssetDomain",
     "ScenarioLiabilityDomain",
+    "BaseAssociationDomain",
 ]

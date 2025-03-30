@@ -120,3 +120,33 @@ class ScenarioRepo:
             description=scenario_model.description,
             owner=owner_domain,
         )
+
+    # @staticmethod
+    # def add_resource(scenario: ScenarioDomain, resource: ResourceDomain, **attrs) -> BaseAssociationDomain:
+    #     """Given Scenario object and a Resource object, store it in the database and return the stored object."""
+    #     # Get assoc class
+    #     ScenarioResourceAssoc = ScenarioRepo._get_assoc_domain_from_resource(resource)
+
+    #     # Get the correct attribute name for the resource (e.g., "expense", "risk")
+    #     resource_field = _get_resource_type(resource)
+
+    #     # Create the association with the correct field
+    #     assoc = ScenarioResourceAssoc(
+    #         scenario=scenario,
+    #         **{resource_field: resource},  # Dynamically assign the correct field
+    #         **attrs,
+    #     )
+
+    #     # Get the repository for storing the association
+    #     ScenarioResourceRepo = ScenarioRepo._get_assoc_repo_from_resource(resource)
+
+    #     # Store the association object
+    #     assoc_from_repo = ScenarioResourceRepo(assoc)
+
+    #     # Add the assoc to the scenario
+    #     scenario._add_association(assoc_from_repo)
+
+    #     # Save the scenario to the database
+    #     ScenarioRepo.save(scenario)
+
+    #     return assoc_from_repo  # Return the stored association

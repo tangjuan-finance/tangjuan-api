@@ -7,6 +7,7 @@ from .child import ChildDomain
 from .risk import RiskDomain
 from .asset import AssetDomain
 from .liability import LiabilityDomain
+from .base import ResourceDomain
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "RiskDomain",
     "AssetDomain",
     "LiabilityDomain",
+    "ResourceDomain",
 ]

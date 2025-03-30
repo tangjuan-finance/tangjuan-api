@@ -14,15 +14,15 @@ class TestScenarioHouseModelCase:
         )
         # Act
         house_from_db = db.session.scalar(
-            sa.select(House).where(House.id == association.right_id)
+            sa.select(House).where(House.id == association.house_id)
         )
         scenario_from_db = db.session.scalar(
-            sa.select(Scenario).where(Scenario.id == association.left_id)
+            sa.select(Scenario).where(Scenario.id == association.scenario_id)
         )
 
         # Assert
-        assert association.left_id == scenario_from_db.id
-        assert association.right_id == house_from_db.id
+        assert association.scenario_id == scenario_from_db.id
+        assert association.house_id == house_from_db.id
         assert association.scenario == scenario_from_db
         assert association.house == house_from_db
         assert association.created_at == association.created_at

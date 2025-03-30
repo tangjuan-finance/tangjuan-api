@@ -19,15 +19,15 @@ class TestScenarioLiabilityModelCase:
         )
         # Act
         liability_from_db = db.session.scalar(
-            sa.select(Liability).where(Liability.id == association.right_id)
+            sa.select(Liability).where(Liability.id == association.liability_id)
         )
         scenario_from_db = db.session.scalar(
-            sa.select(Scenario).where(Scenario.id == association.left_id)
+            sa.select(Scenario).where(Scenario.id == association.scenario_id)
         )
 
         # Assert
-        assert association.left_id == scenario_from_db.id
-        assert association.right_id == liability_from_db.id
+        assert association.scenario_id == scenario_from_db.id
+        assert association.liability_id == liability_from_db.id
         assert association.scenario == scenario_from_db
         assert association.liability == liability_from_db
         assert association.allocation_percentage == allocation_percentage
