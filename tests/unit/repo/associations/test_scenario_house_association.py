@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_scenario, create_house
+from tests.unit.repo.factories import create_house
 
 
 class TestHouseRepoCase:
@@ -109,18 +109,23 @@ class TestHouseRepoCase:
         )
         assert scenario_house_get_by_id.house.id == scenario_house_from_repo.house.id
 
-    def test_get_scenario_house_assoc_list_through_repo(self, default_account):
+    def test_get_scenario_house_assoc_list_through_repo(
+        self, new_scenario, default_account
+    ):
         # Arrange: Create an house domain using the factory
-        origin_repo_list_length = len(ScenarioHouseRepo.get_list())
+        origin_repo_list_length = len(
+            ScenarioHouseRepo.get_list(scenario_id=new_scenario.id)
+        )
 
         # Act: Create 5 new house domains
         for _ in range(5):
-            new_scenario = create_scenario(default_account)
             new_house = create_house(default_account)
             self._create_assoc(house=new_house, scenario=new_scenario)
 
         # Assert: Ensure the list length is increased by 5
-        updated_list_length = len(ScenarioHouseRepo.get_list())
+        updated_list_length = len(
+            ScenarioHouseRepo.get_list(scenario_id=new_scenario.id)
+        )
         assert updated_list_length == (origin_repo_list_length + 5)
 
     def test_delete_scenario_house_assoc_through_repo(self, new_scenario, new_house):

@@ -1,4 +1,13 @@
 from types import MappingProxyType
+from app.domain.entities import (
+    ExpenseDomain,
+    IncomeDomain,
+    HouseDomain,
+    ChildDomain,
+    RiskDomain,
+    AssetDomain,
+    LiabilityDomain,
+)
 from app.domain.associations import (
     ScenarioExpenseDomain,
     ScenarioIncomeDomain,
@@ -16,6 +25,15 @@ from app.repository.associations import (
     ScenarioRiskRepo,
     ScenarioAssetRepo,
     ScenarioLiabilityRepo,
+)
+from app.infrastructure.models import (
+    ScenarioExpense,
+    ScenarioIncome,
+    ScenarioHouse,
+    ScenarioChild,
+    ScenarioRisk,
+    ScenarioAsset,
+    ScenarioLiability,
 )
 
 from typing import TYPE_CHECKING
@@ -41,6 +59,12 @@ class ResourceMapper:
         return ResourceMapper(resource_type)
 
     @classmethod
+    def from_domain_cls(cls, domain_cls: "ResourceDomain"):
+        resource_type = domain_cls.__name__.replace("Domain", "").lower()
+
+        return ResourceMapper(resource_type)
+
+    @classmethod
     def from_assoc(cls, resource: "ResourceDomain"):
         resource_type = (
             type(resource)
@@ -49,6 +73,10 @@ class ResourceMapper:
             .lower()
         )
 
+        return ResourceMapper(resource_type)
+
+    @classmethod
+    def by_resource_type(cls, resource_type: str):
         return ResourceMapper(resource_type)
 
     _COLLECTION_MAPPING = MappingProxyType(
@@ -60,6 +88,18 @@ class ResourceMapper:
             "house": "houses",
             "risk": "risks",
             "asset": "assets",
+        }
+    )
+
+    _RESOURCE_CLS_MAPPING = MappingProxyType(
+        {
+            "child": ChildDomain,
+            "liability": LiabilityDomain,
+            "expense": ExpenseDomain,
+            "income": IncomeDomain,
+            "house": HouseDomain,
+            "risk": RiskDomain,
+            "asset": AssetDomain,
         }
     )
 
@@ -87,6 +127,18 @@ class ResourceMapper:
         }
     )
 
+    _ASSOC_MODEL_MAPPING = MappingProxyType(
+        {
+            "child": ScenarioChild,
+            "liability": ScenarioLiability,
+            "expense": ScenarioExpense,
+            "income": ScenarioIncome,
+            "house": ScenarioHouse,
+            "risk": ScenarioRisk,
+            "asset": ScenarioAsset,
+        }
+    )
+
     @property
     def resource_type(self):
         return self._resource_type
@@ -97,9 +149,17 @@ class ResourceMapper:
         return self._COLLECTION_MAPPING[self._resource_type]
 
     @property
+    def resource_domain_cls(self):
+        return self._RESOURCE_CLS_MAPPING[self._resource_type]
+
+    @property
     def assoc_domain_cls(self):
         return self._ASSOC_CLS_MAPPING[self._resource_type]
 
     @property
     def assoc_repo_cls(self):
         return self._ASSOC_REPO_MAPPING[self._resource_type]
+
+    @property
+    def assoc_model_cls(self):
+        return self._ASSOC_MODEL_MAPPING[self._resource_type]

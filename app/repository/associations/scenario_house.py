@@ -96,9 +96,11 @@ class ScenarioHouseRepo:
         )
 
     @staticmethod
-    def get_list() -> list[ScenarioHouseDomain]:
+    def get_list(scenario_id: str) -> list[ScenarioHouseDomain]:
         """Retrieve all houses and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(sa.select(ScenarioHouse)).all()
+        assoc_model_list = db.session.scalars(
+            sa.select(ScenarioHouse).where((ScenarioHouse.scenario_id == scenario_id))
+        ).all()
 
         return [
             ScenarioHouseRepo._map_to_domain(

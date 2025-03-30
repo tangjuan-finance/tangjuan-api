@@ -1,4 +1,5 @@
-from app.domain.entities import ScenarioDomain
+from app.domain.entities import ScenarioDomain, ResourceDomain
+from app.domain.associations import BaseAssociationDomain
 from app.infrastructure.models import Scenario, Account
 from app import db
 import sqlalchemy as sa
@@ -121,32 +122,128 @@ class ScenarioRepo:
             owner=owner_domain,
         )
 
-    # @staticmethod
-    # def add_resource(scenario: ScenarioDomain, resource: ResourceDomain, **attrs) -> BaseAssociationDomain:
-    #     """Given Scenario object and a Resource object, store it in the database and return the stored object."""
-    #     # Get assoc class
-    #     ScenarioResourceAssoc = ScenarioRepo._get_assoc_domain_from_resource(resource)
+    @staticmethod
+    def add_resource(
+        scenario: ScenarioDomain, resource: ResourceDomain, **attrs
+    ) -> BaseAssociationDomain:
+        """Given Scenario object and a Resource object, store it in the database and return the stored object."""
+        from app.mapper.resource_mapper import ResourceMapper
 
-    #     # Get the correct attribute name for the resource (e.g., "expense", "risk")
-    #     resource_field = _get_resource_type(resource)
+        # Get assoc class
+        mapper = ResourceMapper.from_assoc(resource)
+        ScenarioResourceAssoc = mapper.assoc_domain_cls
 
-    #     # Create the association with the correct field
-    #     assoc = ScenarioResourceAssoc(
-    #         scenario=scenario,
-    #         **{resource_field: resource},  # Dynamically assign the correct field
-    #         **attrs,
-    #     )
+        # Get the correct attribute name for the resource (e.g., "expense", "risk")
+        resource_field = mapper.resource_type
+        # Create the association with the correct field
+        assoc = ScenarioResourceAssoc(
+            scenario=scenario,
+            **{resource_field: resource},  # Dynamically assign the correct field
+            **attrs,
+        )
 
-    #     # Get the repository for storing the association
-    #     ScenarioResourceRepo = ScenarioRepo._get_assoc_repo_from_resource(resource)
+        # Get the repository for storing the association
+        ScenarioResourceRepo = mapper.assoc_repo_cls
 
-    #     # Store the association object
-    #     assoc_from_repo = ScenarioResourceRepo(assoc)
+        # Store the association object to the database
+        assoc_from_repo = ScenarioResourceRepo.create(assoc)
 
-    #     # Add the assoc to the scenario
-    #     scenario._add_association(assoc_from_repo)
+        # Add the assoc to the scenario
+        scenario._add_association(assoc_from_repo)
 
-    #     # Save the scenario to the database
-    #     ScenarioRepo.save(scenario)
+        return assoc_from_repo  # Return the stored association
 
-    #     return assoc_from_repo  # Return the stored association
+    @staticmethod
+    def get_resource_by_id(
+        scenario: ScenarioDomain,
+        resource_type: ResourceDomain,
+        resource_id: str,
+    ) -> BaseAssociationDomain:
+        """Given Scenario object, Resource Domain, and Resource id, retrieve assoc object from the database."""
+        from app.mapper.resource_mapper import ResourceMapper
+
+        # Get assoc class
+        mapper = ResourceMapper.from_domain_cls(resource_type)
+
+        # Get the correct attribute name for the resource (e.g., "expense", "risk")
+        resource_id_field = f"{mapper.resource_type}_id"
+
+        # Get the association object from repo
+        ScenarioResourceRepo = mapper.assoc_repo_cls
+        assoc_from_repo = ScenarioResourceRepo.get_by_id(
+            scenario_id=scenario.id, **{resource_id_field: resource_id}
+        )
+
+        return assoc_from_repo  # Return the retrieved association
+
+    @staticmethod
+    def get_resource_list(
+        scenario: ScenarioDomain,
+        resource_type: ResourceDomain,
+    ) -> BaseAssociationDomain:
+        """Given Scenario object, Resource Domain, retrieve list of assoc object from the database."""
+        from app.mapper.resource_mapper import ResourceMapper
+
+        # Get assoc class
+        mapper = ResourceMapper.from_domain_cls(resource_type)
+
+        # Get the list of association object from repo
+        ScenarioResourceRepo = mapper.assoc_repo_cls
+        assoc_list_from_repo = ScenarioResourceRepo.get_list(scenario_id=scenario.id)
+
+        return assoc_list_from_repo  # Return the retrieved association
+
+    @staticmethod
+    def update_resource(
+        scenario: ScenarioDomain, resource: ResourceDomain, **attrs
+    ) -> BaseAssociationDomain:
+        """Given Scenario object and a Resource object, store it in the database and return the stored object."""
+        from app.mapper.resource_mapper import ResourceMapper
+
+        # Get assoc class
+        mapper = ResourceMapper.from_assoc(resource)
+
+        # Get the correct attribute name for the resource (e.g., "expense", "risk")
+        resource_id_field = f"{mapper.resource_type}_id"
+
+        # Get the repository for retrieving the association
+        ScenarioResourceRepo = mapper.assoc_repo_cls
+        assoc_from_repo = ScenarioResourceRepo.get_by_id(
+            scenario_id=scenario.id, **{resource_id_field: resource.id}
+        )
+
+        if assoc_from_repo is None:
+            raise ValueError(
+                f"No Association with scenario_id {scenario.id}, {resource_id_field} {resource.id}"
+            )
+
+        # Update the assoc by domain
+        updated_assoc = scenario._update_association(assoc_from_repo, **attrs)
+
+        # Save the assoc to the database
+        updated_assoc_from_repo = ScenarioResourceRepo.save(updated_assoc)
+
+        return updated_assoc_from_repo  # Return the stored association
+
+    @staticmethod
+    def delete_resource(
+        scenario: ScenarioDomain,
+        resource_type: ResourceDomain,
+        resource_id: str,
+    ) -> BaseAssociationDomain:
+        """Given Scenario object, Resource Domain, and Resource id, retrieve assoc object from the database."""
+        from app.mapper.resource_mapper import ResourceMapper
+
+        # Get assoc class
+        mapper = ResourceMapper.from_domain_cls(resource_type)
+
+        # Get the correct attribute name for the resource (e.g., "expense", "risk")
+        resource_id_field = f"{mapper.resource_type}_id"
+
+        # Delete the association object from repo
+        ScenarioResourceRepo = mapper.assoc_repo_cls
+        assoc_from_repo = ScenarioResourceRepo.delete_by_id(
+            scenario_id=scenario.id, **{resource_id_field: resource_id}
+        )
+
+        return assoc_from_repo  # Return the retrieved association

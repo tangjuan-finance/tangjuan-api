@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_scenario, create_asset
+from tests.unit.repo.factories import create_asset
 
 
 class TestAssetRepoCase:
@@ -131,13 +131,16 @@ class TestAssetRepoCase:
         )
         assert scenario_asset_get_by_id.asset.id == scenario_asset_from_repo.asset.id
 
-    def test_get_scenario_asset_assoc_list_through_repo(self, default_account):
+    def test_get_scenario_asset_assoc_list_through_repo(
+        self, default_account, new_scenario
+    ):
         # Arrange: Create an asset domain using the factory
-        origin_repo_list_length = len(ScenarioAssetRepo.get_list())
+        origin_repo_list_length = len(
+            ScenarioAssetRepo.get_list(scenario_id=new_scenario.id)
+        )
 
         # Act: Create 5 new asset domains
         for _ in range(5):
-            new_scenario = create_scenario(default_account)
             new_asset = create_asset(default_account)
             self._create_assoc(
                 asset=new_asset,
@@ -146,7 +149,9 @@ class TestAssetRepoCase:
             )
 
         # Assert: Ensure the list length is increased by 5
-        updated_list_length = len(ScenarioAssetRepo.get_list())
+        updated_list_length = len(
+            ScenarioAssetRepo.get_list(scenario_id=new_scenario.id)
+        )
         assert updated_list_length == (origin_repo_list_length + 5)
 
     def test_delete_scenario_asset_assoc_through_repo(self, new_scenario, new_asset):

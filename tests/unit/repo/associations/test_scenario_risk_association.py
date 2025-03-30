@@ -4,7 +4,7 @@ from app.domain.associations import ScenarioRiskDomain
 import sqlalchemy as sa
 from app import db
 
-from tests.unit.repo.factories import create_scenario, create_risk
+from tests.unit.repo.factories import create_risk
 
 
 class TestRiskRepoCase:
@@ -98,18 +98,23 @@ class TestRiskRepoCase:
         )
         assert scenario_risk_get_by_id.risk.id == scenario_risk_from_repo.risk.id
 
-    def test_get_scenario_risk_assoc_list_through_repo(self, default_account):
+    def test_get_scenario_risk_assoc_list_through_repo(
+        self, new_scenario, default_account
+    ):
         # Arrange: Create an risk domain using the factory
-        origin_repo_list_length = len(ScenarioRiskRepo.get_list())
+        origin_repo_list_length = len(
+            ScenarioRiskRepo.get_list(scenario_id=new_scenario.id)
+        )
 
         # Act: Create 5 new risk domains
         for _ in range(5):
-            new_scenario = create_scenario(default_account)
             new_risk = create_risk(default_account)
             self._create_assoc(risk=new_risk, scenario=new_scenario)
 
         # Assert: Ensure the list length is increased by 5
-        updated_list_length = len(ScenarioRiskRepo.get_list())
+        updated_list_length = len(
+            ScenarioRiskRepo.get_list(scenario_id=new_scenario.id)
+        )
         assert updated_list_length == (origin_repo_list_length + 5)
 
     def test_delete_scenario_risk_assoc_through_repo(self, new_scenario, new_risk):

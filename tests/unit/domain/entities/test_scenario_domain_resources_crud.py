@@ -205,7 +205,12 @@ class TestScenarioDomainResourcesCrudCase:
 
         # Assert: Ensure the resource data is updated correctly
         updated_assoc = next(
-            (assoc for assoc in resource_collection if assoc == resource_association),
+            (
+                assoc
+                for assoc in resource_collection
+                if getattr(assoc, resource_name)
+                == getattr(resource_association, resource_name)
+            ),
             None,
         )
 

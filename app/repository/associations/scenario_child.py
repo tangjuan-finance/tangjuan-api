@@ -90,9 +90,11 @@ class ScenarioChildRepo:
         )
 
     @staticmethod
-    def get_list() -> list[ScenarioChildDomain]:
+    def get_list(scenario_id: str) -> list[ScenarioChildDomain]:
         """Retrieve all childs and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(sa.select(ScenarioChild)).all()
+        assoc_model_list = db.session.scalars(
+            sa.select(ScenarioChild).where((ScenarioChild.scenario_id == scenario_id))
+        ).all()
 
         return [
             ScenarioChildRepo._map_to_domain(

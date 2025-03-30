@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_scenario, create_income
+from tests.unit.repo.factories import create_income
 
 
 class TestIncomeRepoCase:
@@ -128,18 +128,23 @@ class TestIncomeRepoCase:
             scenario_income_get_by_id.income.id == scenario_income_from_repo.income.id
         )
 
-    def test_get_scenario_income_assoc_list_through_repo(self, default_account):
+    def test_get_scenario_income_assoc_list_through_repo(
+        self, new_scenario, default_account
+    ):
         # Arrange: Create an income domain using the factory
-        origin_repo_list_length = len(ScenarioIncomeRepo.get_list())
+        origin_repo_list_length = len(
+            ScenarioIncomeRepo.get_list(scenario_id=new_scenario.id)
+        )
 
         # Act: Create 5 new income domains
         for _ in range(5):
-            new_scenario = create_scenario(default_account)
             new_income = create_income(default_account)
             self._create_assoc(income=new_income, scenario=new_scenario)
 
         # Assert: Ensure the list length is increased by 5
-        updated_list_length = len(ScenarioIncomeRepo.get_list())
+        updated_list_length = len(
+            ScenarioIncomeRepo.get_list(scenario_id=new_scenario.id)
+        )
         assert updated_list_length == (origin_repo_list_length + 5)
 
     def test_delete_scenario_income_assoc_through_repo(self, new_scenario, new_income):

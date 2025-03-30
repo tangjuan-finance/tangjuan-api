@@ -94,9 +94,11 @@ class ScenarioIncomeRepo:
         )
 
     @staticmethod
-    def get_list() -> list[ScenarioIncomeDomain]:
+    def get_list(scenario_id: str) -> list[ScenarioIncomeDomain]:
         """Retrieve all incomes and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(sa.select(ScenarioIncome)).all()
+        assoc_model_list = db.session.scalars(
+            sa.select(ScenarioIncome).where((ScenarioIncome.scenario_id == scenario_id))
+        ).all()
 
         return [
             ScenarioIncomeRepo._map_to_domain(

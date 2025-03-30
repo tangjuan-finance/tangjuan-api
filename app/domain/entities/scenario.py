@@ -81,17 +81,25 @@ class ScenarioDomain(EntityDomain):
         collection.append(association)
 
     def _update_association(self, association, **param):
-        """Update the association object from the corresponding collection by given parameters."""
+        """Update an existing association in the collection with given parameters."""
         from app.mapper.resource_mapper import ResourceMapper
 
+        # Map the association to its resource type (e.g., Expense, Income)
         resource_mapper = ResourceMapper.from_assoc(association)
-        resource_type = resource_mapper.resource_type
+        resource_type = resource_mapper.resource_type  # e.g., "expense", "income"
+
+        # Retrieve the corresponding collection from Scenario (e.g., expenses, incomes)
         collection = self._get_collection(
             resource_mapper
         )  # e.g., "expenses", "incomes"
 
+        # Find the matching association by its resource ID
         return_association = next(
-            (assoc for assoc in collection if assoc == association),
+            (
+                assoc
+                for assoc in collection
+                if getattr(assoc, resource_type) == getattr(association, resource_type)
+            ),
             None,
         )
 
@@ -100,6 +108,7 @@ class ScenarioDomain(EntityDomain):
                 f"Association not found in the collection: {resource_type}"
             )
 
+        # Update attributes safely
         for k, v in param.items():
             if hasattr(return_association, k):
                 setattr(return_association, k, v)

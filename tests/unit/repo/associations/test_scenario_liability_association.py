@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_scenario, create_liability
+from tests.unit.repo.factories import create_liability
 
 
 class TestLiabilityRepoCase:
@@ -170,13 +170,16 @@ class TestLiabilityRepoCase:
             == scenario_liability_from_repo.liability.id
         )
 
-    def test_get_scenario_liability_assoc_list_through_repo(self, default_account):
+    def test_get_scenario_liability_assoc_list_through_repo(
+        self, default_account, new_scenario
+    ):
         # Arrange: Create an liability domain using the factory
-        origin_repo_list_length = len(ScenarioLiabilityRepo.get_list())
+        origin_repo_list_length = len(
+            ScenarioLiabilityRepo.get_list(scenario_id=new_scenario.id)
+        )
 
         # Act: Create 5 new liability domains
         for _ in range(5):
-            new_scenario = create_scenario(default_account)
             new_liability = create_liability(default_account)
             self._create_assoc(
                 liability=new_liability,
@@ -185,7 +188,9 @@ class TestLiabilityRepoCase:
             )
 
         # Assert: Ensure the list length is increased by 5
-        updated_list_length = len(ScenarioLiabilityRepo.get_list())
+        updated_list_length = len(
+            ScenarioLiabilityRepo.get_list(scenario_id=new_scenario.id)
+        )
         assert updated_list_length == (origin_repo_list_length + 5)
 
     def test_delete_scenario_liability_assoc_through_repo(

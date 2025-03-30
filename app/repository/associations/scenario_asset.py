@@ -96,9 +96,11 @@ class ScenarioAssetRepo:
         )
 
     @staticmethod
-    def get_list() -> list[ScenarioAssetDomain]:
+    def get_list(scenario_id: str) -> list[ScenarioAssetDomain]:
         """Retrieve all assets and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(sa.select(ScenarioAsset)).all()
+        assoc_model_list = db.session.scalars(
+            sa.select(ScenarioAsset).where((ScenarioAsset.scenario_id == scenario_id))
+        ).all()
 
         return [
             ScenarioAssetRepo._map_to_domain(

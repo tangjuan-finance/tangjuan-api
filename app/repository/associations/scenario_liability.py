@@ -98,9 +98,13 @@ class ScenarioLiabilityRepo:
         )
 
     @staticmethod
-    def get_list() -> list[ScenarioLiabilityDomain]:
+    def get_list(scenario_id: str) -> list[ScenarioLiabilityDomain]:
         """Retrieve all liabilitys and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(sa.select(ScenarioLiability)).all()
+        assoc_model_list = db.session.scalars(
+            sa.select(ScenarioLiability).where(
+                (ScenarioLiability.scenario_id == scenario_id)
+            )
+        ).all()
 
         return [
             ScenarioLiabilityRepo._map_to_domain(
