@@ -7,7 +7,19 @@ class ExpenseService(OwnerRequiredServiceMixin):
     @staticmethod
     def create_expense(account_id: str, payload: dict) -> ExpenseDomain:
         """Create a new expense with validated owner."""
-        owner = ExpenseService._get_owner(payload["owner_id"])
+
+        owner_id = payload["owner_id"]
+
+        # Check if account_id matches the owner_id
+        if owner_id != account_id:
+            raise PermissionError(
+                f"Account {account_id} is not authoirzed to create expense under the given owner"
+            )
+
+        # Get owner
+        owner = ExpenseService._get_owner(owner_id)
+
+        # Create the expense
         expense = ExpenseDomain(
             name=payload["name"],
             amount=payload["amount"],
@@ -22,8 +34,16 @@ class ExpenseService(OwnerRequiredServiceMixin):
     def get_expense_by_id(account_id: str, payload: dict) -> ExpenseDomain:
         """Retrieve a specific expense by ID."""
         expense_id = payload["id"]
+        expense_from_repo = ExpenseRepo.get_by_id(expense_id)
 
-        return ExpenseRepo.get_by_id(expense_id)
+        if not expense_from_repo:
+            raise ValueError(f"Expense with ID {expense_id} not found")
+
+        # Check if the account owns the expense
+        if expense_from_repo.owner.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this resource")
+
+        return expense_from_repo
 
     @staticmethod
     def get_expenses(account_id: str) -> list[ExpenseDomain]:
@@ -33,11 +53,7 @@ class ExpenseService(OwnerRequiredServiceMixin):
     @staticmethod
     def update_expense(account_id: str, payload: dict) -> ExpenseDomain:
         """Update an expense by ID if it exists."""
-        expense_id = payload["id"]
-        expense_from_repo = ExpenseRepo.get_by_id(expense_id)
-
-        if not expense_from_repo:
-            raise ValueError(f"Expense with ID {expense_id} not found")
+        expense_from_repo = ExpenseService.get_expense_by_id(account_id, payload)
 
         params = {
             "name",
@@ -57,10 +73,13 @@ class ExpenseService(OwnerRequiredServiceMixin):
     def delete_expense_by_id(account_id: str, payload: dict) -> str:
         """Delete an expense by ID if it exists."""
         expense_id = payload["id"]
-        expense = ExpenseRepo.get_by_id(expense_id)
 
-        if not expense:
-            raise ValueError(f"Expense with ID {expense_id} not found")
+        try:
+            ExpenseService.get_expense_by_id(account_id, payload)
+        except ValueError as e:
+            raise e
+        except PermissionError as e:
+            raise e
 
         ExpenseRepo.delete_by_id(expense_id)
         return f"Expense {expense_id} deleted successfully"

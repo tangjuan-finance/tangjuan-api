@@ -1,5 +1,6 @@
 from app.service.expense_service import ExpenseService
 from tests.integration.service.factories import create_expense_payload
+import pytest
 
 
 class TestExpenseServiceCase:
@@ -129,10 +130,8 @@ class TestExpenseServiceCase:
             payload=delete_payload,
         )
 
-        # Act: Attempt to retrieve the deleted expense
-        retrieved_expense = ExpenseService.get_expense_by_id(
-            account_id=account_id, payload=delete_payload
-        )
-
-        # Assert: Ensure the expense is no longer retrievable
-        assert retrieved_expense is None
+        # Assert: Attempt to retrieve the deleted expense will fail
+        with pytest.raises(ValueError):
+            ExpenseService.get_expense_by_id(
+                account_id=account_id, payload=delete_payload
+            )
