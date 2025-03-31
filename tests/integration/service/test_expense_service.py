@@ -13,7 +13,7 @@ class TestExpenseServiceCase:
         # Arrange: Given parameters for expense creation
         account_id = default_account.id
 
-        # Define the expected fields that should be part of the ExpenseDomain
+        # Arrange: Define the expected fields that should be part of the ExpenseDomain
         payload = create_expense_payload(account_id)
         fields = {
             "name",
@@ -354,3 +354,19 @@ class TestExpenseServiceCase:
         )
 
         assert hasattr(updated_expense, invalid_field_name) is False
+
+    def test_create_expense_service_miss_required_field(self, default_account):
+        """Test creating an expense using ExpenseService"""
+
+        # Arrange: Given parameters for expense creation
+        account_id = default_account.id
+
+        # Arrange: Define the expected fields that should be part of the ExpenseDomain
+        payload = create_expense_payload(account_id)
+
+        # Arrange: Remove required field
+        del payload["name"]
+
+        # Assert: Create expense when missing required field should raise ValueError
+        with pytest.raises(ValueError):
+            ExpenseService.create_expense(account_id=account_id, payload=payload)
