@@ -225,7 +225,7 @@ class TestScenarioDomainResourcesCrudCase:
         ), f"Expected {resource_field} to be {update_data[resource_field]}, but got {updated_field_value}"
 
     @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
-    def test_delete_resource_from_scenario_domain(
+    def test_remove_resource_from_scenario_domain(
         self,
         default_scenario_domain,
         resource_factory,

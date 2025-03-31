@@ -17,6 +17,15 @@ from app.domain.associations import (
     ScenarioAssetDomain,
     ScenarioLiabilityDomain,
 )
+from app.repository.entities import (
+    ExpenseRepo,
+    IncomeRepo,
+    HouseRepo,
+    ChildRepo,
+    RiskRepo,
+    AssetRepo,
+    LiabilityRepo,
+)
 from app.repository.associations import (
     ScenarioExpenseRepo,
     ScenarioIncomeRepo,
@@ -42,7 +51,7 @@ if TYPE_CHECKING:
     from app.domain.entities import ResourceDomain
 
 
-class ResourceMapper:
+class BaseResourceMapper:
     _VALID_RESOURCE_TYPES = frozenset(
         {"child", "liability", "expense", "income", "house", "risk", "asset"}
     )
@@ -53,31 +62,8 @@ class ResourceMapper:
         self._resource_type = resource_type
 
     @classmethod
-    def from_domain(cls, resource: "ResourceDomain"):
-        resource_type = type(resource).__name__.replace("Domain", "").lower()
-
-        return ResourceMapper(resource_type)
-
-    @classmethod
-    def from_domain_cls(cls, domain_cls: "ResourceDomain"):
-        resource_type = domain_cls.__name__.replace("Domain", "").lower()
-
-        return ResourceMapper(resource_type)
-
-    @classmethod
-    def from_assoc(cls, resource: "ResourceDomain"):
-        resource_type = (
-            type(resource)
-            .__name__.replace("Scenario", "")
-            .replace("Domain", "")
-            .lower()
-        )
-
-        return ResourceMapper(resource_type)
-
-    @classmethod
     def by_resource_type(cls, resource_type: str):
-        return ResourceMapper(resource_type)
+        return cls(resource_type)
 
     _COLLECTION_MAPPING = MappingProxyType(
         {
@@ -90,6 +76,40 @@ class ResourceMapper:
             "asset": "assets",
         }
     )
+
+    @property
+    def resource_type(self):
+        return self._resource_type
+
+    # Return collection type (resource type in plural)
+    @property
+    def collection_type(self):
+        return self._COLLECTION_MAPPING[self._resource_type]
+
+
+class ResourceMapper(BaseResourceMapper):
+    @classmethod
+    def from_domain(cls, resource: "ResourceDomain"):
+        resource_type = type(resource).__name__.replace("Domain", "").lower()
+
+        return cls(resource_type)
+
+    @classmethod
+    def from_domain_cls(cls, domain_cls: "ResourceDomain"):
+        resource_type = domain_cls.__name__.replace("Domain", "").lower()
+
+        return cls(resource_type)
+
+    @classmethod
+    def from_assoc(cls, resource: "ResourceDomain"):
+        resource_type = (
+            type(resource)
+            .__name__.replace("Scenario", "")
+            .replace("Domain", "")
+            .lower()
+        )
+
+        return cls(resource_type)
 
     _RESOURCE_CLS_MAPPING = MappingProxyType(
         {
@@ -112,6 +132,18 @@ class ResourceMapper:
             "house": ScenarioHouseDomain,
             "risk": ScenarioRiskDomain,
             "asset": ScenarioAssetDomain,
+        }
+    )
+
+    _RESOURCE_REPO_MAPPING = MappingProxyType(
+        {
+            "child": ChildRepo,
+            "liability": LiabilityRepo,
+            "expense": ExpenseRepo,
+            "income": IncomeRepo,
+            "house": HouseRepo,
+            "risk": RiskRepo,
+            "asset": AssetRepo,
         }
     )
 
@@ -140,21 +172,16 @@ class ResourceMapper:
     )
 
     @property
-    def resource_type(self):
-        return self._resource_type
-
-    # Return collection type (resource type in plural)
-    @property
-    def collection_type(self):
-        return self._COLLECTION_MAPPING[self._resource_type]
-
-    @property
     def resource_domain_cls(self):
         return self._RESOURCE_CLS_MAPPING[self._resource_type]
 
     @property
     def assoc_domain_cls(self):
         return self._ASSOC_CLS_MAPPING[self._resource_type]
+
+    @property
+    def resource_repo_cls(self):
+        return self._RESOURCE_REPO_MAPPING[self._resource_type]
 
     @property
     def assoc_repo_cls(self):

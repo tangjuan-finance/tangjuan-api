@@ -241,7 +241,7 @@ class TestScenarioRepoResourcesCrudCase:
             assert assoc_attr_from_repo == assoc_attr_from_db
 
     @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
-    def test_delete_resource_from_scenario_repo(
+    def test_remove_resource_from_scenario_repo(
         self,
         new_scenario,
         default_account,
@@ -261,7 +261,7 @@ class TestScenarioRepoResourcesCrudCase:
         resource_domain = mapper.resource_domain_cls
 
         # Act: Delete the assoc from the scenario by repo
-        ScenarioRepo.delete_resource(
+        ScenarioRepo.remove_resource(
             scenario=new_scenario,
             resource_type=resource_domain,
             resource_id=resource.id,

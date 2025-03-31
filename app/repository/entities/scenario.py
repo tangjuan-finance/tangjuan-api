@@ -228,7 +228,7 @@ class ScenarioRepo:
         return updated_assoc_from_repo  # Return the stored association
 
     @staticmethod
-    def delete_resource(
+    def remove_resource(
         scenario: ScenarioDomain,
         resource_type: ResourceDomain,
         resource_id: str,
