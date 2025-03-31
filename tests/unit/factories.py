@@ -92,7 +92,7 @@ class HouseDomainFactory(factory.Factory):
         model = HouseDomain
 
     name = factory.Faker("text", max_nb_chars=20)
-    amount = factory.Faker("random_int", min=100000, max=5000000)
+    amount = factory.Faker("random_int", min=100000, max=50000000)
     down_payment = factory.Faker("random_int", min=10000, max=500000)
     interest_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=1.0, max_value=5.0

@@ -2,9 +2,8 @@ import pytest
 from app import create_app, db
 from typing import Generator
 from tests.conftest import TestConfig
-from tests.unit.factories import AccountDomainFactory
-from app.repository.entities import AccountRepo
 from app.domain.entities import AccountDomain
+from .factories import create_account
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -23,5 +22,4 @@ def init_db():
 @pytest.fixture(scope="module")
 def default_account() -> Generator[AccountDomain, None, None]:
     """Provides a default account used as an owner in tests."""
-    account = AccountDomainFactory()
-    yield AccountRepo.create(account)
+    yield create_account()

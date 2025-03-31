@@ -1,12 +1,66 @@
 import faker
+from tests.unit.factories import AccountDomainFactory
+from app.repository.entities import AccountRepo
+from app.domain.entities import AccountDomain
+from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash
 
 faker = faker.Faker()
+
+
+def create_account() -> AccountDomain:
+    """Create a new account."""
+    account = AccountDomainFactory()
+    return AccountRepo.create(account)
+
+
+def create_account_payload() -> dict:
+    payload = {
+        "username": faker.user_name(),
+        "email": faker.email(),
+        "password_hash": generate_password_hash(faker.password(length=12)),
+        "last_seen": datetime.now(timezone.utc),
+    }
+
+    return payload
+
+
+def create_child_payload(parent_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "description": faker.paragraph(nb_sentences=5),
+        "birth_age": faker.random_int(min=20, max=50),
+        "parent_id": parent_id,
+    }
+    payload["independent_age"] = payload["birth_age"] + faker.random_int(min=20, max=30)
+
+    return payload
+
+
+def create_asset_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "amount": faker.random_int(min=10000, max=1000000),
+        "description": faker.paragraph(nb_sentences=5),
+        "max_yearly_return_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=0.06, max_value=1.0
+        ),
+        "min_yearly_return_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=-1.0, max_value=0.05
+        ),
+        "start_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["end_age"] = payload["start_age"] + faker.random_int(min=0, max=30)
+
+    return payload
 
 
 def create_expense_payload(owner_id: str) -> dict:
     payload = {
         "name": faker.text(max_nb_chars=20),
         "amount": faker.random_int(min=1000, max=100000),
+        "description": faker.paragraph(nb_sentences=5),
         "max_yearly_growth_rate": faker.pydecimal(
             left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
         ),
@@ -14,6 +68,88 @@ def create_expense_payload(owner_id: str) -> dict:
             left_digits=1, right_digits=2, min_value=-0.5, max_value=0
         ),
         "start_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["end_age"] = payload["start_age"] + faker.random_int(min=0, max=30)
+
+    return payload
+
+
+def create_house_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "amount": faker.random_int(min=100000, max=50000000),
+        "description": faker.paragraph(nb_sentences=5),
+        "down_payment": faker.random_int(min=10000, max=500000),
+        "interest_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=1.0, max_value=5.0
+        ),
+        "loan_term": faker.random_int(min=10, max=40),
+        "purchase_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["sale_age"] = payload["purchase_age"] + faker.random_int(min=0, max=30)
+
+    return payload
+
+
+def create_income_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "amount": faker.random_int(min=20000, max=200000),
+        "description": faker.paragraph(nb_sentences=5),
+        "max_yearly_growth_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
+        ),
+        "min_yearly_growth_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=-0.5, max_value=0
+        ),
+        "start_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["end_age"] = payload["start_age"] + faker.random_int(min=0, max=30)
+
+    return payload
+
+
+def create_liability_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "description": faker.paragraph(nb_sentences=5),
+        "principal_amount": faker.random_int(min=1000, max=1000000),
+        "interest_rate": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=0.01, max_value=0.2
+        ),
+        "start_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["end_age"] = payload["start_age"] + faker.random_int(min=0, max=40)
+
+    return payload
+
+
+def create_risk_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "description": faker.paragraph(nb_sentences=5),
+        "min_loss": faker.random_int(min=5000, max=30000),
+        "start_age": faker.random_int(min=20, max=65),
+        "owner_id": owner_id,
+    }
+    payload["max_loss"] = payload["min_loss"] + faker.random_int(min=0, max=50000)
+    payload["end_age"] = payload["start_age"] + faker.random_int(min=0, max=30)
+
+    return payload
+
+
+def create_scenario_payload(owner_id: str) -> dict:
+    payload = {
+        "name": faker.text(max_nb_chars=20),
+        "description": faker.paragraph(nb_sentences=5),
+        "asset_allocation_percentage": faker.pydecimal(
+            left_digits=1, right_digits=2, min_value=0.0, max_value=1.0
+        ),
+        "retire_age": faker.random_int(min=50, max=80),
         "owner_id": owner_id,
     }
 

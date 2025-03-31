@@ -4,6 +4,18 @@ from .mixin import OwnerRequiredServiceMixin
 
 
 class ExpenseService(OwnerRequiredServiceMixin):
+    _required_fields = {
+        "name",
+        "amount",
+        "max_yearly_growth_rate",
+        "min_yearly_growth_rate",
+        "start_age",
+    }
+    _all_fields = _required_fields | {
+        "description",
+        "end_age",
+    }
+
     @staticmethod
     def create_expense(account_id: str, payload: dict) -> ExpenseDomain:
         """Create a new expense with validated owner."""
@@ -13,21 +25,27 @@ class ExpenseService(OwnerRequiredServiceMixin):
         # Check if account_id matches the owner_id
         if owner_id != account_id:
             raise PermissionError(
-                f"Account {account_id} is not authoirzed to create expense under the given owner"
+                f"Account {account_id} is not authorized to create expense under the given owner"
             )
+
+        # Validate required fields
+        missing_fields = ExpenseService._required_fields - payload.keys()
+        if missing_fields:
+            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
 
         # Get owner
         owner = ExpenseService._get_owner(owner_id)
 
+        # Filter payload to only include allowed fields
+        expense_payload = {
+            field: payload[field]
+            for field in ExpenseService._all_fields
+            if field in payload
+        }
+        expense_payload["owner"] = owner
+
         # Create the expense
-        expense = ExpenseDomain(
-            name=payload["name"],
-            amount=payload["amount"],
-            max_yearly_growth_rate=payload["max_yearly_growth_rate"],
-            min_yearly_growth_rate=payload["min_yearly_growth_rate"],
-            start_age=payload["start_age"],
-            owner=owner,
-        )
+        expense = ExpenseDomain(**expense_payload)
         return ExpenseRepo.create(expense)
 
     @staticmethod
@@ -55,31 +73,17 @@ class ExpenseService(OwnerRequiredServiceMixin):
         """Update an expense by ID if it exists."""
         expense_from_repo = ExpenseService.get_expense_by_id(account_id, payload)
 
-        params = {
-            "name",
-            "amount",
-            "max_yearly_growth_rate",
-            "min_yearly_growth_rate",
-            "start_age",
-        }
-
-        for param in params:
-            if param in payload:
-                setattr(expense_from_repo, param, payload[param])
+        for field in ExpenseService._all_fields:
+            if field in payload:
+                setattr(expense_from_repo, field, payload[field])
 
         return ExpenseRepo.save(expense_from_repo)
 
     @staticmethod
     def delete_expense_by_id(account_id: str, payload: dict) -> str:
         """Delete an expense by ID if it exists."""
-        expense_id = payload["id"]
-
-        try:
-            ExpenseService.get_expense_by_id(account_id, payload)
-        except ValueError as e:
-            raise e
-        except PermissionError as e:
-            raise e
-
-        ExpenseRepo.delete_by_id(expense_id)
-        return f"Expense {expense_id} deleted successfully"
+        expense = ExpenseService.get_expense_by_id(
+            account_id, payload
+        )  # Raises if not found or unauthorized
+        ExpenseRepo.delete_by_id(expense.id)
+        return f"Expense {expense.id} deleted successfully"
