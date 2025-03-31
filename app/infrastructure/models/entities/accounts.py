@@ -66,7 +66,7 @@ class Account(PrimaryIdMixin, TimestampMixin, db.Model):
     )
 
     def __repr__(self):
-        return "<Account {}>".format(self.username)
+        return "<Account {}>".format(self.name)
 
     def avatar(self, size):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()

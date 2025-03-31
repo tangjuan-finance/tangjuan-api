@@ -19,11 +19,11 @@ def client():
     db.create_all()
 
     # Create default account
-    username = "default"
+    name = "default"
     email = "default@example.com"
     password = "secret"
 
-    account = Account(username=username, email=email)
+    account = Account(name=name, email=email)
     account.set_password(password)
     db.session.add(account)
     db.session.commit()

@@ -51,7 +51,9 @@ class ExpenseService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_expense_by_id(account_id: str, payload: dict) -> ExpenseDomain:
         """Retrieve a specific expense by ID."""
-        expense_id = payload["id"]
+        expense_id = payload.get("id")
+        if not expense_id:
+            raise ValueError("Expense ID is required")
         expense_from_repo = ExpenseRepo.get_by_id(expense_id)
 
         if not expense_from_repo:

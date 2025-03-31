@@ -51,7 +51,9 @@ class AssetService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_asset_by_id(account_id: str, payload: dict) -> AssetDomain:
         """Retrieve a specific asset by ID."""
-        asset_id = payload["id"]
+        asset_id = payload.get("id")
+        if not asset_id:
+            raise ValueError("Asset ID is required")
         asset_from_repo = AssetRepo.get_by_id(asset_id)
 
         if not asset_from_repo:

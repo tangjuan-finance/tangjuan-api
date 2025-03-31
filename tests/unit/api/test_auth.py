@@ -75,11 +75,11 @@
 #             )  # Fail the test if regex doesn't match
 
 #     def test_create_registration_invaild_duplicate_email(self, client):
-#         username = "alice"
+#         name = "alice"
 #         email = "alice@example.com"
 #         password = "bird"
 
-#         a = Account(username=username, email=email)
+#         a = Account(name=name, email=email)
 #         a.set_password(password)
 #         db.session.add(a)
 #         db.session.commit()
@@ -129,7 +129,7 @@
 #             return mock_session_storage.get(session_id)
 
 #         # Arrange: Set up test data
-#         username = "Jack"
+#         name = "Jack"
 #         email = "jack@example.com"
 #         password = "dog"
 #         token = encrypt_data({"email": email}, mode="registration")
@@ -142,7 +142,7 @@
 
 #         # Act: Send a POST request to complete registration
 #         response = client.post(
-#             register_url, json={"username": username, "password": password}
+#             register_url, json={"name": name, "password": password}
 #         )
 
 #         # Assert: Check response status and message
@@ -157,11 +157,11 @@
 #         session_token = mock_get_session_token(session_id)
 #         assert session_token is not None
 #         assert decrypt_data(session_token, mode="authentication") == {
-#             "accountid": Account.query.filter_by(username=username).first().id
+#             "accountid": Account.query.filter_by(name=name).first().id
 #         }
 
 #         # Assert: Confirm user creation in database
-#         account = sa.select(Account).where(Account.username == username)
+#         account = sa.select(Account).where(Account.name == name)
 #         assert db.session.scalar(account) is not None
 
 #     def test_fake_token_imcomplete_registration(self, client):
@@ -171,12 +171,12 @@
 #         register_url = url_for(
 #             "api_v1.complete_registration", token=fake_token, _external=True
 #         )
-#         username = "FakeJack"
+#         name = "FakeJack"
 #         password = "hotdog"
 
 #         # Act: Send a POST request to complete registration
 #         response = client.post(
-#             register_url, json={"username": username, "password": password}
+#             register_url, json={"name": name, "password": password}
 #         )
 
 #         # Assert: Check response status and message
@@ -190,7 +190,7 @@
 #             == "Invalid or expired registration token"
 #         )
 
-#     def test_no_username_imcomplete_registration(self, client):
+#     def test_no_name_imcomplete_registration(self, client):
 #         # Arrange: Set up test data
 
 #         email = "textemail2@gmail.com"
@@ -199,19 +199,19 @@
 #         register_url = url_for(
 #             "api_v1.complete_registration", token=token, _external=True
 #         )
-#         username = ""
+#         name = ""
 #         password = "textemail2secret"
 
 #         # Act: Send a POST request to complete registration
 #         response = client.post(
-#             register_url, json={"username": username, "password": password}
+#             register_url, json={"name": name, "password": password}
 #         )
 
 #         # Assert: Check response status and message
 #         assert response.status_code == 400
 #         assert response.json["error"]["code"] == "AccountNameNotFoundError"
 #         assert response.json["error"]["message"] == "Accountname is required"
-#         assert response.json["error"]["fields"]["username"] == "Accountname is required"
+#         assert response.json["error"]["fields"]["name"] == "Accountname is required"
 
 #     def test_no_password_imcomplete_registration(self, client):
 #         # Arrange: Set up test data
@@ -222,12 +222,12 @@
 #         register_url = url_for(
 #             "api_v1.complete_registration", token=token, _external=True
 #         )
-#         username = "textemail2"
+#         name = "textemail2"
 #         password = ""
 
 #         # Act: Send a POST request to complete registration
 #         response = client.post(
-#             register_url, json={"username": username, "password": password}
+#             register_url, json={"name": name, "password": password}
 #         )
 
 #         # Assert: Check response status and message
@@ -236,7 +236,7 @@
 #         assert response.json["error"]["message"] == "Password is required"
 #         assert response.json["error"]["fields"]["password"] == "Password is required"
 
-#     def test_duplicate_username_imcomplete_registration(self, client):
+#     def test_duplicate_name_imcomplete_registration(self, client):
 #         # Arrange: Set up test data
 
 #         email = "textemail2@gmail.com"
@@ -245,21 +245,21 @@
 #         register_url = url_for(
 #             "api_v1.complete_registration", token=token, _external=True
 #         )
-#         username = "default"
+#         name = "default"
 #         password = "secret"
 
 #         # Act: Send a POST request to complete registration
 #         response = client.post(
-#             register_url, json={"username": username, "password": password}
+#             register_url, json={"name": name, "password": password}
 #         )
 
 #         # Assert: Check response status and message
-#         # AccountNameDuplicationError(errors={"username": "Accountname already taken."})
+#         # AccountNameDuplicationError(errors={"name": "Accountname already taken."})
 #         assert response.status_code == 400
 #         assert response.json["error"]["code"] == "AccountNameDuplicationError"
 #         assert response.json["error"]["message"] == "Accountname already taken"
 #         assert (
-#             response.json["error"]["fields"]["username"] == "Accountname already taken"
+#             response.json["error"]["fields"]["name"] == "Accountname already taken"
 #         )
 
 

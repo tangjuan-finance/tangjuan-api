@@ -23,7 +23,7 @@ class AccountDomainFactory(factory.Factory):
     class Meta:
         model = AccountDomain
 
-    username = factory.Faker("user_name")
+    name = factory.Faker("user_name")
     email = factory.Faker("email")
 
     @factory.lazy_attribute

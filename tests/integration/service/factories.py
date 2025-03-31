@@ -2,8 +2,6 @@ import faker
 from tests.unit.factories import AccountDomainFactory
 from app.repository.entities import AccountRepo
 from app.domain.entities import AccountDomain
-from datetime import datetime, timezone
-from werkzeug.security import generate_password_hash
 
 faker = faker.Faker()
 
@@ -16,10 +14,9 @@ def create_account() -> AccountDomain:
 
 def create_account_payload() -> dict:
     payload = {
-        "username": faker.user_name(),
+        "name": faker.user_name(),
         "email": faker.email(),
-        "password_hash": generate_password_hash(faker.password(length=12)),
-        "last_seen": datetime.now(timezone.utc),
+        "password": faker.password(length=12),
     }
 
     return payload

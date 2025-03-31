@@ -18,7 +18,7 @@ from werkzeug.security import generate_password_hash
 
 @pytest.fixture(scope="class")
 def default_account_domain():
-    username = "default"
+    name = "default"
     email = "default@example.com"
     password = "default$ercet"
     id = generate(size=13)
@@ -28,7 +28,7 @@ def default_account_domain():
     updated_at = datetime.now(timezone.utc)
 
     account = AccountDomain(
-        username=username,
+        name=name,
         email=email,
         id=id,
         created_at=created_at,

@@ -18,7 +18,7 @@ class TestAccountRepoCase:
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert account_from_repo.id == account_from_db.id
-        assert account_from_repo.username == account_from_db.username
+        assert account_from_repo.name == account_from_db.name
         assert account_from_repo.email == account_from_db.email
         assert account_from_repo.password_hash == account_from_db.password_hash
         assert account_from_repo.created_at == account_from_db.created_at
@@ -28,10 +28,10 @@ class TestAccountRepoCase:
         # Arrange: Create an account domain using the factory
         account = AccountDomainFactory()
         account_from_repo = AccountRepo.create(account)
-        updated_username = "Updated Account Domain"
+        updated_name = "Updated Account Domain"
 
         # Act: Update the account domain object (before saving)
-        account_from_repo.username = updated_username
+        account_from_repo.name = updated_name
 
         # Save the updated object through the repository and get the result
         updated_account = AccountRepo.save(account_from_repo)
@@ -43,7 +43,7 @@ class TestAccountRepoCase:
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert updated_account.id == account_from_db.id
-        assert updated_account.username == account_from_db.username
+        assert updated_account.name == account_from_db.name
         assert updated_account.created_at == account_from_db.created_at
         assert updated_account.updated_at == account_from_db.updated_at
         # Update_at from updated_account should be different from the previous account domain (the one before update)
@@ -59,7 +59,7 @@ class TestAccountRepoCase:
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert account_get_by_id.id == account_from_repo.id
-        assert account_get_by_id.username == account_from_repo.username
+        assert account_get_by_id.name == account_from_repo.name
 
     def test_get_account_domain_list_through_repo(self):
         # Arrange: Create an account domain using the factory

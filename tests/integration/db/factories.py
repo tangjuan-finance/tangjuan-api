@@ -11,13 +11,13 @@ def create_entity(cls, **kwargs):
 
 
 def create_account(
-    username="alice",
+    name="alice",
     email="alice@example.com",
     password="bird",
 ):
     password_hash = generate_password_hash(password)
 
-    u = Account(username=username, email=email, password_hash=password_hash)
+    u = Account(name=name, email=email, password_hash=password_hash)
     db.session.add(u)
     db.session.commit()
     return u

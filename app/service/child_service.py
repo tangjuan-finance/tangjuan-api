@@ -52,7 +52,9 @@ class ChildService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_child_by_id(account_id: str, payload: dict) -> ChildDomain:
         """Retrieve a specific child by ID."""
-        child_id = payload["id"]
+        child_id = payload.get("id")
+        if not child_id:
+            raise ValueError("Child ID is required")
         child_from_repo = ChildRepo.get_by_id(child_id)
 
         if not child_from_repo:

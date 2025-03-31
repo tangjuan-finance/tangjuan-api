@@ -48,7 +48,9 @@ class ScenarioService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_scenario_by_id(account_id: str, payload: dict) -> ScenarioDomain:
         """Retrieve a specific scenario by ID."""
-        scenario_id = payload["id"]
+        scenario_id = payload.get("id")
+        if not scenario_id:
+            raise ValueError("Scenario ID is required")
         scenario_from_repo = ScenarioRepo.get_by_id(scenario_id)
 
         if not scenario_from_repo:

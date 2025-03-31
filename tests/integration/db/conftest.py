@@ -30,12 +30,12 @@ def init_db():
 
 @pytest.fixture(scope="class")
 def default_account_domain():
-    username = "default"
+    name = "default"
     email = "default@example.com"
     password = "default$ercet"
     password_hash = generate_password_hash(password)
 
-    u = Account(username=username, email=email, password_hash=password_hash)
+    u = Account(name=name, email=email, password_hash=password_hash)
     db.session.add(u)
     db.session.commit()
     yield u

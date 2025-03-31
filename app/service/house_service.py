@@ -52,7 +52,9 @@ class HouseService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_house_by_id(account_id: str, payload: dict) -> HouseDomain:
         """Retrieve a specific house by ID."""
-        house_id = payload["id"]
+        house_id = payload.get("id")
+        if not house_id:
+            raise ValueError("House ID is required")
         house_from_repo = HouseRepo.get_by_id(house_id)
 
         if not house_from_repo:

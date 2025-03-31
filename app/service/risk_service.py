@@ -50,7 +50,9 @@ class RiskService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_risk_by_id(account_id: str, payload: dict) -> RiskDomain:
         """Retrieve a specific risk by ID."""
-        risk_id = payload["id"]
+        risk_id = payload.get("id")
+        if not risk_id:
+            raise ValueError("Risk ID is required")
         risk_from_repo = RiskRepo.get_by_id(risk_id)
 
         if not risk_from_repo:

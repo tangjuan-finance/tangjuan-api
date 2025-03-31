@@ -51,7 +51,9 @@ class IncomeService(OwnerRequiredServiceMixin):
     @staticmethod
     def get_income_by_id(account_id: str, payload: dict) -> IncomeDomain:
         """Retrieve a specific income by ID."""
-        income_id = payload["id"]
+        income_id = payload.get("id")
+        if not income_id:
+            raise ValueError("Income ID is required")
         income_from_repo = IncomeRepo.get_by_id(income_id)
 
         if not income_from_repo:
