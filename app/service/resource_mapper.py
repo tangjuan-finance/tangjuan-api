@@ -58,7 +58,7 @@ class ResourceFieldMapper(ResourceMapper):
             {
                 "max_yearly_return_rate",
                 "min_yearly_return_rate",
-                "associationocation_percentage",
+                "allocation_percentage",
                 "start_age",
                 "end_age",
             }
@@ -139,7 +139,7 @@ class ResourceFieldMapper(ResourceMapper):
         | frozenset(
             {
                 "interest_rate",
-                "associationocation_percentage",
+                "allocation_percentage",
                 "start_age",
                 "end_age",
             }

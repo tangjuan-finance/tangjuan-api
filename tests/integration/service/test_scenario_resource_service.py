@@ -16,6 +16,7 @@ from tests.integration.service.factories import (
 # from nanoid import generate
 import pytest
 from tests.resource_mapper import ResourceTestMapper
+from app.service.resource_mapper import ResourceFieldMapper
 
 
 class TestScenarioResourceServiceCase:
@@ -52,8 +53,9 @@ class TestScenarioResourceServiceCase:
             resource_domain = mapper.resource_domain_factory(parent=owner)
         else:
             resource_domain = mapper.resource_domain_factory(owner=owner)
-
-        return resource_domain.id
+        resource_repo = mapper.resource_repo_cls
+        resource_domain_from_repo = resource_repo.create(resource_domain)
+        return resource_domain_from_repo.id
 
     @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
     def test_add_resource_by_scenario_resource_service(
@@ -84,7 +86,10 @@ class TestScenarioResourceServiceCase:
         )
 
         # Assert: Ensure the returned ScenarioDomain matches the input payload
-        for field in payload.keys():
+        association_fields = ResourceFieldMapper.by_resource_type(
+            resource_type
+        ).association_fields
+        for field in association_fields:
             # Make sure each field in ScenarioDomain matches the corresponding payload value
             assert (
                 getattr(scenario_resource_assoc, field) == payload[field]

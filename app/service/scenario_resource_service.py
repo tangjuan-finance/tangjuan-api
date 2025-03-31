@@ -29,7 +29,7 @@ class ScenarioResourceService:
         # Get resource domain
         resource_id = payload[f"{resource_type}_id"]
         domain_repo = mapper.resource_repo_cls
-        resource_domain = domain_repo(resource_id)
+        resource_domain = domain_repo.get_by_id(resource_id)
 
         # Check if both the scenario and the resource is owned by given account
         if scenario_domain.owner.id != account_id:
@@ -37,23 +37,29 @@ class ScenarioResourceService:
                 f"Account {account_id} is not authorized to access this scenario"
             )
 
-        if resource_domain.owner.id != account_id:
-            raise PermissionError(
-                f"Account {account_id} is not authorized to access this resource"
-            )
+        if resource_type == "child":
+            if resource_domain.parent.id != account_id:
+                raise PermissionError(
+                    f"Account {account_id} is not authorized to access this resource"
+                )
+        else:
+            if resource_domain.owner.id != account_id:
+                raise PermissionError(
+                    f"Account {account_id} is not authorized to access this resource"
+                )
 
         # Use mapper to get required fields and all fields
-        required_fields = mapper.required_fields
-        all_fields = mapper.all_fields
+        cid_fields = mapper.cid_fields
+        association_fields = mapper.association_fields
 
         # Validate required fields
-        missing_fields = required_fields - payload.keys()
+        missing_fields = cid_fields - payload.keys()
         if missing_fields:
             raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
 
         # Filter payload to only include allowed fields
         assoc_payload = {
-            field: payload[field] for field in all_fields if field in payload
+            field: payload[field] for field in association_fields if field in payload
         }
 
         return ScenarioRepo.add_resource(
