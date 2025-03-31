@@ -225,8 +225,8 @@ class TestAssetServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_asset_by_id_service_with_not_existed_asset(self):
-        """Test getting an not_existed asset"""
+    def test_get_asset_by_id_service_with_not_existed_asset(self, default_account):
+        """Test getting a not_existed asset"""
 
         # Arrange: Generate an asset id
         not_existed_asset_id = generate(size=13)
@@ -236,17 +236,15 @@ class TestAssetServiceCase:
             "id": not_existed_asset_id,
         }
 
-        # Act: Retrieve the asset by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get asset with invalid id should fail
         with pytest.raises(ValueError):
             AssetService.get_asset_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_asset_service_with_not_existed_asset(self):
-        """Test updating an not_existed asset"""
+    def test_update_asset_service_with_not_existed_asset(self, default_account):
+        """Test updating a not_existed asset"""
 
         # Arrange: Generate an asset id
         not_existed_asset_id = generate(size=13)
@@ -259,16 +257,14 @@ class TestAssetServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the asset by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update asset with invalid id should fail
         with pytest.raises(ValueError):
             AssetService.update_asset(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_asset_service_with_not_existed_asset(self):
-        """Test deleting an not_existed asset"""
+    def test_delete_asset_service_with_not_existed_asset(self, default_account):
+        """Test deleting a not_existed asset"""
 
         # Arrange: Generate an asset id
         not_existed_asset_id = generate(size=13)
@@ -278,12 +274,10 @@ class TestAssetServiceCase:
             "id": not_existed_asset_id,
         }
 
-        # Act: Retrieve the asset by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete asset with invalid id should fail
         with pytest.raises(ValueError):
             AssetService.delete_asset_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_asset_service_with_invalid_field(self, default_account):

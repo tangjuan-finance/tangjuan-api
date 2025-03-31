@@ -241,8 +241,10 @@ class TestLiabilityServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_liability_by_id_service_with_not_existed_liability(self):
-        """Test getting an not_existed liability"""
+    def test_get_liability_by_id_service_with_not_existed_liability(
+        self, default_account
+    ):
+        """Test getting a not_existed liability"""
 
         # Arrange: Generate an liability id
         not_existed_liability_id = generate(size=13)
@@ -252,17 +254,15 @@ class TestLiabilityServiceCase:
             "id": not_existed_liability_id,
         }
 
-        # Act: Retrieve the liability by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get liability with invalid id should fail
         with pytest.raises(ValueError):
             LiabilityService.get_liability_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_liability_service_with_not_existed_liability(self):
-        """Test updating an not_existed liability"""
+    def test_update_liability_service_with_not_existed_liability(self, default_account):
+        """Test updating a not_existed liability"""
 
         # Arrange: Generate an liability id
         not_existed_liability_id = generate(size=13)
@@ -275,16 +275,14 @@ class TestLiabilityServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the liability by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update liability with invalid id should fail
         with pytest.raises(ValueError):
             LiabilityService.update_liability(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_liability_service_with_not_existed_liability(self):
-        """Test deleting an not_existed liability"""
+    def test_delete_liability_service_with_not_existed_liability(self, default_account):
+        """Test deleting a not_existed liability"""
 
         # Arrange: Generate an liability id
         not_existed_liability_id = generate(size=13)
@@ -294,12 +292,10 @@ class TestLiabilityServiceCase:
             "id": not_existed_liability_id,
         }
 
-        # Act: Retrieve the liability by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete liability with invalid id should fail
         with pytest.raises(ValueError):
             LiabilityService.delete_liability_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_liability_service_with_invalid_field(self, default_account):

@@ -243,8 +243,8 @@ class TestExpenseServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_expense_by_id_service_with_not_existed_expense(self):
-        """Test getting an not_existed expense"""
+    def test_get_expense_by_id_service_with_not_existed_expense(self, default_account):
+        """Test getting a not_existed expense"""
 
         # Arrange: Generate an expense id
         not_existed_expense_id = generate(size=13)
@@ -254,17 +254,15 @@ class TestExpenseServiceCase:
             "id": not_existed_expense_id,
         }
 
-        # Act: Retrieve the expense by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get expense with invalid id should fail
         with pytest.raises(ValueError):
             ExpenseService.get_expense_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_expense_service_with_not_existed_expense(self):
-        """Test updating an not_existed expense"""
+    def test_update_expense_service_with_not_existed_expense(self, default_account):
+        """Test updating a not_existed expense"""
 
         # Arrange: Generate an expense id
         not_existed_expense_id = generate(size=13)
@@ -277,16 +275,14 @@ class TestExpenseServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the expense by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update expense with invalid id should fail
         with pytest.raises(ValueError):
             ExpenseService.update_expense(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_expense_service_with_not_existed_expense(self):
-        """Test deleting an not_existed expense"""
+    def test_delete_expense_service_with_not_existed_expense(self, default_account):
+        """Test deleting a not_existed expense"""
 
         # Arrange: Generate an expense id
         not_existed_expense_id = generate(size=13)
@@ -296,12 +292,10 @@ class TestExpenseServiceCase:
             "id": not_existed_expense_id,
         }
 
-        # Act: Retrieve the expense by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete expense with invalid id should fail
         with pytest.raises(ValueError):
             ExpenseService.delete_expense_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_expense_service_with_invalid_field(self, default_account):

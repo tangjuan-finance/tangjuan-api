@@ -241,8 +241,8 @@ class TestIncomeServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_income_by_id_service_with_not_existed_income(self):
-        """Test getting an not_existed income"""
+    def test_get_income_by_id_service_with_not_existed_income(self, default_account):
+        """Test getting a not_existed income"""
 
         # Arrange: Generate an income id
         not_existed_income_id = generate(size=13)
@@ -252,17 +252,15 @@ class TestIncomeServiceCase:
             "id": not_existed_income_id,
         }
 
-        # Act: Retrieve the income by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get income with invalid id should fail
         with pytest.raises(ValueError):
             IncomeService.get_income_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_income_service_with_not_existed_income(self):
-        """Test updating an not_existed income"""
+    def test_update_income_service_with_not_existed_income(self, default_account):
+        """Test updating a not_existed income"""
 
         # Arrange: Generate an income id
         not_existed_income_id = generate(size=13)
@@ -275,16 +273,14 @@ class TestIncomeServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the income by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update income with invalid id should fail
         with pytest.raises(ValueError):
             IncomeService.update_income(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_income_service_with_not_existed_income(self):
-        """Test deleting an not_existed income"""
+    def test_delete_income_service_with_not_existed_income(self, default_account):
+        """Test deleting a not_existed income"""
 
         # Arrange: Generate an income id
         not_existed_income_id = generate(size=13)
@@ -294,12 +290,10 @@ class TestIncomeServiceCase:
             "id": not_existed_income_id,
         }
 
-        # Act: Retrieve the income by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete income with invalid id should fail
         with pytest.raises(ValueError):
             IncomeService.delete_income_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_income_service_with_invalid_field(self, default_account):

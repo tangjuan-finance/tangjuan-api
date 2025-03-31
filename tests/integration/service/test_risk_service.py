@@ -222,8 +222,8 @@ class TestRiskServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_risk_by_id_service_with_not_existed_risk(self):
-        """Test getting an not_existed risk"""
+    def test_get_risk_by_id_service_with_not_existed_risk(self, default_account):
+        """Test getting a not_existed risk"""
 
         # Arrange: Generate an risk id
         not_existed_risk_id = generate(size=13)
@@ -233,17 +233,15 @@ class TestRiskServiceCase:
             "id": not_existed_risk_id,
         }
 
-        # Act: Retrieve the risk by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get risk with invalid id should fail
         with pytest.raises(ValueError):
             RiskService.get_risk_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_risk_service_with_not_existed_risk(self):
-        """Test updating an not_existed risk"""
+    def test_update_risk_service_with_not_existed_risk(self, default_account):
+        """Test updating a not_existed risk"""
 
         # Arrange: Generate an risk id
         not_existed_risk_id = generate(size=13)
@@ -256,16 +254,14 @@ class TestRiskServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the risk by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update risk with invalid id should fail
         with pytest.raises(ValueError):
             RiskService.update_risk(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_risk_service_with_not_existed_risk(self):
-        """Test deleting an not_existed risk"""
+    def test_delete_risk_service_with_not_existed_risk(self, default_account):
+        """Test deleting a not_existed risk"""
 
         # Arrange: Generate an risk id
         not_existed_risk_id = generate(size=13)
@@ -275,12 +271,10 @@ class TestRiskServiceCase:
             "id": not_existed_risk_id,
         }
 
-        # Act: Retrieve the risk by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete risk with invalid id should fail
         with pytest.raises(ValueError):
             RiskService.delete_risk_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_risk_service_with_invalid_field(self, default_account):

@@ -221,8 +221,8 @@ class TestChildServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_child_by_id_service_with_not_existed_child(self):
-        """Test getting an not_existed child"""
+    def test_get_child_by_id_service_with_not_existed_child(self, default_account):
+        """Test getting a not_existed child"""
 
         # Arrange: Generate an child id
         not_existed_child_id = generate(size=13)
@@ -232,17 +232,15 @@ class TestChildServiceCase:
             "id": not_existed_child_id,
         }
 
-        # Act: Retrieve the child by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get child with invalid id should fail
         with pytest.raises(ValueError):
             ChildService.get_child_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_child_service_with_not_existed_child(self):
-        """Test updating an not_existed child"""
+    def test_update_child_service_with_not_existed_child(self, default_account):
+        """Test updating a not_existed child"""
 
         # Arrange: Generate an child id
         not_existed_child_id = generate(size=13)
@@ -255,16 +253,14 @@ class TestChildServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the child by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update child with invalid id should fail
         with pytest.raises(ValueError):
             ChildService.update_child(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_child_service_with_not_existed_child(self):
-        """Test deleting an not_existed child"""
+    def test_delete_child_service_with_not_existed_child(self, default_account):
+        """Test deleting a not_existed child"""
 
         # Arrange: Generate an child id
         not_existed_child_id = generate(size=13)
@@ -274,12 +270,10 @@ class TestChildServiceCase:
             "id": not_existed_child_id,
         }
 
-        # Act: Retrieve the child by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete child with invalid id should fail
         with pytest.raises(ValueError):
             ChildService.delete_child_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_child_service_with_invalid_field(self, default_account):

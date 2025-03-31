@@ -226,8 +226,8 @@ class TestHouseServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_house_by_id_service_with_not_existed_house(self):
-        """Test getting an not_existed house"""
+    def test_get_house_by_id_service_with_not_existed_house(self, default_account):
+        """Test getting a not_existed house"""
 
         # Arrange: Generate an house id
         not_existed_house_id = generate(size=13)
@@ -237,17 +237,15 @@ class TestHouseServiceCase:
             "id": not_existed_house_id,
         }
 
-        # Act: Retrieve the house by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get house with invalid id should fail
         with pytest.raises(ValueError):
             HouseService.get_house_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_house_service_with_not_existed_house(self):
-        """Test updating an not_existed house"""
+    def test_update_house_service_with_not_existed_house(self, default_account):
+        """Test updating a not_existed house"""
 
         # Arrange: Generate an house id
         not_existed_house_id = generate(size=13)
@@ -260,16 +258,14 @@ class TestHouseServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the house by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update house with invalid id should fail
         with pytest.raises(ValueError):
             HouseService.update_house(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_house_service_with_not_existed_house(self):
-        """Test deleting an not_existed house"""
+    def test_delete_house_service_with_not_existed_house(self, default_account):
+        """Test deleting a not_existed house"""
 
         # Arrange: Generate an house id
         not_existed_house_id = generate(size=13)
@@ -279,12 +275,10 @@ class TestHouseServiceCase:
             "id": not_existed_house_id,
         }
 
-        # Act: Retrieve the house by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete house with invalid id should fail
         with pytest.raises(ValueError):
             HouseService.delete_house_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_house_service_with_invalid_field(self, default_account):

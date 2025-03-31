@@ -240,8 +240,10 @@ class TestScenarioServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_scenario_by_id_service_with_not_existed_scenario(self):
-        """Test getting an not_existed scenario"""
+    def test_get_scenario_by_id_service_with_not_existed_scenario(
+        self, default_account
+    ):
+        """Test getting a not_existed scenario"""
 
         # Arrange: Generate an scenario id
         not_existed_scenario_id = generate(size=13)
@@ -251,17 +253,15 @@ class TestScenarioServiceCase:
             "id": not_existed_scenario_id,
         }
 
-        # Act: Retrieve the scenario by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Get scenario with invalid id should fail
         with pytest.raises(ValueError):
             ScenarioService.get_scenario_by_id(
-                account_id=another_account_id,
+                account_id=default_account.id,
                 payload=get_payload,
             )
 
-    def test_update_scenario_service_with_not_existed_scenario(self):
-        """Test updating an not_existed scenario"""
+    def test_update_scenario_service_with_not_existed_scenario(self, default_account):
+        """Test updating a not_existed scenario"""
 
         # Arrange: Generate an scenario id
         not_existed_scenario_id = generate(size=13)
@@ -274,16 +274,14 @@ class TestScenarioServiceCase:
             "name": updated_name,
         }
 
-        # Act: Retrieve the scenario by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Update asset with invalid id should fail
         with pytest.raises(ValueError):
             ScenarioService.update_scenario(
-                account_id=another_account_id, payload=updated_payload
+                account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_scenario_service_with_not_existed_scenario(self):
-        """Test deleting an not_existed scenario"""
+    def test_delete_scenario_service_with_not_existed_scenario(self, default_account):
+        """Test deleting a not_existed scenario"""
 
         # Arrange: Generate an scenario id
         not_existed_scenario_id = generate(size=13)
@@ -293,12 +291,10 @@ class TestScenarioServiceCase:
             "id": not_existed_scenario_id,
         }
 
-        # Act: Retrieve the scenario by ID with different account ID
-        another_account_id = create_account().id
-
+        # Assert: Delete asset with invalid id should fail
         with pytest.raises(ValueError):
             ScenarioService.delete_scenario_by_id(
-                account_id=another_account_id, payload=delete_payload
+                account_id=default_account.id, payload=delete_payload
             )
 
     def test_create_scenario_service_with_invalid_field(self, default_account):
