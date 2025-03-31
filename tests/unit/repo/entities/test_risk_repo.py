@@ -65,15 +65,18 @@ class TestRiskRepoCase:
 
     def test_get_risk_domain_list_through_repo(self, default_account):
         # Arrange: Create an risk domain using the factory
-        origin_risk_list_length = len(RiskRepo.get_list())
+        account_id = default_account.id
+        origin_risk_list_length = len(RiskRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new risk domains
         for _ in range(5):
             risk = RiskDomainFactory(owner=default_account)
             RiskRepo.create(risk)
 
+        # Act: Retrieve the updated risk list
+        updated_risk_list_length = len(RiskRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_risk_list_length = len(RiskRepo.get_list())
         assert updated_risk_list_length == (origin_risk_list_length + 5)
 
     def test_delete_risk_domain_through_repo(self, default_account):

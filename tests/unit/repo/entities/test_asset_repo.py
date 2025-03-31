@@ -72,15 +72,18 @@ class TestAssetRepoCase:
 
     def test_get_asset_domain_list_through_repo(self, default_account):
         # Arrange: Create an asset domain using the factory
-        origin_asset_list_length = len(AssetRepo.get_list())
+        account_id = default_account.id
+        origin_asset_list_length = len(AssetRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new asset domains
         for _ in range(5):
             asset = AssetDomainFactory(owner=default_account)
             AssetRepo.create(asset)
 
+        # Act: Retrieve the updated asset list
+        updated_asset_list_length = len(AssetRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_asset_list_length = len(AssetRepo.get_list())
         assert updated_asset_list_length == (origin_asset_list_length + 5)
 
     def test_delete_asset_domain_through_repo(self, default_account):

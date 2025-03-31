@@ -67,15 +67,18 @@ class TestScenarioRepoCase:
 
     def test_get_scenario_domain_list_through_repo(self, default_account):
         # Arrange: Create an scenario domain using the factory
-        origin_scenario_list_length = len(ScenarioRepo.get_list())
+        account_id = default_account.id
+        origin_scenario_list_length = len(ScenarioRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new scenario domains
         for _ in range(5):
             scenario = ScenarioDomainFactory(owner=default_account)
             ScenarioRepo.create(scenario)
 
+        # Act: Retrieve the updated scenario list
+        updated_scenario_list_length = len(ScenarioRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_scenario_list_length = len(ScenarioRepo.get_list())
         assert updated_scenario_list_length == (origin_scenario_list_length + 5)
 
     def test_delete_scenario_domain_through_repo(self, default_account):

@@ -86,12 +86,14 @@ class ScenarioRepo:
         return ScenarioRepo._map_to_domain(scenario_model, scenario_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[ScenarioDomain]:
-        """Retrieve all scenarios and return as a list of DomainObjects."""
-        scenario_model_list = db.session.scalars(sa.select(Scenario)).all()
+    def get_list(account_id: str) -> list[ScenarioDomain]:
+        """Retrieve all scenarios of the account and return as a list of DomainObjects."""
+        scenario_model_list = db.session.scalars(
+            sa.select(Scenario).where(Scenario.owner_id == account_id)
+        ).all()
         return [
-            ScenarioRepo._map_to_domain(exp, exp.owner.id)
-            for exp in scenario_model_list
+            ScenarioRepo._map_to_domain(scenario, scenario.owner.id)
+            for scenario in scenario_model_list
         ]
 
     @staticmethod

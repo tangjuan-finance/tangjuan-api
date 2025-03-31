@@ -77,11 +77,14 @@ class ChildRepo:
         return ChildRepo._map_to_domain(child_model, child_model.parent.id)
 
     @staticmethod
-    def get_list() -> list[ChildDomain]:
-        """Retrieve all childs and return as a list of DomainObjects."""
-        child_model_list = db.session.scalars(sa.select(Child)).all()
+    def get_list(account_id: str) -> list[ChildDomain]:
+        """Retrieve all children of the account and return as a list of DomainObjects."""
+        child_model_list = db.session.scalars(
+            sa.select(Child).where(Child.parent_id == account_id)
+        ).all()
         return [
-            ChildRepo._map_to_domain(exp, exp.parent.id) for exp in child_model_list
+            ChildRepo._map_to_domain(child, child.parent.id)
+            for child in child_model_list
         ]
 
     @staticmethod

@@ -67,15 +67,18 @@ class TestHouseRepoCase:
 
     def test_get_house_domain_list_through_repo(self, default_account):
         # Arrange: Create an house domain using the factory
-        origin_house_list_length = len(HouseRepo.get_list())
+        account_id = default_account.id
+        origin_house_list_length = len(HouseRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new house domains
         for _ in range(5):
             house = HouseDomainFactory(owner=default_account)
             HouseRepo.create(house)
 
+        # Act: Retrieve the updated house list
+        updated_house_list_length = len(HouseRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_house_list_length = len(HouseRepo.get_list())
         assert updated_house_list_length == (origin_house_list_length + 5)
 
     def test_delete_house_domain_through_repo(self, default_account):

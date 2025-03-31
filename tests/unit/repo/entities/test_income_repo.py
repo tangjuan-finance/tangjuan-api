@@ -72,15 +72,18 @@ class TestIncomeRepoCase:
 
     def test_get_income_domain_list_through_repo(self, default_account):
         # Arrange: Create an income domain using the factory
-        origin_income_list_length = len(IncomeRepo.get_list())
+        account_id = default_account.id
+        origin_income_list_length = len(IncomeRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new income domains
         for _ in range(5):
             income = IncomeDomainFactory(owner=default_account)
             IncomeRepo.create(income)
 
+        # Act: Retrieve the updated income list
+        updated_income_list_length = len(IncomeRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_income_list_length = len(IncomeRepo.get_list())
         assert updated_income_list_length == (origin_income_list_length + 5)
 
     def test_delete_income_domain_through_repo(self, default_account):

@@ -87,12 +87,14 @@ class LiabilityRepo:
         return LiabilityRepo._map_to_domain(liability_model, liability_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[LiabilityDomain]:
-        """Retrieve all liabilitys and return as a list of DomainObjects."""
-        liability_model_list = db.session.scalars(sa.select(Liability)).all()
+    def get_list(account_id: str) -> list[LiabilityDomain]:
+        """Retrieve all liabilities of the account and return as a list of DomainObjects."""
+        liability_model_list = db.session.scalars(
+            sa.select(Liability).where(Liability.owner_id == account_id)
+        ).all()
         return [
-            LiabilityRepo._map_to_domain(exp, exp.owner.id)
-            for exp in liability_model_list
+            LiabilityRepo._map_to_domain(liability, liability.owner.id)
+            for liability in liability_model_list
         ]
 
     @staticmethod

@@ -77,10 +77,14 @@ class RiskRepo:
         return RiskRepo._map_to_domain(risk_model, risk_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[RiskDomain]:
-        """Retrieve all risks and return as a list of DomainObjects."""
-        risk_model_list = db.session.scalars(sa.select(Risk)).all()
-        return [RiskRepo._map_to_domain(exp, exp.owner.id) for exp in risk_model_list]
+    def get_list(account_id: str) -> list[RiskDomain]:
+        """Retrieve all risks of the account and return as a list of DomainObjects."""
+        risk_model_list = db.session.scalars(
+            sa.select(Risk).where(Risk.owner_id == account_id)
+        ).all()
+        return [
+            RiskRepo._map_to_domain(risk, risk.owner.id) for risk in risk_model_list
+        ]
 
     @staticmethod
     def delete_by_id(risk_id: int) -> None:

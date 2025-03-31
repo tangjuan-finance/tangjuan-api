@@ -68,15 +68,22 @@ class TestLiabilityRepoCase:
 
     def test_get_liability_domain_list_through_repo(self, default_account):
         # Arrange: Create an liability domain using the factory
-        origin_liability_list_length = len(LiabilityRepo.get_list())
+        account_id = default_account.id
+        origin_liability_list_length = len(
+            LiabilityRepo.get_list(account_id=account_id)
+        )
 
         # Act: Create 5 new liability domains
         for _ in range(5):
             liability = LiabilityDomainFactory(owner=default_account)
             LiabilityRepo.create(liability)
 
+        # Act: Retrieve the updated liability list
+        updated_liability_list_length = len(
+            LiabilityRepo.get_list(account_id=account_id)
+        )
+
         # Assert: Ensure the list length is increased by 5
-        updated_liability_list_length = len(LiabilityRepo.get_list())
         assert updated_liability_list_length == (origin_liability_list_length + 5)
 
     def test_delete_liability_domain_through_repo(self, default_account):

@@ -72,15 +72,18 @@ class TestExpenseRepoCase:
 
     def test_get_expense_domain_list_through_repo(self, default_account):
         # Arrange: Create an expense domain using the factory
-        origin_expense_list_length = len(ExpenseRepo.get_list())
+        account_id = default_account.id
+        origin_expense_list_length = len(ExpenseRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new expense domains
         for _ in range(5):
             expense = ExpenseDomainFactory(owner=default_account)
             ExpenseRepo.create(expense)
 
+        # Act: Retrieve the updated expense list
+        updated_expense_list_length = len(ExpenseRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_expense_list_length = len(ExpenseRepo.get_list())
         assert updated_expense_list_length == (origin_expense_list_length + 5)
 
     def test_delete_expense_domain_through_repo(self, default_account):

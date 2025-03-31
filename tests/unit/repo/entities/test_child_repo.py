@@ -64,15 +64,18 @@ class TestChildRepoCase:
 
     def test_get_child_domain_list_through_repo(self, default_account):
         # Arrange: Create an child domain using the factory
-        origin_child_list_length = len(ChildRepo.get_list())
+        account_id = default_account.id
+        origin_child_list_length = len(ChildRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new child domains
         for _ in range(5):
             child = ChildDomainFactory(parent=default_account)
             ChildRepo.create(child)
 
+        # Act: Retrieve the updated child list
+        updated_child_list_length = len(ChildRepo.get_list(account_id=account_id))
+
         # Assert: Ensure the list length is increased by 5
-        updated_child_list_length = len(ChildRepo.get_list())
         assert updated_child_list_length == (origin_child_list_length + 5)
 
     def test_delete_child_domain_through_repo(self, default_account):

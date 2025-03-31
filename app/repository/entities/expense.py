@@ -87,9 +87,11 @@ class ExpenseRepo:
         return ExpenseRepo._map_to_domain(expense_model, expense_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[ExpenseDomain]:
-        """Retrieve all expenses and return as a list of DomainObjects."""
-        expense_model_list = db.session.scalars(sa.select(Expense)).all()
+    def get_list(account_id: str) -> list[ExpenseDomain]:
+        """Retrieve all expenses of the account and return as a list of DomainObjects."""
+        expense_model_list = db.session.scalars(
+            sa.select(Expense).where(Expense.owner_id == account_id)
+        ).all()
         return [
             ExpenseRepo._map_to_domain(exp, exp.owner.id) for exp in expense_model_list
         ]

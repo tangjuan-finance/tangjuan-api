@@ -93,7 +93,7 @@ class ScenarioDomain(EntityDomain):
             resource_mapper
         )  # e.g., "expenses", "incomes"
 
-        # Find the matching association by its resource ID
+        # Find the matching association by comparing assoc's resource
         return_association = next(
             (
                 assoc

@@ -83,10 +83,15 @@ class AssetRepo:
         return AssetRepo._map_to_domain(asset_model, asset_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[AssetDomain]:
-        """Retrieve all assets and return as a list of DomainObjects."""
-        asset_model_list = db.session.scalars(sa.select(Asset)).all()
-        return [AssetRepo._map_to_domain(exp, exp.owner.id) for exp in asset_model_list]
+    def get_list(account_id: str) -> list[AssetDomain]:
+        """Retrieve all assets of the account and return as a list of DomainObjects."""
+        asset_model_list = db.session.scalars(
+            sa.select(Asset).where(Asset.owner_id == account_id)
+        ).all()
+        return [
+            AssetRepo._map_to_domain(asset, asset.owner.id)
+            for asset in asset_model_list
+        ]
 
     @staticmethod
     def delete_by_id(asset_id: int) -> None:

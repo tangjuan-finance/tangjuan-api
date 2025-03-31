@@ -85,10 +85,15 @@ class HouseRepo:
         return HouseRepo._map_to_domain(house_model, house_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[HouseDomain]:
-        """Retrieve all houses and return as a list of DomainObjects."""
-        house_model_list = db.session.scalars(sa.select(House)).all()
-        return [HouseRepo._map_to_domain(exp, exp.owner.id) for exp in house_model_list]
+    def get_list(account_id: str) -> list[HouseDomain]:
+        """Retrieve all houses of the account and return as a list of DomainObjects."""
+        house_model_list = db.session.scalars(
+            sa.select(House).where(House.owner_id == account_id)
+        ).all()
+        return [
+            HouseRepo._map_to_domain(house, house.owner.id)
+            for house in house_model_list
+        ]
 
     @staticmethod
     def delete_by_id(house_id: int) -> None:

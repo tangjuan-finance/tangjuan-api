@@ -87,11 +87,14 @@ class IncomeRepo:
         return IncomeRepo._map_to_domain(income_model, income_model.owner.id)
 
     @staticmethod
-    def get_list() -> list[IncomeDomain]:
-        """Retrieve all incomes and return as a list of DomainObjects."""
-        income_model_list = db.session.scalars(sa.select(Income)).all()
+    def get_list(account_id: str) -> list[IncomeDomain]:
+        """Retrieve all incomes of the account and return as a list of DomainObjects."""
+        income_model_list = db.session.scalars(
+            sa.select(Income).where(Income.owner_id == account_id)
+        ).all()
         return [
-            IncomeRepo._map_to_domain(exp, exp.owner.id) for exp in income_model_list
+            IncomeRepo._map_to_domain(income, income.owner.id)
+            for income in income_model_list
         ]
 
     @staticmethod

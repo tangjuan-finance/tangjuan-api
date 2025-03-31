@@ -70,8 +70,10 @@ class TestAccountRepoCase:
             account = AccountDomainFactory()
             AccountRepo.create(account)
 
-        # Assert: Ensure the list length is increased by 5
+        # Act: Retrieve the updated account list
         updated_account_list_length = len(AccountRepo.get_list())
+
+        # Assert: Ensure the list length is increased by 5
         assert updated_account_list_length == (origin_account_list_length + 5)
 
     def test_delete_account_domain_through_repo(self):
