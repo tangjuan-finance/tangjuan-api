@@ -19,6 +19,7 @@ from app.domain.associations import (
     ScenarioRiskDomain,
     ScenarioAssetDomain,
     ScenarioLiabilityDomain,
+    BaseAssociationDomain,
 )
 from datetime import datetime, timezone
 
@@ -93,6 +94,27 @@ class TestScenarioDomainResourcesCrudCase:
         ],
     }
 
+    @staticmethod
+    def _create_resource_assoc(
+        resource_association_cls: type,
+        scenario_id: str,
+        resource_name: str,
+        resource_id: str,
+        **resource_data: dict,
+    ) -> BaseAssociationDomain:
+        resource_association = resource_association_cls(
+            scenario_id=scenario_id,
+            **{f"{resource_name}_id": resource_id},
+            **resource_data,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+
+        if not resource_association:
+            raise ValueError(f"Could not create {resource_name} association")
+
+        return resource_association
+
     @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
     def test_add_resource_to_scenario_domain(
         self,
@@ -110,14 +132,18 @@ class TestScenarioDomainResourcesCrudCase:
             resource_factory()
         )  # Use the factory to generate the resource with the data
 
-        # Act: Add the resource to the scenario domain by creating and adding association
-        resource_association = resource_association_cls(
-            scenario=default_scenario_domain,
-            **{resource_name: resource_instance},
-            **resource_data,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+        # Act: Creating the resource association
+        resource_association = (
+            TestScenarioDomainResourcesCrudCase._create_resource_assoc(
+                resource_association_cls,
+                default_scenario_domain.id,
+                resource_name,
+                resource_instance.id,
+                **resource_data,
+            )
         )
+
+        # Act: Add the resource to the scenario
         default_scenario_domain._add_association(resource_association)
 
         # Assert: Ensure the resource has been correctly added to the scenario domain
@@ -128,7 +154,7 @@ class TestScenarioDomainResourcesCrudCase:
             (
                 assoc
                 for assoc in resource_collection
-                if getattr(assoc, resource_name) == resource_instance
+                if getattr(assoc, f"{resource_name}_id") == resource_instance.id
             ),
             None,
         )
@@ -156,19 +182,23 @@ class TestScenarioDomainResourcesCrudCase:
             resource_factory()
         )  # Use the factory to generate the resource with the data
 
-        # Act: Add the resource to the scenario domain by creating and adding association
-        resource_association = resource_association_cls(
-            scenario=default_scenario_domain,
-            **{resource_name: resource_instance},
-            **resource_data,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+        # Act: Creating the resource association
+        resource_association = (
+            TestScenarioDomainResourcesCrudCase._create_resource_assoc(
+                resource_association_cls,
+                default_scenario_domain.id,
+                resource_name,
+                resource_instance.id,
+                **resource_data,
+            )
         )
+
+        # Act: Add the resource to the scenario
         default_scenario_domain._add_association(resource_association)
 
         # Assert: Ensure association can be retrieved by resource instance
-        retrieved_association = default_scenario_domain.get_association_by_resource(
-            resource_instance
+        retrieved_association = default_scenario_domain.get_association_by_resource_id(
+            resource_type=resource_name, resource_id=resource_instance.id
         )
         assert retrieved_association == resource_association
 
@@ -189,15 +219,20 @@ class TestScenarioDomainResourcesCrudCase:
             resource_factory()
         )  # Use the factory to generate the resource with the data
 
-        # Act: Add the resource to the scenario domain by creating and adding association
-        resource_association = resource_association_cls(
-            scenario=default_scenario_domain,
-            **{resource_name: resource_instance},
-            **resource_data,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+        # Act: Creating the resource association
+        resource_association = (
+            TestScenarioDomainResourcesCrudCase._create_resource_assoc(
+                resource_association_cls,
+                default_scenario_domain.id,
+                resource_name,
+                resource_instance.id,
+                **resource_data,
+            )
         )
+
+        # Act: Add the resource to the scenario
         default_scenario_domain._add_association(resource_association)
+
         resource_collection = getattr(default_scenario_domain, resource_attr)
 
         # Act: Update the resource data in the association
@@ -208,8 +243,7 @@ class TestScenarioDomainResourcesCrudCase:
             (
                 assoc
                 for assoc in resource_collection
-                if getattr(assoc, resource_name)
-                == getattr(resource_association, resource_name)
+                if getattr(assoc, f"{resource_name}_id") == resource_instance.id
             ),
             None,
         )
@@ -241,14 +275,18 @@ class TestScenarioDomainResourcesCrudCase:
             resource_factory()
         )  # Use the factory to generate the resource with the data
 
-        # Act: Add the resource to the scenario domain by creating and adding association
-        resource_association = resource_association_cls(
-            scenario=default_scenario_domain,
-            **{resource_name: resource_instance},
-            **resource_data,
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
+        # Act: Creating the resource association
+        resource_association = (
+            TestScenarioDomainResourcesCrudCase._create_resource_assoc(
+                resource_association_cls,
+                default_scenario_domain.id,
+                resource_name,
+                resource_instance.id,
+                **resource_data,
+            )
         )
+
+        # Act: Add the resource to the scenario
         default_scenario_domain._add_association(resource_association)
 
         # Assert: Ensure the resource is removed from the scenario domain

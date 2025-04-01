@@ -13,6 +13,7 @@ if TYPE_CHECKING:
         ScenarioRiskDomain,
         ScenarioAssetDomain,
         ScenarioLiabilityDomain,
+        BaseAssociationDomain,
     )
     from app.mapper.resource_mapper import ResourceMapper
 
@@ -38,46 +39,77 @@ class ScenarioDomain(EntityDomain):
         """Get collection by mapping a resource type to its corresponding collection name."""
         return getattr(self, mapper.collection_type)
 
-    def get_association_by_resource(self, resource):
+    def _get_resource_id(
+        self, association: "BaseAssociationDomain", resource_type: str
+    ):
+        return getattr(association, f"{resource_type}_id")
+
+    def get_association_by_resource_id(self, resource_type: str, resource_id: str):
         """Get the association object from the corresponding collection by its resource id."""
         from app.mapper.resource_mapper import ResourceMapper
 
-        resource_mapper = ResourceMapper.from_domain(resource)
-        resource_type = resource_mapper.resource_type
+        resource_mapper = ResourceMapper.by_resource_type(resource_type)
         collection = self._get_collection(
             resource_mapper
         )  # e.g., "expenses", "incomes"
 
-        association = [
-            association
-            for association in collection
-            if getattr(association, resource_type) == resource
+        match_associations = [
+            assoc
+            for assoc in collection
+            if getattr(assoc, f"{resource_type}_id") == resource_id
         ]
 
-        association = next(
-            (
-                assoc
-                for assoc in collection
-                if getattr(assoc, resource_type) == resource
-            ),
-            None,
-        )
+        if len(match_associations) > 1:
+            raise ValueError(
+                f"Duplicate {resource_type.capitalize} Association: {match_associations}"
+            )
 
-        if association is None:
+        if match_associations is None:
             return None
-        return association
+
+        return match_associations[0]
+
+    def _check_association_existed(
+        self,
+        association: "BaseAssociationDomain",
+        resource_type: str,
+        collection: List["BaseAssociationDomain"],
+    ) -> str:
+        """Check if given association existed in this scenario"""
+
+        # Check is the scenario of given assoc is the same as this scenario
+        if association.scenario_id != self.id:
+            raise ValueError("Given association is not belong to this scenario")
+        assoc_resource_id = self._get_resource_id(
+            association=association, resource_type=resource_type
+        )
+        match_associations = [
+            assoc
+            for assoc in collection
+            if getattr(assoc, f"{resource_type}_id") == assoc_resource_id
+        ]
+
+        if len(match_associations) != 0:
+            raise ValueError(
+                f"Association with resource ID {assoc_resource_id} already exists in {resource_type} collection"
+            )
+
+        return f"Association with resource ID {assoc_resource_id} is not in {resource_type} collection"
 
     def _add_association(self, association):
         """Add the association object to the corresponding collection."""
         from app.mapper.resource_mapper import ResourceMapper
 
         resource_mapper = ResourceMapper.from_assoc(association)
+        resource_type = resource_mapper.resource_type
         collection = self._get_collection(
             resource_mapper
         )  # e.g., "expenses", "incomes"
 
-        if association in collection:
-            raise ValueError(f"Association already exists in {collection.__name__}")
+        self._check_association_existed(
+            association=association, resource_type=resource_type, collection=collection
+        )
+
         collection.append(association)
 
     def _update_association(self, association, **param):
@@ -88,19 +120,14 @@ class ScenarioDomain(EntityDomain):
         resource_mapper = ResourceMapper.from_assoc(association)
         resource_type = resource_mapper.resource_type  # e.g., "expense", "income"
 
-        # Retrieve the corresponding collection from Scenario (e.g., expenses, incomes)
-        collection = self._get_collection(
-            resource_mapper
-        )  # e.g., "expenses", "incomes"
+        # Get the Resource ID
+        resource_id = self._get_resource_id(
+            association=association, resource_type=resource_type
+        )
 
-        # Find the matching association by comparing assoc's resource
-        return_association = next(
-            (
-                assoc
-                for assoc in collection
-                if getattr(assoc, resource_type) == getattr(association, resource_type)
-            ),
-            None,
+        # Get the association in given scenario
+        return_association = self.get_association_by_resource_id(
+            resource_type=resource_type, resource_id=resource_id
         )
 
         if return_association is None:
@@ -121,17 +148,28 @@ class ScenarioDomain(EntityDomain):
         """Delete the association object from the corresponding collection"""
         from app.mapper.resource_mapper import ResourceMapper
 
+        # Map the association to its resource type (e.g., Expense, Income)
         resource_mapper = ResourceMapper.from_assoc(association)
-        resource_type = resource_mapper.resource_type
+        resource_type = resource_mapper.resource_type  # e.g., "expense", "income"
+
+        # Get the Resource ID
+        resource_id = self._get_resource_id(
+            association=association, resource_type=resource_type
+        )
+
+        # Get the association in given scenario
+        return_association = self.get_association_by_resource_id(
+            resource_type=resource_type, resource_id=resource_id
+        )
+
+        if return_association is None:
+            raise ValueError(
+                f"Association not found in the collection: {resource_type}"
+            )
+
         collection = self._get_collection(
             resource_mapper
         )  # e.g., "expenses", "incomes"
-
-        # Ensure the association is in the collection before removing
-        if association not in collection:
-            raise ValueError(
-                f"Association {association} not found in the collection: {resource_type}"
-            )
 
         collection.remove(association)
 
