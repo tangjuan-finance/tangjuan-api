@@ -116,29 +116,27 @@ class ScenarioRepo:
         owner_domain = AccountRepo.get_by_id(owner_id)
         scenario_id = scenario_model.id
 
-        from app.mapper.resource_mapper import ResourceMapper
+        # from app.mapper.resource_mapper import ResourceMapper
 
-        # Initialize empty lists for all resource types
-        list_of_resource = {
-            resource: [] for resource in ResourceMapper._VALID_RESOURCE_TYPES
-        }
+        # # Initialize empty lists for all resource types
+        # list_of_resource = {
+        #     resource: [] for resource in ResourceMapper._VALID_RESOURCE_TYPES
+        # }
 
-        # Collect all association model classes
-        resource_mappers = {
-            resource: ResourceMapper.by_resource_type(resource)
-            for resource in ResourceMapper._VALID_RESOURCE_TYPES
-        }
+        # # Collect all association model classes
+        # resource_mappers = {
+        #     resource: ResourceMapper.by_resource_type(resource)
+        #     for resource in ResourceMapper._VALID_RESOURCE_TYPES
+        # }
 
-        # Batch query for all resource associations in one go
-        for resource_name, mapper in resource_mappers.items():
-            assoc_model_cls = mapper.assoc_model_cls
-            list_of_resource[resource_name] = db.session.scalars(
-                sa.select(assoc_model_cls).where(
-                    assoc_model_cls.scenario_id == scenario_id
-                )
-            ).all()
-
-        breakpoint()
+        # # Batch query for all resource associations in one go
+        # for resource_name, mapper in resource_mappers.items():
+        #     assoc_model_cls = mapper.assoc_model_cls
+        #     list_of_resource[resource_name] = db.session.scalars(
+        #         sa.select(assoc_model_cls).where(
+        #             assoc_model_cls.scenario_id == scenario_id
+        #         )
+        #     ).all()
 
         return ScenarioDomain(
             id=scenario_id,
@@ -149,13 +147,13 @@ class ScenarioRepo:
             updated_at=scenario_model.updated_at,
             description=scenario_model.description,
             owner=owner_domain,
-            expenses=list_of_resource["expense"],
-            incomes=list_of_resource["income"],
-            houses=list_of_resource["house"],
-            children=list_of_resource["child"],
-            risks=list_of_resource["risk"],
-            assets=list_of_resource["asset"],
-            liabilities=list_of_resource["liability"],
+            # expenses=list_of_resource["expense"],
+            # incomes=list_of_resource["income"],
+            # houses=list_of_resource["house"],
+            # children=list_of_resource["child"],
+            # risks=list_of_resource["risk"],
+            # assets=list_of_resource["asset"],
+            # liabilities=list_of_resource["liability"],
         )
 
     @staticmethod

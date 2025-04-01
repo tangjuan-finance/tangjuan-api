@@ -1,7 +1,5 @@
 from app.domain.associations import ScenarioAssetDomain
-from app.domain.entities import ScenarioDomain, AssetDomain
 from app.infrastructure.models import ScenarioAsset, Scenario, Asset
-from app.repository.entities import ScenarioRepo, AssetRepo
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,26 +11,27 @@ class ScenarioAssetRepo:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
         existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.asset.id
+            assoc.scenario_id, assoc.asset_id
         )
         if existing_assoc:
             raise ValueError(
-                f"Scenario Asset Record with scenario_id {assoc.scenario.id}, asset_id {assoc.asset.id} already exists!"
+                f"Scenario Asset Record with scenario_id {assoc.scenario_id}, asset_id {assoc.asset_id} already exists!"
             )
 
+        # Check if scenario and asset with given ID existed
         try:
             scenario_model = ScenarioAssetRepo._get_scenario_model_by_id(
-                assoc.scenario.id
+                assoc.scenario_id
             )
-            asset_model = ScenarioAssetRepo._get_asset_model_by_id(assoc.asset.id)
+            asset_model = ScenarioAssetRepo._get_asset_model_by_id(assoc.asset_id)
         except ValueError as e:
             raise ValueError(str(e))
 
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioAsset(
-            scenario=scenario_model,
-            asset=asset_model,
+            scenario_id=scenario_model.id,
+            asset_id=asset_model.id,
             max_yearly_return_rate=assoc.max_yearly_return_rate,
             min_yearly_return_rate=assoc.min_yearly_return_rate,
             allocation_percentage=assoc.allocation_percentage,
@@ -46,22 +45,20 @@ class ScenarioAssetRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(
-            assoc_model, assoc.scenario, assoc.asset
-        )
+        return ScenarioAssetRepo._map_to_domain(assoc_model)
 
     @staticmethod
     def save(assoc: ScenarioAssetDomain) -> ScenarioAssetDomain:
         """Given an existing DomainObject, update it in the database and return the updated object."""
         # Get asset_model from database
         existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.asset.id
+            assoc.scenario_id, assoc.asset_id
         )
         if not existing_assoc:
             raise ValueError(
-                f"Scenario Asset Record with scenario_id {assoc.scenario.id}, asset_id {assoc.asset.id} not found"
+                f"Scenario Asset Record with scenario_id {assoc.scenario_id}, asset_id {assoc.asset_id} not found"
             )
-        # As existing_assoc is query by scenario.id and asset.id, both id of existing_assoc would be the same as assoc
+        # As existing_assoc is query by scenario_id and asset_id, both id of existing_assoc would be the same as assoc
         existing_assoc.max_yearly_return_rate = assoc.max_yearly_return_rate
         existing_assoc.min_yearly_return_rate = assoc.min_yearly_return_rate
         existing_assoc.allocation_percentage = assoc.allocation_percentage
@@ -72,9 +69,7 @@ class ScenarioAssetRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(
-            existing_assoc, assoc.scenario, assoc.asset
-        )
+        return ScenarioAssetRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_by_id(scenario_id: str, asset_id: str) -> ScenarioAssetDomain | None:
@@ -87,13 +82,8 @@ class ScenarioAssetRepo:
         if not existing_assoc:
             return None
 
-        scenario_domain = ScenarioRepo.get_by_id(existing_assoc.scenario_id)
-        asset_domain = AssetRepo.get_by_id(existing_assoc.asset_id)
-
         # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(
-            existing_assoc, scenario_domain, asset_domain
-        )
+        return ScenarioAssetRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_list(scenario_id: str) -> list[ScenarioAssetDomain]:
@@ -105,8 +95,6 @@ class ScenarioAssetRepo:
         return [
             ScenarioAssetRepo._map_to_domain(
                 assoc,
-                ScenarioRepo.get_by_id(assoc.scenario_id),
-                AssetRepo.get_by_id(assoc.asset_id),
             )
             for assoc in assoc_model_list
         ]
@@ -126,13 +114,11 @@ class ScenarioAssetRepo:
         return None
 
     @staticmethod
-    def _map_to_domain(
-        assoc_model: ScenarioAsset, scenario: ScenarioDomain, asset: AssetDomain
-    ) -> ScenarioAssetDomain:
+    def _map_to_domain(assoc_model: ScenarioAsset) -> ScenarioAssetDomain:
         """Helper method to map the ScenarioAsset model to a ScenarioAssetDomain object."""
         return ScenarioAssetDomain(
-            scenario=scenario,
-            asset=asset,
+            scenario_id=assoc_model.scenario_id,
+            asset_id=assoc_model.asset_id,
             max_yearly_return_rate=assoc_model.max_yearly_return_rate,
             min_yearly_return_rate=assoc_model.min_yearly_return_rate,
             allocation_percentage=assoc_model.allocation_percentage,
