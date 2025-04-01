@@ -1,7 +1,5 @@
 from app.domain.associations import ScenarioHouseDomain
-from app.domain.entities import ScenarioDomain, HouseDomain
 from app.infrastructure.models import ScenarioHouse, Scenario, House
-from app.repository.entities import ScenarioRepo, HouseRepo
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,26 +11,27 @@ class ScenarioHouseRepo:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
         existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.house.id
+            assoc.scenario_id, assoc.house_id
         )
         if existing_assoc:
             raise ValueError(
-                f"Scenario House Record with scenario_id {assoc.scenario.id}, house_id {assoc.house.id} already exists!"
+                f"Scenario House Record with scenario_id {assoc.scenario_id}, house_id {assoc.house_id} already exists!"
             )
 
+        # Check if scenario and house with given ID existed
         try:
             scenario_model = ScenarioHouseRepo._get_scenario_model_by_id(
-                assoc.scenario.id
+                assoc.scenario_id
             )
-            house_model = ScenarioHouseRepo._get_house_model_by_id(assoc.house.id)
+            house_model = ScenarioHouseRepo._get_house_model_by_id(assoc.house_id)
         except ValueError as e:
             raise ValueError(str(e))
 
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioHouse(
-            scenario=scenario_model,
-            house=house_model,
+            scenario_id=scenario_model.id,
+            house_id=house_model.id,
             down_payment=assoc.down_payment,
             interest_rate=assoc.interest_rate,
             loan_term=assoc.loan_term,
@@ -46,22 +45,20 @@ class ScenarioHouseRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(
-            assoc_model, assoc.scenario, assoc.house
-        )
+        return ScenarioHouseRepo._map_to_domain(assoc_model)
 
     @staticmethod
     def save(assoc: ScenarioHouseDomain) -> ScenarioHouseDomain:
         """Given an existing DomainObject, update it in the database and return the updated object."""
         # Get house_model from database
         existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.house.id
+            assoc.scenario_id, assoc.house_id
         )
         if not existing_assoc:
             raise ValueError(
-                f"Scenario House Record with scenario_id {assoc.scenario.id}, house_id {assoc.house.id} not found"
+                f"Scenario House Record with scenario_id {assoc.scenario_id}, house_id {assoc.house_id} not found"
             )
-        # As existing_assoc is query by scenario.id and house.id, both id of existing_assoc would be the same as assoc
+        # As existing_assoc is query by scenario_id and house_id, both id of existing_assoc would be the same as assoc
         existing_assoc.down_payment = assoc.down_payment
         existing_assoc.interest_rate = assoc.interest_rate
         existing_assoc.loan_term = assoc.loan_term
@@ -72,9 +69,7 @@ class ScenarioHouseRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(
-            existing_assoc, assoc.scenario, assoc.house
-        )
+        return ScenarioHouseRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_by_id(scenario_id: str, house_id: str) -> ScenarioHouseDomain | None:
@@ -87,13 +82,8 @@ class ScenarioHouseRepo:
         if not existing_assoc:
             return None
 
-        scenario_domain = ScenarioRepo.get_by_id(existing_assoc.scenario_id)
-        house_domain = HouseRepo.get_by_id(existing_assoc.house_id)
-
         # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(
-            existing_assoc, scenario_domain, house_domain
-        )
+        return ScenarioHouseRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_list(scenario_id: str) -> list[ScenarioHouseDomain]:
@@ -105,8 +95,6 @@ class ScenarioHouseRepo:
         return [
             ScenarioHouseRepo._map_to_domain(
                 assoc,
-                ScenarioRepo.get_by_id(assoc.scenario_id),
-                HouseRepo.get_by_id(assoc.house_id),
             )
             for assoc in assoc_model_list
         ]
@@ -126,13 +114,11 @@ class ScenarioHouseRepo:
         return None
 
     @staticmethod
-    def _map_to_domain(
-        assoc_model: ScenarioHouse, scenario: ScenarioDomain, house: HouseDomain
-    ) -> ScenarioHouseDomain:
+    def _map_to_domain(assoc_model: ScenarioHouse) -> ScenarioHouseDomain:
         """Helper method to map the ScenarioHouse model to a ScenarioHouseDomain object."""
         return ScenarioHouseDomain(
-            scenario=scenario,
-            house=house,
+            scenario_id=assoc_model.scenario_id,
+            house_id=assoc_model.house_id,
             down_payment=assoc_model.down_payment,
             interest_rate=assoc_model.interest_rate,
             loan_term=assoc_model.loan_term,

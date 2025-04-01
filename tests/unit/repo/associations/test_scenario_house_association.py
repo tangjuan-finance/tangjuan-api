@@ -10,10 +10,10 @@ from tests.unit.repo.factories import create_house
 
 class TestHouseRepoCase:
     @staticmethod
-    def _create_assoc(house, scenario):
+    def _create_assoc(house_id, scenario_id):
         assoc_domain = ScenarioHouseDomain(
-            house=house,
-            scenario=scenario,
+            house_id=house_id,
+            scenario_id=scenario_id,
         )
         return ScenarioHouseRepo.create(assoc_domain)
 
@@ -22,9 +22,11 @@ class TestHouseRepoCase:
         default_interest_rate = Decimal("3.0")
         new_house.interest_rate = default_interest_rate
         assoc_interest_rate = Decimal("5.0")
+
+        # Create Assoc Domain
         assoc_domain = ScenarioHouseDomain(
-            house=new_house,
-            scenario=new_scenario,
+            house_id=new_house.id,
+            scenario_id=new_scenario.id,
             interest_rate=assoc_interest_rate,
         )
 
@@ -33,33 +35,28 @@ class TestHouseRepoCase:
 
         scenario_house_from_db = db.session.scalars(
             sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario.id)
-                & (ScenarioHouse.house_id == scenario_house_from_repo.house.id)
+                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario_id)
+                & (ScenarioHouse.house_id == scenario_house_from_repo.house_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert scenario_house_from_repo.house.id == scenario_house_from_db.house_id
+        assert scenario_house_from_repo.house_id == scenario_house_from_db.house_id
         assert (
-            scenario_house_from_repo.scenario.id == scenario_house_from_db.scenario_id
+            scenario_house_from_repo.scenario_id == scenario_house_from_db.scenario_id
         )
         assert (
             scenario_house_from_repo.interest_rate
             == scenario_house_from_db.interest_rate
         )
         assert scenario_house_from_repo.interest_rate == assoc_interest_rate
-        assert scenario_house_from_repo.house.interest_rate == default_interest_rate
-        assert (
-            scenario_house_from_repo.interest_rate
-            != scenario_house_from_repo.house.interest_rate
-        )
 
     def test_update_scenario_house_assoc_through_repo(self, new_scenario, new_house):
         # Arrange: Adding a house to scenario using the ScenarioHouseRepo
-        default_interest_rate = Decimal("7.0")
+        default_interest_rate = Decimal("5.0")
         assoc_domain = ScenarioHouseDomain(
-            house=new_house,
-            scenario=new_scenario,
+            house_id=new_house.id,
+            scenario_id=new_scenario.id,
             interest_rate=default_interest_rate,
         )
         scenario_house_from_repo = ScenarioHouseRepo.create(assoc_domain)
@@ -74,14 +71,14 @@ class TestHouseRepoCase:
         # Query the database to verify the updated house record
         scenario_house_from_db = db.session.scalars(
             sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario.id)
-                & (ScenarioHouse.house_id == scenario_house_from_repo.house.id)
+                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario_id)
+                & (ScenarioHouse.house_id == scenario_house_from_repo.house_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert updated_scenario_house.house.id == scenario_house_from_db.house_id
-        assert updated_scenario_house.scenario.id == scenario_house_from_db.scenario_id
+        assert updated_scenario_house.house_id == scenario_house_from_db.house_id
+        assert updated_scenario_house.scenario_id == scenario_house_from_db.scenario_id
         assert updated_scenario_house.interest_rate == updated_interest_rate
         assert (
             updated_scenario_house.interest_rate == scenario_house_from_db.interest_rate
@@ -94,23 +91,24 @@ class TestHouseRepoCase:
     def test_get_scenario_house_assoc_by_id_through_repo(self, new_scenario, new_house):
         # Arrange: Create an house domain using the factory
         scenario_house_from_repo = self._create_assoc(
-            house=new_house, scenario=new_scenario
+            house_id=new_house.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Update the house domain object (before saving)
         scenario_house_get_by_id = ScenarioHouseRepo.get_by_id(
-            scenario_id=scenario_house_from_repo.scenario.id,
-            house_id=scenario_house_from_repo.house.id,
+            scenario_id=scenario_house_from_repo.scenario_id,
+            house_id=scenario_house_from_repo.house_id,
         )
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_house_get_by_id.scenario.id == scenario_house_from_repo.scenario.id
+            scenario_house_get_by_id.scenario_id == scenario_house_from_repo.scenario_id
         )
-        assert scenario_house_get_by_id.house.id == scenario_house_from_repo.house.id
+        assert scenario_house_get_by_id.house_id == scenario_house_from_repo.house_id
 
     def test_get_scenario_house_assoc_list_through_repo(
-        self, new_scenario, default_account
+        self, default_account, new_scenario
     ):
         # Arrange: Create an house domain using the factory
         origin_repo_list_length = len(
@@ -120,7 +118,10 @@ class TestHouseRepoCase:
         # Act: Create 5 new house domains
         for _ in range(5):
             new_house = create_house(default_account)
-            self._create_assoc(house=new_house, scenario=new_scenario)
+            self._create_assoc(
+                house_id=new_house.id,
+                scenario_id=new_scenario.id,
+            )
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(
@@ -131,20 +132,21 @@ class TestHouseRepoCase:
     def test_delete_scenario_house_assoc_through_repo(self, new_scenario, new_house):
         # Arrange: Create an house domain using the factory
         scenario_house_from_repo = self._create_assoc(
-            house=new_house, scenario=new_scenario
+            house_id=new_house.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Delete the house domain object
         ScenarioHouseRepo.delete_by_id(
-            scenario_id=scenario_house_from_repo.scenario.id,
-            house_id=scenario_house_from_repo.house.id,
+            scenario_id=scenario_house_from_repo.scenario_id,
+            house_id=scenario_house_from_repo.house_id,
         )
 
         # Assert: Ensure the house record is deleted from the database
         scenario_house_from_db = db.session.scalar(
             sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario.id)
-                & (ScenarioHouse.house_id == scenario_house_from_repo.house.id)
+                (ScenarioHouse.scenario_id == scenario_house_from_repo.scenario_id)
+                & (ScenarioHouse.house_id == scenario_house_from_repo.house_id)
             )
         )
         assert scenario_house_from_db is None

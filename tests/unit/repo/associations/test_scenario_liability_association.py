@@ -10,10 +10,10 @@ from tests.unit.repo.factories import create_liability
 
 class TestLiabilityRepoCase:
     @staticmethod
-    def _create_assoc(liability, scenario, allocation_percentage):
+    def _create_assoc(liability_id, scenario_id, allocation_percentage):
         assoc_domain = ScenarioLiabilityDomain(
-            liability=liability,
-            scenario=scenario,
+            liability_id=liability_id,
+            scenario_id=scenario_id,
             allocation_percentage=allocation_percentage,
         )
         return ScenarioLiabilityRepo.create(assoc_domain)
@@ -26,9 +26,11 @@ class TestLiabilityRepoCase:
         new_liability.interest_rate = default_interest_rate
         assoc_interest_rate = Decimal("0.7")
         allocation_percentage = Decimal("0.35")
+
+        # Create Assoc Domain
         assoc_domain = ScenarioLiabilityDomain(
-            liability=new_liability,
-            scenario=new_scenario,
+            liability_id=new_liability.id,
+            scenario_id=new_scenario.id,
             interest_rate=assoc_interest_rate,
             allocation_percentage=allocation_percentage,
         )
@@ -40,22 +42,22 @@ class TestLiabilityRepoCase:
             sa.select(ScenarioLiability).where(
                 (
                     ScenarioLiability.scenario_id
-                    == scenario_liability_from_repo.scenario.id
+                    == scenario_liability_from_repo.scenario_id
                 )
                 & (
                     ScenarioLiability.liability_id
-                    == scenario_liability_from_repo.liability.id
+                    == scenario_liability_from_repo.liability_id
                 )
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert (
-            scenario_liability_from_repo.liability.id
+            scenario_liability_from_repo.liability_id
             == scenario_liability_from_db.liability_id
         )
         assert (
-            scenario_liability_from_repo.scenario.id
+            scenario_liability_from_repo.scenario_id
             == scenario_liability_from_db.scenario_id
         )
         assert (
@@ -70,14 +72,6 @@ class TestLiabilityRepoCase:
             == scenario_liability_from_db.allocation_percentage
         )
         assert scenario_liability_from_repo.interest_rate == assoc_interest_rate
-        assert (
-            scenario_liability_from_repo.liability.interest_rate
-            == default_interest_rate
-        )
-        assert (
-            scenario_liability_from_repo.interest_rate
-            != scenario_liability_from_repo.liability.interest_rate
-        )
 
     def test_update_scenario_liability_assoc_through_repo(
         self, new_scenario, new_liability
@@ -86,8 +80,8 @@ class TestLiabilityRepoCase:
         default_interest_rate = Decimal("0.7")
         allocation_percentage = Decimal("0.35")
         assoc_domain = ScenarioLiabilityDomain(
-            liability=new_liability,
-            scenario=new_scenario,
+            liability_id=new_liability.id,
+            scenario_id=new_scenario.id,
             interest_rate=default_interest_rate,
             allocation_percentage=allocation_percentage,
         )
@@ -107,22 +101,22 @@ class TestLiabilityRepoCase:
             sa.select(ScenarioLiability).where(
                 (
                     ScenarioLiability.scenario_id
-                    == scenario_liability_from_repo.scenario.id
+                    == scenario_liability_from_repo.scenario_id
                 )
                 & (
                     ScenarioLiability.liability_id
-                    == scenario_liability_from_repo.liability.id
+                    == scenario_liability_from_repo.liability_id
                 )
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert (
-            updated_scenario_liability.liability.id
+            updated_scenario_liability.liability_id
             == scenario_liability_from_db.liability_id
         )
         assert (
-            updated_scenario_liability.scenario.id
+            updated_scenario_liability.scenario_id
             == scenario_liability_from_db.scenario_id
         )
         assert updated_scenario_liability.interest_rate == updated_interest_rate
@@ -149,25 +143,25 @@ class TestLiabilityRepoCase:
     ):
         # Arrange: Create an liability domain using the factory
         scenario_liability_from_repo = self._create_assoc(
-            liability=new_liability,
-            scenario=new_scenario,
+            liability_id=new_liability.id,
+            scenario_id=new_scenario.id,
             allocation_percentage=Decimal("0.35"),
         )
 
         # Act: Update the liability domain object (before saving)
         scenario_liability_get_by_id = ScenarioLiabilityRepo.get_by_id(
-            scenario_id=scenario_liability_from_repo.scenario.id,
-            liability_id=scenario_liability_from_repo.liability.id,
+            scenario_id=scenario_liability_from_repo.scenario_id,
+            liability_id=scenario_liability_from_repo.liability_id,
         )
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_liability_get_by_id.scenario.id
-            == scenario_liability_from_repo.scenario.id
+            scenario_liability_get_by_id.scenario_id
+            == scenario_liability_from_repo.scenario_id
         )
         assert (
-            scenario_liability_get_by_id.liability.id
-            == scenario_liability_from_repo.liability.id
+            scenario_liability_get_by_id.liability_id
+            == scenario_liability_from_repo.liability_id
         )
 
     def test_get_scenario_liability_assoc_list_through_repo(
@@ -182,8 +176,8 @@ class TestLiabilityRepoCase:
         for _ in range(5):
             new_liability = create_liability(default_account)
             self._create_assoc(
-                liability=new_liability,
-                scenario=new_scenario,
+                liability_id=new_liability.id,
+                scenario_id=new_scenario.id,
                 allocation_percentage=Decimal("0.35"),
             )
 
@@ -198,15 +192,15 @@ class TestLiabilityRepoCase:
     ):
         # Arrange: Create an liability domain using the factory
         scenario_liability_from_repo = self._create_assoc(
-            liability=new_liability,
-            scenario=new_scenario,
+            liability_id=new_liability.id,
+            scenario_id=new_scenario.id,
             allocation_percentage=Decimal("0.35"),
         )
 
         # Act: Delete the liability domain object
         ScenarioLiabilityRepo.delete_by_id(
-            scenario_id=scenario_liability_from_repo.scenario.id,
-            liability_id=scenario_liability_from_repo.liability.id,
+            scenario_id=scenario_liability_from_repo.scenario_id,
+            liability_id=scenario_liability_from_repo.liability_id,
         )
 
         # Assert: Ensure the liability record is deleted from the database
@@ -214,11 +208,11 @@ class TestLiabilityRepoCase:
             sa.select(ScenarioLiability).where(
                 (
                     ScenarioLiability.scenario_id
-                    == scenario_liability_from_repo.scenario.id
+                    == scenario_liability_from_repo.scenario_id
                 )
                 & (
                     ScenarioLiability.liability_id
-                    == scenario_liability_from_repo.liability.id
+                    == scenario_liability_from_repo.liability_id
                 )
             )
         )

@@ -1,7 +1,5 @@
 from app.domain.associations import ScenarioChildDomain
-from app.domain.entities import ScenarioDomain, ChildDomain
 from app.infrastructure.models import ScenarioChild, Scenario, Child
-from app.repository.entities import ScenarioRepo, ChildRepo
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,26 +11,27 @@ class ScenarioChildRepo:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
         existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.child.id
+            assoc.scenario_id, assoc.child_id
         )
         if existing_assoc:
             raise ValueError(
-                f"Scenario Child Record with scenario_id {assoc.scenario.id}, child_id {assoc.child.id} already exists!"
+                f"Scenario Child Record with scenario_id {assoc.scenario_id}, child_id {assoc.child_id} already exists!"
             )
 
+        # Check if scenario and child with given ID existed
         try:
             scenario_model = ScenarioChildRepo._get_scenario_model_by_id(
-                assoc.scenario.id
+                assoc.scenario_id
             )
-            child_model = ScenarioChildRepo._get_child_model_by_id(assoc.child.id)
+            child_model = ScenarioChildRepo._get_child_model_by_id(assoc.child_id)
         except ValueError as e:
             raise ValueError(str(e))
 
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioChild(
-            scenario=scenario_model,
-            child=child_model,
+            scenario_id=scenario_model.id,
+            child_id=child_model.id,
             birth_age=assoc.birth_age,
             independent_age=assoc.independent_age,
             memo=assoc.memo,
@@ -43,22 +42,20 @@ class ScenarioChildRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(
-            assoc_model, assoc.scenario, assoc.child
-        )
+        return ScenarioChildRepo._map_to_domain(assoc_model)
 
     @staticmethod
     def save(assoc: ScenarioChildDomain) -> ScenarioChildDomain:
         """Given an existing DomainObject, update it in the database and return the updated object."""
         # Get child_model from database
         existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.child.id
+            assoc.scenario_id, assoc.child_id
         )
         if not existing_assoc:
             raise ValueError(
-                f"Scenario Child Record with scenario_id {assoc.scenario.id}, child_id {assoc.child.id} not found"
+                f"Scenario Child Record with scenario_id {assoc.scenario_id}, child_id {assoc.child_id} not found"
             )
-        # As existing_assoc is query by scenario.id and child.id, both id of existing_assoc would be the same as assoc
+        # As existing_assoc is query by scenario_id and child_id, both id of existing_assoc would be the same as assoc
         existing_assoc.birth_age = assoc.birth_age
         existing_assoc.independent_age = assoc.independent_age
         existing_assoc.memo = assoc.memo
@@ -66,9 +63,7 @@ class ScenarioChildRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(
-            existing_assoc, assoc.scenario, assoc.child
-        )
+        return ScenarioChildRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_by_id(scenario_id: str, child_id: str) -> ScenarioChildDomain | None:
@@ -81,17 +76,12 @@ class ScenarioChildRepo:
         if not existing_assoc:
             return None
 
-        scenario_domain = ScenarioRepo.get_by_id(existing_assoc.scenario_id)
-        child_domain = ChildRepo.get_by_id(existing_assoc.child_id)
-
         # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(
-            existing_assoc, scenario_domain, child_domain
-        )
+        return ScenarioChildRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_list(scenario_id: str) -> list[ScenarioChildDomain]:
-        """Retrieve all childs and return as a list of DomainObjects."""
+        """Retrieve all children and return as a list of DomainObjects."""
         assoc_model_list = db.session.scalars(
             sa.select(ScenarioChild).where((ScenarioChild.scenario_id == scenario_id))
         ).all()
@@ -99,8 +89,6 @@ class ScenarioChildRepo:
         return [
             ScenarioChildRepo._map_to_domain(
                 assoc,
-                ScenarioRepo.get_by_id(assoc.scenario_id),
-                ChildRepo.get_by_id(assoc.child_id),
             )
             for assoc in assoc_model_list
         ]
@@ -120,13 +108,11 @@ class ScenarioChildRepo:
         return None
 
     @staticmethod
-    def _map_to_domain(
-        assoc_model: ScenarioChild, scenario: ScenarioDomain, child: ChildDomain
-    ) -> ScenarioChildDomain:
+    def _map_to_domain(assoc_model: ScenarioChild) -> ScenarioChildDomain:
         """Helper method to map the ScenarioChild model to a ScenarioChildDomain object."""
         return ScenarioChildDomain(
-            scenario=scenario,
-            child=child,
+            scenario_id=assoc_model.scenario_id,
+            child_id=assoc_model.child_id,
             birth_age=assoc_model.birth_age,
             independent_age=assoc_model.independent_age,
             memo=assoc_model.memo,

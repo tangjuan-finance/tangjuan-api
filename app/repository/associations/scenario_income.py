@@ -1,7 +1,5 @@
 from app.domain.associations import ScenarioIncomeDomain
-from app.domain.entities import ScenarioDomain, IncomeDomain
 from app.infrastructure.models import ScenarioIncome, Scenario, Income
-from app.repository.entities import ScenarioRepo, IncomeRepo
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.orm.exc import NoResultFound
@@ -13,26 +11,27 @@ class ScenarioIncomeRepo:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
         existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.income.id
+            assoc.scenario_id, assoc.income_id
         )
         if existing_assoc:
             raise ValueError(
-                f"Scenario Income Record with scenario_id {assoc.scenario.id}, income_id {assoc.income.id} already exists!"
+                f"Scenario Income Record with scenario_id {assoc.scenario_id}, income_id {assoc.income_id} already exists!"
             )
 
+        # Check if scenario and income with given ID existed
         try:
             scenario_model = ScenarioIncomeRepo._get_scenario_model_by_id(
-                assoc.scenario.id
+                assoc.scenario_id
             )
-            income_model = ScenarioIncomeRepo._get_income_model_by_id(assoc.income.id)
+            income_model = ScenarioIncomeRepo._get_income_model_by_id(assoc.income_id)
         except ValueError as e:
             raise ValueError(str(e))
 
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioIncome(
-            scenario=scenario_model,
-            income=income_model,
+            scenario_id=scenario_model.id,
+            income_id=income_model.id,
             max_yearly_growth_rate=assoc.max_yearly_growth_rate,
             min_yearly_growth_rate=assoc.min_yearly_growth_rate,
             start_age=assoc.start_age,
@@ -45,22 +44,20 @@ class ScenarioIncomeRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(
-            assoc_model, assoc.scenario, assoc.income
-        )
+        return ScenarioIncomeRepo._map_to_domain(assoc_model)
 
     @staticmethod
     def save(assoc: ScenarioIncomeDomain) -> ScenarioIncomeDomain:
         """Given an existing DomainObject, update it in the database and return the updated object."""
         # Get income_model from database
         existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            assoc.scenario.id, assoc.income.id
+            assoc.scenario_id, assoc.income_id
         )
         if not existing_assoc:
             raise ValueError(
-                f"Scenario Income Record with scenario_id {assoc.scenario.id}, income_id {assoc.income.id} not found"
+                f"Scenario Income Record with scenario_id {assoc.scenario_id}, income_id {assoc.income_id} not found"
             )
-        # As existing_assoc is query by scenario.id and income.id, both id of existing_assoc would be the same as assoc
+        # As existing_assoc is query by scenario_id and income_id, both id of existing_assoc would be the same as assoc
         existing_assoc.max_yearly_growth_rate = assoc.max_yearly_growth_rate
         existing_assoc.min_yearly_growth_rate = assoc.min_yearly_growth_rate
         existing_assoc.start_age = assoc.start_age
@@ -70,9 +67,7 @@ class ScenarioIncomeRepo:
         db.session.commit()
 
         # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(
-            existing_assoc, assoc.scenario, assoc.income
-        )
+        return ScenarioIncomeRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_by_id(scenario_id: str, income_id: str) -> ScenarioIncomeDomain | None:
@@ -85,13 +80,8 @@ class ScenarioIncomeRepo:
         if not existing_assoc:
             return None
 
-        scenario_domain = ScenarioRepo.get_by_id(existing_assoc.scenario_id)
-        income_domain = IncomeRepo.get_by_id(existing_assoc.income_id)
-
         # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(
-            existing_assoc, scenario_domain, income_domain
-        )
+        return ScenarioIncomeRepo._map_to_domain(existing_assoc)
 
     @staticmethod
     def get_list(scenario_id: str) -> list[ScenarioIncomeDomain]:
@@ -103,8 +93,6 @@ class ScenarioIncomeRepo:
         return [
             ScenarioIncomeRepo._map_to_domain(
                 assoc,
-                ScenarioRepo.get_by_id(assoc.scenario_id),
-                IncomeRepo.get_by_id(assoc.income_id),
             )
             for assoc in assoc_model_list
         ]
@@ -124,13 +112,11 @@ class ScenarioIncomeRepo:
         return None
 
     @staticmethod
-    def _map_to_domain(
-        assoc_model: ScenarioIncome, scenario: ScenarioDomain, income: IncomeDomain
-    ) -> ScenarioIncomeDomain:
+    def _map_to_domain(assoc_model: ScenarioIncome) -> ScenarioIncomeDomain:
         """Helper method to map the ScenarioIncome model to a ScenarioIncomeDomain object."""
         return ScenarioIncomeDomain(
-            scenario=scenario,
-            income=income,
+            scenario_id=assoc_model.scenario_id,
+            income_id=assoc_model.income_id,
             max_yearly_growth_rate=assoc_model.max_yearly_growth_rate,
             min_yearly_growth_rate=assoc_model.min_yearly_growth_rate,
             start_age=assoc_model.start_age,

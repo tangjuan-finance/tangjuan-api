@@ -10,10 +10,10 @@ from tests.unit.repo.factories import create_income
 
 class TestIncomeRepoCase:
     @staticmethod
-    def _create_assoc(income, scenario):
+    def _create_assoc(income_id, scenario_id):
         assoc_domain = ScenarioIncomeDomain(
-            income=income,
-            scenario=scenario,
+            income_id=income_id,
+            scenario_id=scenario_id,
         )
         return ScenarioIncomeRepo.create(assoc_domain)
 
@@ -22,9 +22,11 @@ class TestIncomeRepoCase:
         default_max_yearly_growth_rate = Decimal("0.2")
         new_income.max_yearly_growth_rate = default_max_yearly_growth_rate
         assoc_max_yearly_growth_rate = Decimal("0.7")
+
+        # Create Assoc Domain
         assoc_domain = ScenarioIncomeDomain(
-            income=new_income,
-            scenario=new_scenario,
+            income_id=new_income.id,
+            scenario_id=new_scenario.id,
             max_yearly_growth_rate=assoc_max_yearly_growth_rate,
         )
 
@@ -33,15 +35,15 @@ class TestIncomeRepoCase:
 
         scenario_income_from_db = db.session.scalars(
             sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario.id)
-                & (ScenarioIncome.income_id == scenario_income_from_repo.income.id)
+                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario_id)
+                & (ScenarioIncome.income_id == scenario_income_from_repo.income_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert scenario_income_from_repo.income.id == scenario_income_from_db.income_id
+        assert scenario_income_from_repo.income_id == scenario_income_from_db.income_id
         assert (
-            scenario_income_from_repo.scenario.id == scenario_income_from_db.scenario_id
+            scenario_income_from_repo.scenario_id == scenario_income_from_db.scenario_id
         )
         assert (
             scenario_income_from_repo.max_yearly_growth_rate
@@ -51,25 +53,17 @@ class TestIncomeRepoCase:
             scenario_income_from_repo.max_yearly_growth_rate
             == assoc_max_yearly_growth_rate
         )
-        assert (
-            scenario_income_from_repo.income.max_yearly_growth_rate
-            == default_max_yearly_growth_rate
-        )
-        assert (
-            scenario_income_from_repo.max_yearly_growth_rate
-            != scenario_income_from_repo.income.max_yearly_growth_rate
-        )
 
     def test_update_scenario_income_assoc_through_repo(self, new_scenario, new_income):
         # Arrange: Adding a income to scenario using the ScenarioIncomeRepo
         default_max_yearly_growth_rate = Decimal("0.7")
         assoc_domain = ScenarioIncomeDomain(
-            income=new_income,
-            scenario=new_scenario,
+            income_id=new_income.id,
+            scenario_id=new_scenario.id,
             max_yearly_growth_rate=default_max_yearly_growth_rate,
         )
         scenario_income_from_repo = ScenarioIncomeRepo.create(assoc_domain)
-        updated_max_yearly_growth_rate = Decimal("0.3")
+        updated_max_yearly_growth_rate = Decimal("0.2")
 
         # Act: Update the income domain object (before saving)
         scenario_income_from_repo.max_yearly_growth_rate = (
@@ -82,15 +76,15 @@ class TestIncomeRepoCase:
         # Query the database to verify the updated income record
         scenario_income_from_db = db.session.scalars(
             sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario.id)
-                & (ScenarioIncome.income_id == scenario_income_from_repo.income.id)
+                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario_id)
+                & (ScenarioIncome.income_id == scenario_income_from_repo.income_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert updated_scenario_income.income.id == scenario_income_from_db.income_id
+        assert updated_scenario_income.income_id == scenario_income_from_db.income_id
         assert (
-            updated_scenario_income.scenario.id == scenario_income_from_db.scenario_id
+            updated_scenario_income.scenario_id == scenario_income_from_db.scenario_id
         )
         assert (
             updated_scenario_income.max_yearly_growth_rate
@@ -110,26 +104,27 @@ class TestIncomeRepoCase:
     ):
         # Arrange: Create an income domain using the factory
         scenario_income_from_repo = self._create_assoc(
-            income=new_income, scenario=new_scenario
+            income_id=new_income.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Update the income domain object (before saving)
         scenario_income_get_by_id = ScenarioIncomeRepo.get_by_id(
-            scenario_id=scenario_income_from_repo.scenario.id,
-            income_id=scenario_income_from_repo.income.id,
+            scenario_id=scenario_income_from_repo.scenario_id,
+            income_id=scenario_income_from_repo.income_id,
         )
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_income_get_by_id.scenario.id
-            == scenario_income_from_repo.scenario.id
+            scenario_income_get_by_id.scenario_id
+            == scenario_income_from_repo.scenario_id
         )
         assert (
-            scenario_income_get_by_id.income.id == scenario_income_from_repo.income.id
+            scenario_income_get_by_id.income_id == scenario_income_from_repo.income_id
         )
 
     def test_get_scenario_income_assoc_list_through_repo(
-        self, new_scenario, default_account
+        self, default_account, new_scenario
     ):
         # Arrange: Create an income domain using the factory
         origin_repo_list_length = len(
@@ -139,7 +134,10 @@ class TestIncomeRepoCase:
         # Act: Create 5 new income domains
         for _ in range(5):
             new_income = create_income(default_account)
-            self._create_assoc(income=new_income, scenario=new_scenario)
+            self._create_assoc(
+                income_id=new_income.id,
+                scenario_id=new_scenario.id,
+            )
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(
@@ -150,20 +148,21 @@ class TestIncomeRepoCase:
     def test_delete_scenario_income_assoc_through_repo(self, new_scenario, new_income):
         # Arrange: Create an income domain using the factory
         scenario_income_from_repo = self._create_assoc(
-            income=new_income, scenario=new_scenario
+            income_id=new_income.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Delete the income domain object
         ScenarioIncomeRepo.delete_by_id(
-            scenario_id=scenario_income_from_repo.scenario.id,
-            income_id=scenario_income_from_repo.income.id,
+            scenario_id=scenario_income_from_repo.scenario_id,
+            income_id=scenario_income_from_repo.income_id,
         )
 
         # Assert: Ensure the income record is deleted from the database
         scenario_income_from_db = db.session.scalar(
             sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario.id)
-                & (ScenarioIncome.income_id == scenario_income_from_repo.income.id)
+                (ScenarioIncome.scenario_id == scenario_income_from_repo.scenario_id)
+                & (ScenarioIncome.income_id == scenario_income_from_repo.income_id)
             )
         )
         assert scenario_income_from_db is None

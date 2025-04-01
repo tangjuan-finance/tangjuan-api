@@ -9,10 +9,10 @@ from tests.unit.repo.factories import create_risk
 
 class TestRiskRepoCase:
     @staticmethod
-    def _create_assoc(risk, scenario):
+    def _create_assoc(risk_id, scenario_id):
         assoc_domain = ScenarioRiskDomain(
-            risk=risk,
-            scenario=scenario,
+            risk_id=risk_id,
+            scenario_id=scenario_id,
         )
         return ScenarioRiskRepo.create(assoc_domain)
 
@@ -21,9 +21,11 @@ class TestRiskRepoCase:
         default_max_loss = 100000
         new_risk.max_loss = default_max_loss
         assoc_max_loss = 500000
+
+        # Create Assoc Domain
         assoc_domain = ScenarioRiskDomain(
-            risk=new_risk,
-            scenario=new_scenario,
+            risk_id=new_risk.id,
+            scenario_id=new_scenario.id,
             max_loss=assoc_max_loss,
         )
 
@@ -32,29 +34,27 @@ class TestRiskRepoCase:
 
         scenario_risk_from_db = db.session.scalars(
             sa.select(ScenarioRisk).where(
-                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario.id)
-                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk.id)
+                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario_id)
+                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert scenario_risk_from_repo.risk.id == scenario_risk_from_db.risk_id
-        assert scenario_risk_from_repo.scenario.id == scenario_risk_from_db.scenario_id
+        assert scenario_risk_from_repo.risk_id == scenario_risk_from_db.risk_id
+        assert scenario_risk_from_repo.scenario_id == scenario_risk_from_db.scenario_id
         assert scenario_risk_from_repo.max_loss == scenario_risk_from_db.max_loss
         assert scenario_risk_from_repo.max_loss == assoc_max_loss
-        assert scenario_risk_from_repo.risk.max_loss == default_max_loss
-        assert scenario_risk_from_repo.max_loss != scenario_risk_from_repo.risk.max_loss
 
     def test_update_scenario_risk_assoc_through_repo(self, new_scenario, new_risk):
         # Arrange: Adding a risk to scenario using the ScenarioRiskRepo
         default_max_loss = 500000
         assoc_domain = ScenarioRiskDomain(
-            risk=new_risk,
-            scenario=new_scenario,
+            risk_id=new_risk.id,
+            scenario_id=new_scenario.id,
             max_loss=default_max_loss,
         )
         scenario_risk_from_repo = ScenarioRiskRepo.create(assoc_domain)
-        updated_max_loss = 200000
+        updated_max_loss = 100000
 
         # Act: Update the risk domain object (before saving)
         scenario_risk_from_repo.max_loss = updated_max_loss
@@ -65,14 +65,14 @@ class TestRiskRepoCase:
         # Query the database to verify the updated risk record
         scenario_risk_from_db = db.session.scalars(
             sa.select(ScenarioRisk).where(
-                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario.id)
-                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk.id)
+                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario_id)
+                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
-        assert updated_scenario_risk.risk.id == scenario_risk_from_db.risk_id
-        assert updated_scenario_risk.scenario.id == scenario_risk_from_db.scenario_id
+        assert updated_scenario_risk.risk_id == scenario_risk_from_db.risk_id
+        assert updated_scenario_risk.scenario_id == scenario_risk_from_db.scenario_id
         assert updated_scenario_risk.max_loss == updated_max_loss
         assert updated_scenario_risk.max_loss == scenario_risk_from_db.max_loss
         assert updated_scenario_risk.created_at == scenario_risk_from_db.created_at
@@ -83,23 +83,24 @@ class TestRiskRepoCase:
     def test_get_scenario_risk_assoc_by_id_through_repo(self, new_scenario, new_risk):
         # Arrange: Create an risk domain using the factory
         scenario_risk_from_repo = self._create_assoc(
-            risk=new_risk, scenario=new_scenario
+            risk_id=new_risk.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Update the risk domain object (before saving)
         scenario_risk_get_by_id = ScenarioRiskRepo.get_by_id(
-            scenario_id=scenario_risk_from_repo.scenario.id,
-            risk_id=scenario_risk_from_repo.risk.id,
+            scenario_id=scenario_risk_from_repo.scenario_id,
+            risk_id=scenario_risk_from_repo.risk_id,
         )
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_risk_get_by_id.scenario.id == scenario_risk_from_repo.scenario.id
+            scenario_risk_get_by_id.scenario_id == scenario_risk_from_repo.scenario_id
         )
-        assert scenario_risk_get_by_id.risk.id == scenario_risk_from_repo.risk.id
+        assert scenario_risk_get_by_id.risk_id == scenario_risk_from_repo.risk_id
 
     def test_get_scenario_risk_assoc_list_through_repo(
-        self, new_scenario, default_account
+        self, default_account, new_scenario
     ):
         # Arrange: Create an risk domain using the factory
         origin_repo_list_length = len(
@@ -109,7 +110,10 @@ class TestRiskRepoCase:
         # Act: Create 5 new risk domains
         for _ in range(5):
             new_risk = create_risk(default_account)
-            self._create_assoc(risk=new_risk, scenario=new_scenario)
+            self._create_assoc(
+                risk_id=new_risk.id,
+                scenario_id=new_scenario.id,
+            )
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(
@@ -120,20 +124,21 @@ class TestRiskRepoCase:
     def test_delete_scenario_risk_assoc_through_repo(self, new_scenario, new_risk):
         # Arrange: Create an risk domain using the factory
         scenario_risk_from_repo = self._create_assoc(
-            risk=new_risk, scenario=new_scenario
+            risk_id=new_risk.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Delete the risk domain object
         ScenarioRiskRepo.delete_by_id(
-            scenario_id=scenario_risk_from_repo.scenario.id,
-            risk_id=scenario_risk_from_repo.risk.id,
+            scenario_id=scenario_risk_from_repo.scenario_id,
+            risk_id=scenario_risk_from_repo.risk_id,
         )
 
         # Assert: Ensure the risk record is deleted from the database
         scenario_risk_from_db = db.session.scalar(
             sa.select(ScenarioRisk).where(
-                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario.id)
-                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk.id)
+                (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario_id)
+                & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk_id)
             )
         )
         assert scenario_risk_from_db is None

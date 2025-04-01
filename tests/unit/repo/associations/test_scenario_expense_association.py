@@ -10,10 +10,10 @@ from tests.unit.repo.factories import create_expense
 
 class TestExpenseRepoCase:
     @staticmethod
-    def _create_assoc(expense, scenario):
+    def _create_assoc(expense_id, scenario_id):
         assoc_domain = ScenarioExpenseDomain(
-            expense=expense,
-            scenario=scenario,
+            expense_id=expense_id,
+            scenario_id=scenario_id,
         )
         return ScenarioExpenseRepo.create(assoc_domain)
 
@@ -24,9 +24,11 @@ class TestExpenseRepoCase:
         default_max_yearly_growth_rate = Decimal("0.2")
         new_expense.max_yearly_growth_rate = default_max_yearly_growth_rate
         assoc_max_yearly_growth_rate = Decimal("0.7")
+
+        # Create Assoc Domain
         assoc_domain = ScenarioExpenseDomain(
-            expense=new_expense,
-            scenario=new_scenario,
+            expense_id=new_expense.id,
+            scenario_id=new_scenario.id,
             max_yearly_growth_rate=assoc_max_yearly_growth_rate,
         )
 
@@ -35,17 +37,17 @@ class TestExpenseRepoCase:
 
         scenario_expense_from_db = db.session.scalars(
             sa.select(ScenarioExpense).where(
-                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario.id)
-                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense.id)
+                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario_id)
+                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert (
-            scenario_expense_from_repo.expense.id == scenario_expense_from_db.expense_id
+            scenario_expense_from_repo.expense_id == scenario_expense_from_db.expense_id
         )
         assert (
-            scenario_expense_from_repo.scenario.id
+            scenario_expense_from_repo.scenario_id
             == scenario_expense_from_db.scenario_id
         )
         assert (
@@ -56,14 +58,6 @@ class TestExpenseRepoCase:
             scenario_expense_from_repo.max_yearly_growth_rate
             == assoc_max_yearly_growth_rate
         )
-        assert (
-            scenario_expense_from_repo.expense.max_yearly_growth_rate
-            == default_max_yearly_growth_rate
-        )
-        assert (
-            scenario_expense_from_repo.max_yearly_growth_rate
-            != scenario_expense_from_repo.expense.max_yearly_growth_rate
-        )
 
     def test_update_scenario_expense_assoc_through_repo(
         self, new_scenario, new_expense
@@ -71,12 +65,12 @@ class TestExpenseRepoCase:
         # Arrange: Adding a expense to scenario using the ScenarioExpenseRepo
         default_max_yearly_growth_rate = Decimal("0.7")
         assoc_domain = ScenarioExpenseDomain(
-            expense=new_expense,
-            scenario=new_scenario,
+            expense_id=new_expense.id,
+            scenario_id=new_scenario.id,
             max_yearly_growth_rate=default_max_yearly_growth_rate,
         )
         scenario_expense_from_repo = ScenarioExpenseRepo.create(assoc_domain)
-        updated_max_yearly_growth_rate = Decimal("0.3")
+        updated_max_yearly_growth_rate = Decimal("0.2")
 
         # Act: Update the expense domain object (before saving)
         scenario_expense_from_repo.max_yearly_growth_rate = (
@@ -89,17 +83,17 @@ class TestExpenseRepoCase:
         # Query the database to verify the updated expense record
         scenario_expense_from_db = db.session.scalars(
             sa.select(ScenarioExpense).where(
-                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario.id)
-                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense.id)
+                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario_id)
+                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense_id)
             )
         ).one()  # This ensures only one row is returned, or an exception is raised.
 
         # Assert: Ensure the values match between the domain object and the saved record
         assert (
-            updated_scenario_expense.expense.id == scenario_expense_from_db.expense_id
+            updated_scenario_expense.expense_id == scenario_expense_from_db.expense_id
         )
         assert (
-            updated_scenario_expense.scenario.id == scenario_expense_from_db.scenario_id
+            updated_scenario_expense.scenario_id == scenario_expense_from_db.scenario_id
         )
         assert (
             updated_scenario_expense.max_yearly_growth_rate
@@ -125,27 +119,28 @@ class TestExpenseRepoCase:
     ):
         # Arrange: Create an expense domain using the factory
         scenario_expense_from_repo = self._create_assoc(
-            expense=new_expense, scenario=new_scenario
+            expense_id=new_expense.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Update the expense domain object (before saving)
         scenario_expense_get_by_id = ScenarioExpenseRepo.get_by_id(
-            scenario_id=scenario_expense_from_repo.scenario.id,
-            expense_id=scenario_expense_from_repo.expense.id,
+            scenario_id=scenario_expense_from_repo.scenario_id,
+            expense_id=scenario_expense_from_repo.expense_id,
         )
 
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert (
-            scenario_expense_get_by_id.scenario.id
-            == scenario_expense_from_repo.scenario.id
+            scenario_expense_get_by_id.scenario_id
+            == scenario_expense_from_repo.scenario_id
         )
         assert (
-            scenario_expense_get_by_id.expense.id
-            == scenario_expense_from_repo.expense.id
+            scenario_expense_get_by_id.expense_id
+            == scenario_expense_from_repo.expense_id
         )
 
     def test_get_scenario_expense_assoc_list_through_repo(
-        self, new_scenario, default_account
+        self, default_account, new_scenario
     ):
         # Arrange: Create an expense domain using the factory
         origin_repo_list_length = len(
@@ -155,7 +150,10 @@ class TestExpenseRepoCase:
         # Act: Create 5 new expense domains
         for _ in range(5):
             new_expense = create_expense(default_account)
-            self._create_assoc(expense=new_expense, scenario=new_scenario)
+            self._create_assoc(
+                expense_id=new_expense.id,
+                scenario_id=new_scenario.id,
+            )
 
         # Assert: Ensure the list length is increased by 5
         updated_list_length = len(
@@ -168,20 +166,21 @@ class TestExpenseRepoCase:
     ):
         # Arrange: Create an expense domain using the factory
         scenario_expense_from_repo = self._create_assoc(
-            expense=new_expense, scenario=new_scenario
+            expense_id=new_expense.id,
+            scenario_id=new_scenario.id,
         )
 
         # Act: Delete the expense domain object
         ScenarioExpenseRepo.delete_by_id(
-            scenario_id=scenario_expense_from_repo.scenario.id,
-            expense_id=scenario_expense_from_repo.expense.id,
+            scenario_id=scenario_expense_from_repo.scenario_id,
+            expense_id=scenario_expense_from_repo.expense_id,
         )
 
         # Assert: Ensure the expense record is deleted from the database
         scenario_expense_from_db = db.session.scalar(
             sa.select(ScenarioExpense).where(
-                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario.id)
-                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense.id)
+                (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario_id)
+                & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense_id)
             )
         )
         assert scenario_expense_from_db is None
