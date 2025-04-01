@@ -14,13 +14,14 @@ class TestHouseDomainCase:
         interest_rate = Decimal("5.0")
         # Act
         scenario_house = ScenarioHouseDomain(
-            scenario=default_scenario_domain,
-            house=house,
+            scenario_id=default_scenario_domain.id,
+            house_id=house.id,
             interest_rate=interest_rate,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         # Assert
-        assert scenario_house.house.name == name
+        assert scenario_house.scenario_id == default_scenario_domain.id
+        assert scenario_house.house_id == house.id
         assert scenario_house.interest_rate != default_interest_rate
         assert scenario_house.interest_rate == interest_rate

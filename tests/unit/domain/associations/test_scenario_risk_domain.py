@@ -14,13 +14,14 @@ class TestRiskDomainCase:
         max_loss = 500000
         # Act
         scenario_risk = ScenarioRiskDomain(
-            scenario=default_scenario_domain,
-            risk=risk,
+            scenario_id=default_scenario_domain.id,
+            risk_id=risk.id,
             max_loss=max_loss,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         # Assert
-        assert scenario_risk.risk.name == name
+        assert scenario_risk.scenario_id == default_scenario_domain.id
+        assert scenario_risk.risk_id == risk.id
         assert scenario_risk.max_loss != default_max_loss
         assert scenario_risk.max_loss == max_loss

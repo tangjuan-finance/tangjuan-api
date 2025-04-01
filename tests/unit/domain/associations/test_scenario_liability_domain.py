@@ -18,15 +18,16 @@ class TestLiabilityDomainCase:
         allocation_percentage = Decimal("0.35")
         # Act
         scenario_liability = ScenarioLiabilityDomain(
-            scenario=default_scenario_domain,
-            liability=liability,
+            scenario_id=default_scenario_domain.id,
+            liability_id=liability.id,
             allocation_percentage=allocation_percentage,
             interest_rate=interest_rate,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         # Assert
-        assert scenario_liability.liability.name == name
+        assert scenario_liability.scenario_id == default_scenario_domain.id
+        assert scenario_liability.liability_id == liability.id
         assert scenario_liability.interest_rate != default_interest_rate
         assert scenario_liability.interest_rate == interest_rate
         assert scenario_liability.allocation_percentage == allocation_percentage

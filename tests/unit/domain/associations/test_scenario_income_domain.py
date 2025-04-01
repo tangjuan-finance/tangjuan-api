@@ -17,13 +17,14 @@ class TestIncomeDomainCase:
         max_yearly_growth_rate = Decimal("0.7")
         # Act
         scenario_income = ScenarioIncomeDomain(
-            scenario=default_scenario_domain,
-            income=income,
+            scenario_id=default_scenario_domain.id,
+            income_id=income.id,
             max_yearly_growth_rate=max_yearly_growth_rate,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         # Assert
-        assert scenario_income.income.name == name
+        assert scenario_income.scenario_id == default_scenario_domain.id
+        assert scenario_income.income_id == income.id
         assert scenario_income.max_yearly_growth_rate != default_max_yearly_growth_rate
         assert scenario_income.max_yearly_growth_rate == max_yearly_growth_rate
