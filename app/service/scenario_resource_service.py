@@ -168,7 +168,6 @@ class ScenarioResourceService:
         scenario_domain = ScenarioResourceService._get_scenario_domain(
             account_id=account_id, payload=payload
         )
-
         # Create resource mapper
         mapper = ResourceFieldMapper.by_resource_type(resource_type)
 
@@ -181,7 +180,6 @@ class ScenarioResourceService:
         assoc_payload = ScenarioResourceService._generate_assoc_payload(
             mapper=mapper, payload=payload
         )
-
         return ScenarioRepo.update_resource(
             scenario=scenario_domain,
             resource=resource_domain,

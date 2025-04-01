@@ -213,7 +213,6 @@ class ScenarioRepo:
         assoc_from_repo = ScenarioResourceRepo.get_by_id(
             scenario_id=scenario.id, **{resource_id_field: resource.id}
         )
-
         if assoc_from_repo is None:
             raise ValueError(
                 f"No Association with scenario_id {scenario.id}, {resource_id_field} {resource.id}"
