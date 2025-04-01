@@ -16,6 +16,7 @@ from app.domain.associations import (
     ScenarioRiskDomain,
     ScenarioAssetDomain,
     ScenarioLiabilityDomain,
+    BaseAssociationDomain,
 )
 from app.repository.entities import (
     ExpenseRepo,
@@ -101,7 +102,7 @@ class ResourceMapper(BaseResourceMapper):
         return cls(resource_type)
 
     @classmethod
-    def from_assoc(cls, resource: "ResourceDomain"):
+    def from_assoc(cls, resource: "BaseAssociationDomain"):
         resource_type = (
             type(resource)
             .__name__.replace("Scenario", "")

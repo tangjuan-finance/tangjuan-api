@@ -132,7 +132,7 @@ class ScenarioRepo:
         from app.mapper.resource_mapper import ResourceMapper
 
         # Get assoc class
-        mapper = ResourceMapper.from_assoc(resource)
+        mapper = ResourceMapper.from_domain(resource)
         ScenarioResourceAssoc = mapper.assoc_domain_cls
 
         # Get the correct attribute name for the resource (e.g., "expense", "risk")
@@ -203,7 +203,7 @@ class ScenarioRepo:
         from app.mapper.resource_mapper import ResourceMapper
 
         # Get assoc class
-        mapper = ResourceMapper.from_assoc(resource)
+        mapper = ResourceMapper.from_domain(resource)
 
         # Get the correct attribute name for the resource (e.g., "expense", "risk")
         resource_id_field = f"{mapper.resource_type}_id"
