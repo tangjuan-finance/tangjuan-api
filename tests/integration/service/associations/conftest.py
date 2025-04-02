@@ -1,7 +1,7 @@
 import pytest
 from typing import Generator
 from app.domain.entities import ScenarioDomain
-from ..factories import create_scenario
+from .factories import create_scenario
 
 
 @pytest.fixture(scope="module")
