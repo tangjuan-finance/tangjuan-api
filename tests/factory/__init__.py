@@ -10,6 +10,16 @@ from .domain_factory import (
     RiskDomainFactory,
     ScenarioDomainFactory,
 )
+from .create_domain import (
+    create_scenario,
+    create_expense,
+    create_income,
+    create_house,
+    create_child,
+    create_risk,
+    create_asset,
+    create_liability,
+)
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -23,4 +33,12 @@ __all__ = [
     "LiabilityDomainFactory",
     "RiskDomainFactory",
     "ScenarioDomainFactory",
+    "create_scenario",
+    "create_expense",
+    "create_income",
+    "create_house",
+    "create_child",
+    "create_risk",
+    "create_asset",
+    "create_liability",
 ]

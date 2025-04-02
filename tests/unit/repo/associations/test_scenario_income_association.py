@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_income, create_scenario
+from tests.factory import create_income, create_scenario
 from nanoid import generate
 import pytest
 

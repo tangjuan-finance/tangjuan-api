@@ -4,7 +4,7 @@ from app.domain.associations import ScenarioChildDomain
 import sqlalchemy as sa
 from app import db
 
-from tests.unit.repo.factories import create_child, create_scenario
+from tests.factory import create_child, create_scenario
 from nanoid import generate
 import pytest
 
