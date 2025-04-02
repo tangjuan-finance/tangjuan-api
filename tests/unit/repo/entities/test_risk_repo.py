@@ -1,6 +1,6 @@
 from app.repository.entities import RiskRepo
 from app.infrastructure.models.entities import Risk
-from tests.unit.factories import RiskDomainFactory
+from tests.factory import RiskDomainFactory
 import sqlalchemy as sa
 from app import db
 

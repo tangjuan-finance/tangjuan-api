@@ -1,6 +1,6 @@
 # from app.domain.entities import IncomeDomain
 from decimal import Decimal
-from tests.unit.factories import IncomeDomainFactory
+from tests.factory import IncomeDomainFactory
 
 
 class TestIncomeDomainCase:

@@ -1,5 +1,5 @@
 from app.domain.entities import AccountDomain
-from tests.unit.factories import (
+from tests.factory import (
     ScenarioDomainFactory,
     ExpenseDomainFactory,
     IncomeDomainFactory,

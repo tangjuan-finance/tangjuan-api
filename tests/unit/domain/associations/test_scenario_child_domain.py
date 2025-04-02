@@ -1,5 +1,5 @@
 from app.domain.associations import ScenarioChildDomain
-from tests.unit.factories import ChildDomainFactory
+from tests.factory import ChildDomainFactory
 from datetime import datetime, timezone
 
 

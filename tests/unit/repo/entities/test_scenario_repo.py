@@ -1,4 +1,4 @@
-from tests.unit.factories import ScenarioDomainFactory
+from tests.factory import ScenarioDomainFactory
 from app.repository.entities import ScenarioRepo
 from app.infrastructure.models.entities import Scenario
 import sqlalchemy as sa

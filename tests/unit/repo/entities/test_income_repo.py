@@ -1,6 +1,6 @@
 from app.repository.entities import IncomeRepo
 from app.infrastructure.models.entities import Income
-from tests.unit.factories import IncomeDomainFactory
+from tests.factory import IncomeDomainFactory
 import sqlalchemy as sa
 from app import db
 

@@ -1,5 +1,5 @@
 from app.domain.associations import ScenarioAssetDomain
-from tests.unit.factories import AssetDomainFactory
+from tests.factory import AssetDomainFactory
 from decimal import Decimal
 from datetime import datetime, timezone
 

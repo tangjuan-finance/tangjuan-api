@@ -1,5 +1,5 @@
 from app.domain.associations import ScenarioHouseDomain
-from tests.unit.factories import HouseDomainFactory
+from tests.factory import HouseDomainFactory
 from decimal import Decimal
 from datetime import datetime, timezone
 

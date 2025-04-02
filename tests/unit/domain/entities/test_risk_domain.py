@@ -1,5 +1,5 @@
 # from app.domain.entities import RiskDomain
-from tests.unit.factories import RiskDomainFactory
+from tests.factory import RiskDomainFactory
 
 
 class TestRiskDomainCase:

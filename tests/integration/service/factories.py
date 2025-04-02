@@ -1,5 +1,5 @@
 import faker
-from tests.unit.factories import AccountDomainFactory
+from tests.factory import AccountDomainFactory
 from app.repository.entities import AccountRepo
 from app.domain.entities import AccountDomain
 

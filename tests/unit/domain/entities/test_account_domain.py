@@ -1,4 +1,4 @@
-from tests.unit.factories import AccountDomainFactory
+from tests.factory import AccountDomainFactory
 from werkzeug.security import generate_password_hash, check_password_hash
 
 

@@ -1,6 +1,6 @@
 from app.repository.entities import ExpenseRepo
 from app.infrastructure.models.entities import Expense
-from tests.unit.factories import ExpenseDomainFactory
+from tests.factory import ExpenseDomainFactory
 import sqlalchemy as sa
 from app import db
 

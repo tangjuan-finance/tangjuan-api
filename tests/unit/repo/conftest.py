@@ -2,7 +2,7 @@ import pytest
 from app import create_app, db
 from typing import Generator
 from tests.conftest import TestConfig
-from tests.unit.factories import (
+from tests.factory import (
     AccountDomainFactory,
     ScenarioDomainFactory,
     ExpenseDomainFactory,

@@ -1,6 +1,6 @@
 from app.repository.entities import LiabilityRepo
 from app.infrastructure.models.entities import Liability
-from tests.unit.factories import LiabilityDomainFactory
+from tests.factory import LiabilityDomainFactory
 import sqlalchemy as sa
 from app import db
 

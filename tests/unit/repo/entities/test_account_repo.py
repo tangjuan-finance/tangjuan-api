@@ -1,6 +1,6 @@
 from app.repository.entities import AccountRepo
 from app.infrastructure.models.entities import Account
-from tests.unit.factories import AccountDomainFactory
+from tests.factory import AccountDomainFactory
 import sqlalchemy as sa
 from app import db
 

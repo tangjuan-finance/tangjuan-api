@@ -1,6 +1,6 @@
 # from app.domain.entities import LiabilityDomain
 from decimal import Decimal
-from tests.unit.factories import LiabilityDomainFactory
+from tests.factory import LiabilityDomainFactory
 
 
 class TestLiabilityDomainCase:

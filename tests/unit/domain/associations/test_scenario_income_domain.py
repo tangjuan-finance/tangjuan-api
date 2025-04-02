@@ -1,6 +1,6 @@
 # from app.domain.entities import IncomeDomain
 from app.domain.associations import ScenarioIncomeDomain
-from tests.unit.factories import IncomeDomainFactory
+from tests.factory import IncomeDomainFactory
 from decimal import Decimal
 from datetime import datetime, timezone
 

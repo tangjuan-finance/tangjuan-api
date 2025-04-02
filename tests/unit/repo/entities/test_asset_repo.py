@@ -1,6 +1,6 @@
 from app.repository.entities import AssetRepo
 from app.infrastructure.models.entities import Asset
-from tests.unit.factories import AssetDomainFactory
+from tests.factory import AssetDomainFactory
 import sqlalchemy as sa
 from app import db
 

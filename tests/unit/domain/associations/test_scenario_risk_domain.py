@@ -1,6 +1,6 @@
 # from app.domain.entities import RiskDomain
 from app.domain.associations import ScenarioRiskDomain
-from tests.unit.factories import RiskDomainFactory
+from tests.factory import RiskDomainFactory
 from datetime import datetime, timezone
 
 

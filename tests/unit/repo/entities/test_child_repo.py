@@ -1,6 +1,6 @@
 from app.repository.entities import ChildRepo
 from app.infrastructure.models.entities import Child
-from tests.unit.factories import ChildDomainFactory
+from tests.factory import ChildDomainFactory
 import sqlalchemy as sa
 from app import db
 

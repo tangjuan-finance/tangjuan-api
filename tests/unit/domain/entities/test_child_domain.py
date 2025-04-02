@@ -1,5 +1,5 @@
 # from app.domain.entities import ChildDomain
-from tests.unit.factories import ChildDomainFactory
+from tests.factory import ChildDomainFactory
 
 
 class TestChildDomainCase:

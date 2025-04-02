@@ -1,6 +1,6 @@
 # from app.domain.entities import LiabilityDomain
 from app.domain.associations import ScenarioLiabilityDomain
-from tests.unit.factories import LiabilityDomainFactory
+from tests.factory import LiabilityDomainFactory
 from decimal import Decimal
 from datetime import datetime, timezone
 

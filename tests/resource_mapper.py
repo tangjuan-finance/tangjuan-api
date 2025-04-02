@@ -1,6 +1,6 @@
 from app.mapper.resource_mapper import ResourceMapper
 from types import MappingProxyType
-from tests.unit.factories import (
+from tests.factory import (
     ExpenseDomainFactory,
     IncomeDomainFactory,
     HouseDomainFactory,

@@ -1,6 +1,6 @@
 from app.repository.entities import HouseRepo
 from app.infrastructure.models.entities import House
-from tests.unit.factories import HouseDomainFactory
+from tests.factory import HouseDomainFactory
 import sqlalchemy as sa
 from app import db
 
