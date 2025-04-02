@@ -4,7 +4,9 @@ from app.domain.associations import ScenarioChildDomain
 import sqlalchemy as sa
 from app import db
 
-from tests.unit.repo.factories import create_child
+from tests.unit.repo.factories import create_child, create_scenario
+from nanoid import generate
+import pytest
 
 
 class TestChildRepoCase:
@@ -141,6 +143,99 @@ class TestChildRepoCase:
             sa.select(ScenarioChild).where(
                 (ScenarioChild.scenario_id == scenario_child_from_repo.scenario_id)
                 & (ScenarioChild.child_id == scenario_child_from_repo.child_id)
+            )
+        )
+        assert scenario_child_from_db is None
+
+    def test_create_scenario_child_assoc_through_repo_with_invalid_input(
+        self, new_child
+    ):
+        # Arrange: Create non-existed scenario ID
+        invalid_scenario_id = 10482
+
+        # Act: Create Association with invalid scenario id should raise TypeError
+        with pytest.raises(TypeError):
+            self._create_assoc(
+                child_id=new_child.id,
+                scenario_id=invalid_scenario_id,
+            )
+
+    def test_create_scenario_child_assoc_through_repo_with_non_existed_scenario(
+        self, new_child
+    ):
+        # Arrange: Create non-existed scenario ID
+        non_existed_scenario_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                child_id=new_child.id,
+                scenario_id=non_existed_scenario_id,
+            )
+
+    def test_create_scenario_child_assoc_through_repo_with_non_existed_child(
+        self, new_scenario
+    ):
+        # Arrange: Create non-existed child ID
+        non_existed_child_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                child_id=non_existed_child_id,
+                scenario_id=new_scenario.id,
+            )
+
+    def test_get_non_existed_scenario_child_assoc_by_id_through_repo(
+        self, new_scenario, new_child
+    ):
+        # Act: Get the assoc by compose id (but not create association yet)
+        scenario_child_get_by_id = ScenarioChildRepo.get_by_id(
+            scenario_id=new_scenario.id,
+            child_id=new_child.id,
+        )
+
+        # Assert: The ScenarioChildRepo should return None
+        assert scenario_child_get_by_id is None
+
+    def test_update_scenario_child_assoc_through_repo_while_changing_scenario(
+        self, new_scenario, new_child, default_account
+    ):
+        # Arrange: Get scenario and child id
+        scenario_id = new_scenario.id
+        child_id = new_child.id
+
+        # Arrange: Create Association
+        assoc = self._create_assoc(child_id=child_id, scenario_id=scenario_id)
+
+        # Arrange: Create another scenario
+        another_scenario = create_scenario(default_account)
+        another_scenario_id = another_scenario.id
+
+        # Act: Change the assoc to another scenario id
+        assoc.scenario_id = another_scenario_id
+
+        # Assert: Save the updated object should raise ValueError as this assoc is not existed in another scenario
+        with pytest.raises(ValueError):
+            ScenarioChildRepo.save(assoc)
+
+    def test_delete_non_existed_scenario_child_assoc_through_repo(
+        self, new_scenario, new_child
+    ):
+        # Arrange: Get scenario and child id
+        scenario_id = new_scenario.id
+        child_id = new_child.id
+        # Act: Delete the non existed assoc
+        ScenarioChildRepo.delete_by_id(
+            scenario_id=scenario_id,
+            child_id=child_id,
+        )
+
+        # Assert: Ensure the child record is deleted from the database
+        scenario_child_from_db = db.session.scalar(
+            sa.select(ScenarioChild).where(
+                (ScenarioChild.scenario_id == scenario_id)
+                & (ScenarioChild.child_id == child_id)
             )
         )
         assert scenario_child_from_db is None

@@ -124,16 +124,25 @@ class ScenarioRiskRepo:
 
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, risk_id: str) -> ScenarioRisk:
+        # Check if scenario existed
+        return_scenario_id = ScenarioRiskRepo._get_scenario_model_by_id(scenario_id).id
+
+        # Check if risk existed
+        return_risk_id = ScenarioRiskRepo._get_risk_model_by_id(risk_id).id
+
+        # Get assoc by checked scenario and risk id
         assoc = db.session.scalar(
             sa.select(ScenarioRisk).where(
-                (ScenarioRisk.scenario_id == scenario_id)
-                & (ScenarioRisk.risk_id == risk_id)
+                (ScenarioRisk.scenario_id == return_scenario_id)
+                & (ScenarioRisk.risk_id == return_risk_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -143,6 +152,8 @@ class ScenarioRiskRepo:
 
     @staticmethod
     def _get_risk_model_by_id(risk_id: str) -> Risk:
+        if not isinstance(risk_id, str):
+            raise TypeError("risk_id shoud be type str")
         try:
             risk_model = db.session.get_one(Risk, risk_id)
         except NoResultFound:

@@ -131,16 +131,25 @@ class ScenarioHouseRepo:
 
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, house_id: str) -> ScenarioHouse:
+        # Check if scenario existed
+        return_scenario_id = ScenarioHouseRepo._get_scenario_model_by_id(scenario_id).id
+
+        # Check if house existed
+        return_house_id = ScenarioHouseRepo._get_house_model_by_id(house_id).id
+
+        # Get assoc by checked scenario and house id
         assoc = db.session.scalar(
             sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == scenario_id)
-                & (ScenarioHouse.house_id == house_id)
+                (ScenarioHouse.scenario_id == return_scenario_id)
+                & (ScenarioHouse.house_id == return_house_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -150,6 +159,8 @@ class ScenarioHouseRepo:
 
     @staticmethod
     def _get_house_model_by_id(house_id: str) -> House:
+        if not isinstance(house_id, str):
+            raise TypeError("house_id shoud be type str")
         try:
             house_model = db.session.get_one(House, house_id)
         except NoResultFound:

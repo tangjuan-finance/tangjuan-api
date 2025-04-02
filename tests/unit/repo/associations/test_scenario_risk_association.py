@@ -4,7 +4,9 @@ from app.domain.associations import ScenarioRiskDomain
 import sqlalchemy as sa
 from app import db
 
-from tests.unit.repo.factories import create_risk
+from tests.unit.repo.factories import create_risk, create_scenario
+from nanoid import generate
+import pytest
 
 
 class TestRiskRepoCase:
@@ -139,6 +141,97 @@ class TestRiskRepoCase:
             sa.select(ScenarioRisk).where(
                 (ScenarioRisk.scenario_id == scenario_risk_from_repo.scenario_id)
                 & (ScenarioRisk.risk_id == scenario_risk_from_repo.risk_id)
+            )
+        )
+        assert scenario_risk_from_db is None
+
+    def test_create_scenario_risk_assoc_through_repo_with_invalid_input(self, new_risk):
+        # Arrange: Create non-existed scenario ID
+        invalid_scenario_id = 10482
+
+        # Act: Create Association with invalid scenario id should raise TypeError
+        with pytest.raises(TypeError):
+            self._create_assoc(
+                risk_id=new_risk.id,
+                scenario_id=invalid_scenario_id,
+            )
+
+    def test_create_scenario_risk_assoc_through_repo_with_non_existed_scenario(
+        self, new_risk
+    ):
+        # Arrange: Create non-existed scenario ID
+        non_existed_scenario_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                risk_id=new_risk.id,
+                scenario_id=non_existed_scenario_id,
+            )
+
+    def test_create_scenario_risk_assoc_through_repo_with_non_existed_risk(
+        self, new_scenario
+    ):
+        # Arrange: Create non-existed risk ID
+        non_existed_risk_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                risk_id=non_existed_risk_id,
+                scenario_id=new_scenario.id,
+            )
+
+    def test_get_non_existed_scenario_risk_assoc_by_id_through_repo(
+        self, new_scenario, new_risk
+    ):
+        # Act: Get the assoc by compose id (but not create association yet)
+        scenario_risk_get_by_id = ScenarioRiskRepo.get_by_id(
+            scenario_id=new_scenario.id,
+            risk_id=new_risk.id,
+        )
+
+        # Assert: The ScenarioRiskRepo should return None
+        assert scenario_risk_get_by_id is None
+
+    def test_update_scenario_risk_assoc_through_repo_while_changing_scenario(
+        self, new_scenario, new_risk, default_account
+    ):
+        # Arrange: Get scenario and risk id
+        scenario_id = new_scenario.id
+        risk_id = new_risk.id
+
+        # Arrange: Create Association
+        assoc = self._create_assoc(risk_id=risk_id, scenario_id=scenario_id)
+
+        # Arrange: Create another scenario
+        another_scenario = create_scenario(default_account)
+        another_scenario_id = another_scenario.id
+
+        # Act: Change the assoc to another scenario id
+        assoc.scenario_id = another_scenario_id
+
+        # Assert: Save the updated object should raise ValueError as this assoc is not existed in another scenario
+        with pytest.raises(ValueError):
+            ScenarioRiskRepo.save(assoc)
+
+    def test_delete_non_existed_scenario_risk_assoc_through_repo(
+        self, new_scenario, new_risk
+    ):
+        # Arrange: Get scenario and risk id
+        scenario_id = new_scenario.id
+        risk_id = new_risk.id
+        # Act: Delete the non existed assoc
+        ScenarioRiskRepo.delete_by_id(
+            scenario_id=scenario_id,
+            risk_id=risk_id,
+        )
+
+        # Assert: Ensure the risk record is deleted from the database
+        scenario_risk_from_db = db.session.scalar(
+            sa.select(ScenarioRisk).where(
+                (ScenarioRisk.scenario_id == scenario_id)
+                & (ScenarioRisk.risk_id == risk_id)
             )
         )
         assert scenario_risk_from_db is None

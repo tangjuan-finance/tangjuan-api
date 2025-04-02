@@ -122,16 +122,25 @@ class ScenarioChildRepo:
 
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, child_id: str) -> ScenarioChild:
+        # Check if scenario existed
+        return_scenario_id = ScenarioChildRepo._get_scenario_model_by_id(scenario_id).id
+
+        # Check if child existed
+        return_child_id = ScenarioChildRepo._get_child_model_by_id(child_id).id
+
+        # Get assoc by checked scenario and child id
         assoc = db.session.scalar(
             sa.select(ScenarioChild).where(
-                (ScenarioChild.scenario_id == scenario_id)
-                & (ScenarioChild.child_id == child_id)
+                (ScenarioChild.scenario_id == return_scenario_id)
+                & (ScenarioChild.child_id == return_child_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -141,6 +150,8 @@ class ScenarioChildRepo:
 
     @staticmethod
     def _get_child_model_by_id(child_id: str) -> Child:
+        if not isinstance(child_id, str):
+            raise TypeError("child_id shoud be type str")
         try:
             child_model = db.session.get_one(Child, child_id)
         except NoResultFound:

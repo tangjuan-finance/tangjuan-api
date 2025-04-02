@@ -5,7 +5,9 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_asset
+from tests.unit.repo.factories import create_asset, create_scenario
+from nanoid import generate
+import pytest
 
 
 class TestAssetRepoCase:
@@ -167,6 +169,106 @@ class TestAssetRepoCase:
             sa.select(ScenarioAsset).where(
                 (ScenarioAsset.scenario_id == scenario_asset_from_repo.scenario_id)
                 & (ScenarioAsset.asset_id == scenario_asset_from_repo.asset_id)
+            )
+        )
+        assert scenario_asset_from_db is None
+
+    def test_create_scenario_asset_assoc_through_repo_with_invalid_input(
+        self, new_asset
+    ):
+        # Arrange: Create non-existed scenario ID
+        invalid_scenario_id = 10482
+
+        # Act: Create Association with invalid scenario id should raise TypeError
+        with pytest.raises(TypeError):
+            self._create_assoc(
+                asset_id=new_asset.id,
+                scenario_id=invalid_scenario_id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_create_scenario_asset_assoc_through_repo_with_non_existed_scenario(
+        self, new_asset
+    ):
+        # Arrange: Create non-existed scenario ID
+        non_existed_scenario_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                asset_id=new_asset.id,
+                scenario_id=non_existed_scenario_id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_create_scenario_asset_assoc_through_repo_with_non_existed_asset(
+        self, new_scenario
+    ):
+        # Arrange: Create non-existed asset ID
+        non_existed_asset_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                asset_id=non_existed_asset_id,
+                scenario_id=new_scenario.id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_get_non_existed_scenario_asset_assoc_by_id_through_repo(
+        self, new_scenario, new_asset
+    ):
+        # Act: Get the assoc by compose id (but not create association yet)
+        scenario_asset_get_by_id = ScenarioAssetRepo.get_by_id(
+            scenario_id=new_scenario.id,
+            asset_id=new_asset.id,
+        )
+
+        # Assert: The ScenarioAssetRepo should return None
+        assert scenario_asset_get_by_id is None
+
+    def test_update_scenario_asset_assoc_through_repo_while_changing_scenario(
+        self, new_scenario, new_asset, default_account
+    ):
+        # Arrange: Get scenario and asset id
+        scenario_id = new_scenario.id
+        asset_id = new_asset.id
+
+        # Arrange: Create Association
+        assoc = self._create_assoc(
+            asset_id=asset_id,
+            scenario_id=scenario_id,
+            allocation_percentage=Decimal("0.35"),
+        )
+
+        # Arrange: Create another scenario
+        another_scenario = create_scenario(default_account)
+        another_scenario_id = another_scenario.id
+
+        # Act: Change the assoc to another scenario id
+        assoc.scenario_id = another_scenario_id
+
+        # Assert: Save the updated object should raise ValueError as this assoc is not existed in another scenario
+        with pytest.raises(ValueError):
+            ScenarioAssetRepo.save(assoc)
+
+    def test_delete_non_existed_scenario_asset_assoc_through_repo(
+        self, new_scenario, new_asset
+    ):
+        # Arrange: Get scenario and asset id
+        scenario_id = new_scenario.id
+        asset_id = new_asset.id
+        # Act: Delete the non existed assoc
+        ScenarioAssetRepo.delete_by_id(
+            scenario_id=scenario_id,
+            asset_id=asset_id,
+        )
+
+        # Assert: Ensure the asset record is deleted from the database
+        scenario_asset_from_db = db.session.scalar(
+            sa.select(ScenarioAsset).where(
+                (ScenarioAsset.scenario_id == scenario_id)
+                & (ScenarioAsset.asset_id == asset_id)
             )
         )
         assert scenario_asset_from_db is None

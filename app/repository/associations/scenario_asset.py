@@ -131,16 +131,25 @@ class ScenarioAssetRepo:
 
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, asset_id: str) -> ScenarioAsset:
+        # Check if scenario existed
+        return_scenario_id = ScenarioAssetRepo._get_scenario_model_by_id(scenario_id).id
+
+        # Check if asset existed
+        return_asset_id = ScenarioAssetRepo._get_asset_model_by_id(asset_id).id
+
+        # Get assoc by checked scenario and asset id
         assoc = db.session.scalar(
             sa.select(ScenarioAsset).where(
-                (ScenarioAsset.scenario_id == scenario_id)
-                & (ScenarioAsset.asset_id == asset_id)
+                (ScenarioAsset.scenario_id == return_scenario_id)
+                & (ScenarioAsset.asset_id == return_asset_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -150,6 +159,8 @@ class ScenarioAssetRepo:
 
     @staticmethod
     def _get_asset_model_by_id(asset_id: str) -> Asset:
+        if not isinstance(asset_id, str):
+            raise TypeError("asset_id shoud be type str")
         try:
             asset_model = db.session.get_one(Asset, asset_id)
         except NoResultFound:

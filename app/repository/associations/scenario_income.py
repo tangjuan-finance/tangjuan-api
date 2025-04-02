@@ -128,16 +128,27 @@ class ScenarioIncomeRepo:
 
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, income_id: str) -> ScenarioIncome:
+        # Check if scenario existed
+        return_scenario_id = ScenarioIncomeRepo._get_scenario_model_by_id(
+            scenario_id
+        ).id
+
+        # Check if income existed
+        return_income_id = ScenarioIncomeRepo._get_income_model_by_id(income_id).id
+
+        # Get assoc by checked scenario and income id
         assoc = db.session.scalar(
             sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == scenario_id)
-                & (ScenarioIncome.income_id == income_id)
+                (ScenarioIncome.scenario_id == return_scenario_id)
+                & (ScenarioIncome.income_id == return_income_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -147,6 +158,8 @@ class ScenarioIncomeRepo:
 
     @staticmethod
     def _get_income_model_by_id(income_id: str) -> Income:
+        if not isinstance(income_id, str):
+            raise TypeError("income_id shoud be type str")
         try:
             income_model = db.session.get_one(Income, income_id)
         except NoResultFound:

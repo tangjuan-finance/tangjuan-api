@@ -5,7 +5,9 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_liability
+from tests.unit.repo.factories import create_liability, create_scenario
+from nanoid import generate
+import pytest
 
 
 class TestLiabilityRepoCase:
@@ -214,6 +216,106 @@ class TestLiabilityRepoCase:
                     ScenarioLiability.liability_id
                     == scenario_liability_from_repo.liability_id
                 )
+            )
+        )
+        assert scenario_liability_from_db is None
+
+    def test_create_scenario_liability_assoc_through_repo_with_invalid_input(
+        self, new_liability
+    ):
+        # Arrange: Create non-existed scenario ID
+        invalid_scenario_id = 10482
+
+        # Act: Create Association with invalid scenario id should raise TypeError
+        with pytest.raises(TypeError):
+            self._create_assoc(
+                liability_id=new_liability.id,
+                scenario_id=invalid_scenario_id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_create_scenario_liability_assoc_through_repo_with_non_existed_scenario(
+        self, new_liability
+    ):
+        # Arrange: Create non-existed scenario ID
+        non_existed_scenario_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                liability_id=new_liability.id,
+                scenario_id=non_existed_scenario_id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_create_scenario_liability_assoc_through_repo_with_non_existed_liability(
+        self, new_scenario
+    ):
+        # Arrange: Create non-existed liability ID
+        non_existed_liability_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                liability_id=non_existed_liability_id,
+                scenario_id=new_scenario.id,
+                allocation_percentage=Decimal("0.35"),
+            )
+
+    def test_get_non_existed_scenario_liability_assoc_by_id_through_repo(
+        self, new_scenario, new_liability
+    ):
+        # Act: Get the assoc by compose id (but not create association yet)
+        scenario_liability_get_by_id = ScenarioLiabilityRepo.get_by_id(
+            scenario_id=new_scenario.id,
+            liability_id=new_liability.id,
+        )
+
+        # Assert: The ScenarioLiabilityRepo should return None
+        assert scenario_liability_get_by_id is None
+
+    def test_update_scenario_liability_assoc_through_repo_while_changing_scenario(
+        self, new_scenario, new_liability, default_account
+    ):
+        # Arrange: Get scenario and liability id
+        scenario_id = new_scenario.id
+        liability_id = new_liability.id
+
+        # Arrange: Create Association
+        assoc = self._create_assoc(
+            liability_id=liability_id,
+            scenario_id=scenario_id,
+            allocation_percentage=Decimal("0.35"),
+        )
+
+        # Arrange: Create another scenario
+        another_scenario = create_scenario(default_account)
+        another_scenario_id = another_scenario.id
+
+        # Act: Change the assoc to another scenario id
+        assoc.scenario_id = another_scenario_id
+
+        # Assert: Save the updated object should raise ValueError as this assoc is not existed in another scenario
+        with pytest.raises(ValueError):
+            ScenarioLiabilityRepo.save(assoc)
+
+    def test_delete_non_existed_scenario_liability_assoc_through_repo(
+        self, new_scenario, new_liability
+    ):
+        # Arrange: Get scenario and liability id
+        scenario_id = new_scenario.id
+        liability_id = new_liability.id
+        # Act: Delete the non existed assoc
+        ScenarioLiabilityRepo.delete_by_id(
+            scenario_id=scenario_id,
+            liability_id=liability_id,
+        )
+
+        # Assert: Ensure the liability record is deleted from the database
+        scenario_liability_from_db = db.session.scalar(
+            sa.select(ScenarioLiability).where(
+                (ScenarioLiability.scenario_id == scenario_id)
+                & (ScenarioLiability.liability_id == liability_id)
             )
         )
         assert scenario_liability_from_db is None
