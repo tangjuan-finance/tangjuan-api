@@ -1,5 +1,6 @@
 from app.domain.entities import AccountDomain
 from tests.factory import (
+    AccountDomainFactory,
     ScenarioDomainFactory,
     ExpenseDomainFactory,
     IncomeDomainFactory,
@@ -10,6 +11,7 @@ from tests.factory import (
     LiabilityDomainFactory,
 )
 from app.repository.entities import (
+    AccountRepo,
     ScenarioRepo,
     ExpenseRepo,
     IncomeRepo,
@@ -19,6 +21,12 @@ from app.repository.entities import (
     AssetRepo,
     LiabilityRepo,
 )
+
+
+def create_account() -> AccountDomain:
+    """Create a new account."""
+    account = AccountDomainFactory()
+    return AccountRepo.create(account)
 
 
 def create_scenario(owner: AccountDomain):

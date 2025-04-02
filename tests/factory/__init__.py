@@ -11,6 +11,7 @@ from .domain_factory import (
     ScenarioDomainFactory,
 )
 from .create_domain import (
+    create_account,
     create_scenario,
     create_expense,
     create_income,
@@ -33,6 +34,7 @@ __all__ = [
     "LiabilityDomainFactory",
     "RiskDomainFactory",
     "ScenarioDomainFactory",
+    "create_account",
     "create_scenario",
     "create_expense",
     "create_income",

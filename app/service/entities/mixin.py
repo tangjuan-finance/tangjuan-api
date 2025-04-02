@@ -2,13 +2,7 @@ from app.domain.entities import AccountDomain
 from app.repository.entities import AccountRepo
 
 
-class BaseServiceMixin:
-    """Base mixin for all service classes, providing common functionality."""
-
-    pass
-
-
-class OwnerRequiredServiceMixin(BaseServiceMixin):
+class OwnerRequiredServiceMixin:
     """Mixin for services that require ownership validation."""
 
     @staticmethod

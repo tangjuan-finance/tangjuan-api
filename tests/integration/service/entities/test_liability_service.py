@@ -1,5 +1,5 @@
 from app.service.entities.liability_service import LiabilityService
-from tests.integration.service.factories import create_account
+from tests.factory import create_account
 from .factories import create_liability_payload
 from nanoid import generate
 import pytest

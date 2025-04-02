@@ -1,5 +1,5 @@
 from app.service.entities.asset_service import AssetService
-from tests.integration.service.factories import create_account
+from tests.factory import create_account
 from .factories import create_asset_payload
 from nanoid import generate
 import pytest

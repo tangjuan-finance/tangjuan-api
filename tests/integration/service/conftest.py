@@ -3,7 +3,7 @@ from app import create_app, db
 from typing import Generator
 from tests.conftest import TestConfig
 from app.domain.entities import AccountDomain
-from .factories import create_account
+from tests.factory import create_account
 
 
 @pytest.fixture(scope="module", autouse=True)

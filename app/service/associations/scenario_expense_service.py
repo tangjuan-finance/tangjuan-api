@@ -1,102 +1,116 @@
 from app.domain.associations import ScenarioExpenseDomain
-# from app.repository.associations import ScenarioExpenseRepo
+from app.repository.associations import ScenarioExpenseRepo
+from app.repository.entities import ExpenseRepo
+from .mixin import BaseAssociationService
 
 
-class ScenarioExpenseService:
-    _required_fields = {}
-    _all_fields = _required_fields | {}
+class ScenarioExpenseService(BaseAssociationService):
+    @classmethod
+    def create_scenario_expense(cls, account_id: str, payload: dict) -> dict:
+        """Create a new scenario expense assoc with validated owner."""
+
+        scenario_id, expense_id = payload["scenario_id"], payload["expense_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_expense_ownership(account_id=account_id, expense_id=expense_id)
+
+        # Create assoc based on payload
+        assoc_domain = ScenarioExpenseDomain(**payload)
+        assoc = ScenarioExpenseRepo.create(assoc_domain)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc)
+
+    @classmethod
+    def get_scenario_expense_by_id(cls, account_id: str, payload: dict) -> dict:
+        """Get the scenario expense assoc by id with validated owner."""
+
+        scenario_id, expense_id = payload["scenario_id"], payload["expense_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_expense_ownership(account_id=account_id, expense_id=expense_id)
+
+        # Get assoc by id
+        assoc_from_repo = ScenarioExpenseRepo.get_by_id(
+            scenario_id=scenario_id, expense_id=expense_id
+        )
+
+        if not assoc_from_repo:
+            raise ValueError(
+                f"Scenario Expense Association with scenario ID {scenario_id} and expense ID {expense_id} not found"
+            )
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc_from_repo)
+
+    @classmethod
+    def get_scenario_expenses(cls, account_id: str, payload: dict) -> list[dict]:
+        """Get all scenario expense assoc with validated owner."""
+
+        scenario_id = payload["scenario_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+
+        # Generate the list of dict based on the assocs got from the repo
+        return [
+            cls._create_response(assoc=assoc)
+            for assoc in ScenarioExpenseRepo.get_list(scenario_id=scenario_id)
+        ]
+
+    @classmethod
+    def update_scenario_expense(cls, account_id: str, payload: dict) -> dict:
+        """Update the scenario expense assoc with validated owner."""
+
+        # Get the Scenario Expense Association
+        assoc = cls.get_scenario_expense_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
+
+        # Update the Scenario Expense Association based on given payload
+        for field in payload.keys():
+            setattr(assoc, field, payload[field])
+
+        # Set the change by repo
+        updated_assoc = ScenarioExpenseRepo.save(assoc)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=updated_assoc)
+
+    @classmethod
+    def delete_scenario_expense_by_id(cls, account_id: str, payload: dict) -> str:
+        """Delete the scenario expense assoc by ID with validated owner."""
+        # Get the Scenario Expense Association
+        # Raises if not found or unauthorized
+        cls.get_scenario_expense_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
+
+        # Get the scenario and expense ID
+        scenario_id, expense_id = payload["scenario_id"], payload["expense_id"]
+
+        # Delete the assoc
+        ScenarioExpenseRepo.delete_by_id(scenario_id=scenario_id, expense_id=expense_id)
+
+        return f"Scenario Expense with scenario ID {scenario_id} and expense ID {expense_id} deleted successfully"
 
     @staticmethod
-    def create_scenario_expense(
-        account_id: str, payload: dict
-    ) -> ScenarioExpenseDomain:
-        pass
-
-    # def create_expense(account_id: str, payload: dict) -> ScenarioExpenseDomain:
-    #     """Create a new expense with validated owner."""
-
-    #     owner_id = payload["owner_id"]
-
-    #     # Check if account_id matches the owner_id
-    #     if owner_id != account_id:
-    #         raise PermissionError(
-    #             f"Account {account_id} is not authorized to create expense under the given owner"
-    #         )
-
-    #     # Validate required fields
-    #     missing_fields = ExpenseService._required_fields - payload.keys()
-    #     if missing_fields:
-    #         raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
-
-    #     # Get owner
-    #     owner = ExpenseService._get_owner(owner_id)
-
-    #     # Filter payload to only include allowed fields
-    #     expense_payload = {
-    #         field: payload[field]
-    #         for field in ExpenseService._all_fields
-    #         if field in payload
-    #     }
-    #     expense_payload["owner"] = owner
-
-    #     # Create the expense
-    #     expense = ScenarioExpenseDomain(**expense_payload)
-    #     return ExpenseRepo.create(expense)
+    def _create_response(assoc: ScenarioExpenseDomain) -> dict:
+        return {
+            "association": assoc,
+            "expense": ExpenseRepo.get_by_id(expense_id=assoc.expense_id),
+        }
 
     @staticmethod
-    def get_scenario_expense_by_id(
-        account_id: str, payload: dict
-    ) -> ScenarioExpenseDomain:
-        pass
+    def _check_expense_ownership(account_id: str, expense_id: str) -> str:
+        expense_from_repo = ExpenseRepo.get_by_id(expense_id=expense_id)
 
-    # def get_expense_by_id(account_id: str, payload: dict) -> ScenarioExpenseDomain:
-    #     """Retrieve a specific expense by ID."""
-    #     expense_id = payload.get("id")
-    #     if not expense_id:
-    #         raise ValueError("Expense ID is required")
-    #     expense_from_repo = ExpenseRepo.get_by_id(expense_id)
+        if not expense_from_repo:
+            raise ValueError(f"Scenario with ID {expense_id} not found")
 
-    #     if not expense_from_repo:
-    #         raise ValueError(f"Expense with ID {expense_id} not found")
+        if expense_from_repo.owner.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this expense")
 
-    #     # Check if the account owns the expense
-    #     if expense_from_repo.owner.id != account_id:
-    #         raise PermissionError(f"Account {account_id} does not own this resource")
-
-    #     return expense_from_repo
-
-    @staticmethod
-    def get_scenario_expenses(account_id: str) -> list[ScenarioExpenseDomain]:
-        pass
-
-    # def get_expenses(account_id: str) -> list[ScenarioExpenseDomain]:
-    #     """Retrieve all expenses for a given account."""
-    #     return ExpenseRepo.get_list(account_id)
-
-    @staticmethod
-    def update_scenario_expense(
-        account_id: str, payload: dict
-    ) -> ScenarioExpenseDomain:
-        pass
-
-    # def update_expense(account_id: str, payload: dict) -> ScenarioExpenseDomain:
-    #     """Update an expense by ID if it exists."""
-    #     expense_from_repo = ExpenseService.get_expense_by_id(account_id, payload)
-
-    #     for field in ExpenseService._all_fields:
-    #         if field in payload:
-    #             setattr(expense_from_repo, field, payload[field])
-
-    #     return ExpenseRepo.save(expense_from_repo)
-
-    @staticmethod
-    def delete_scenario_expense_by_id(account_id: str, payload: dict) -> str:
-        pass
-
-    # def delete_expense_by_id(account_id: str, payload: dict) -> str:
-    #     """Delete an expense by ID if it exists."""
-    #     expense = ExpenseService.get_expense_by_id(
-    #         account_id, payload
-    #     )  # Raises if not found or unauthorized
-    #     ExpenseRepo.delete_by_id(expense.id)
-    #     return f"Expense {expense.id} deleted successfully"
+        return "This account owned this expense"

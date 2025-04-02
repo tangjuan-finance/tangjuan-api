@@ -1,5 +1,5 @@
 from app.service.entities.child_service import ChildService
-from tests.integration.service.factories import create_account
+from tests.factory import create_account
 from .factories import create_child_payload
 from nanoid import generate
 import pytest
