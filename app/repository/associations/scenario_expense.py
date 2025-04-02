@@ -130,18 +130,30 @@ class ScenarioExpenseRepo:
             updated_at=assoc_model.updated_at,
         )
 
+    # Updated from here
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, expense_id: str) -> ScenarioExpense:
+        # Check if scenario existed
+        return_scenario_id = ScenarioExpenseRepo._get_scenario_model_by_id(
+            scenario_id
+        ).id
+
+        # Check if expense existed
+        return_expense_id = ScenarioExpenseRepo._get_expense_model_by_id(expense_id).id
+
+        # Get assoc by checked scenario and expense id
         assoc = db.session.scalar(
             sa.select(ScenarioExpense).where(
-                (ScenarioExpense.scenario_id == scenario_id)
-                & (ScenarioExpense.expense_id == expense_id)
+                (ScenarioExpense.scenario_id == return_scenario_id)
+                & (ScenarioExpense.expense_id == return_expense_id)
             )
         )
         return assoc
 
     @staticmethod
     def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+        if not isinstance(scenario_id, str):
+            raise TypeError("scenario_id shoud be type str")
         try:
             scenario_model = db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
@@ -151,6 +163,8 @@ class ScenarioExpenseRepo:
 
     @staticmethod
     def _get_expense_model_by_id(expense_id: str) -> Expense:
+        if not isinstance(expense_id, str):
+            raise TypeError("expense_id shoud be type str")
         try:
             expense_model = db.session.get_one(Expense, expense_id)
         except NoResultFound:

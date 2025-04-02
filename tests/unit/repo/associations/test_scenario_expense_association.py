@@ -5,7 +5,11 @@ import sqlalchemy as sa
 from app import db
 from decimal import Decimal
 
-from tests.unit.repo.factories import create_expense
+from tests.unit.repo.factories import create_expense, create_scenario
+
+# Revised start from here
+from nanoid import generate
+import pytest
 
 
 class TestExpenseRepoCase:
@@ -181,6 +185,101 @@ class TestExpenseRepoCase:
             sa.select(ScenarioExpense).where(
                 (ScenarioExpense.scenario_id == scenario_expense_from_repo.scenario_id)
                 & (ScenarioExpense.expense_id == scenario_expense_from_repo.expense_id)
+            )
+        )
+        assert scenario_expense_from_db is None
+
+    # Revised start from here
+
+    def test_create_scenario_expense_assoc_through_repo_with_invalid_input(
+        self, new_expense
+    ):
+        # Arrange: Create non-existed scenario ID
+        invalid_scenario_id = 10482
+
+        # Act: Create Association with invalid scenario id should raise TypeError
+        with pytest.raises(TypeError):
+            self._create_assoc(
+                expense_id=new_expense.id,
+                scenario_id=invalid_scenario_id,
+            )
+
+    def test_create_scenario_expense_assoc_through_repo_with_non_existed_scenario(
+        self, new_expense
+    ):
+        # Arrange: Create non-existed scenario ID
+        non_existed_scenario_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                expense_id=new_expense.id,
+                scenario_id=non_existed_scenario_id,
+            )
+
+    def test_create_scenario_expense_assoc_through_repo_with_non_existed_expense(
+        self, new_scenario
+    ):
+        # Arrange: Create non-existed expense ID
+        non_existed_expense_id = generate(size=13)
+
+        # Act: Create Association with non existed scenario should raise ValueError
+        with pytest.raises(ValueError):
+            self._create_assoc(
+                expense_id=non_existed_expense_id,
+                scenario_id=new_scenario.id,
+            )
+
+    def test_get_non_existed_scenario_expense_assoc_by_id_through_repo(
+        self, new_scenario, new_expense
+    ):
+        # Act: Get the assoc by compose id (but not create association yet)
+        scenario_expense_get_by_id = ScenarioExpenseRepo.get_by_id(
+            scenario_id=new_scenario.id,
+            expense_id=new_expense.id,
+        )
+
+        # Assert: The ScenarioExpenseRepo should return None
+        assert scenario_expense_get_by_id is None
+
+    def test_update_scenario_expense_assoc_through_repo_while_changing_scenario(
+        self, new_scenario, new_expense, default_account
+    ):
+        # Arrange: Get scenario and expense id
+        scenario_id = new_scenario.id
+        expense_id = new_expense.id
+
+        # Arrange: Create Association
+        assoc = self._create_assoc(expense_id=expense_id, scenario_id=scenario_id)
+
+        # Arrange: Create another scenario
+        another_scenario = create_scenario(default_account)
+        another_scenario_id = another_scenario.id
+
+        # Act: Change the assoc to another scenario id
+        assoc.scenario_id = another_scenario_id
+
+        # Assert: Save the updated object should raise ValueError as this assoc is not existed in another scenario
+        with pytest.raises(ValueError):
+            ScenarioExpenseRepo.save(assoc)
+
+    def test_delete_non_existed_scenario_expense_assoc_through_repo(
+        self, new_scenario, new_expense
+    ):
+        # Arrange: Get scenario and expense id
+        scenario_id = new_scenario.id
+        expense_id = new_expense.id
+        # Act: Delete the non existed assoc
+        ScenarioExpenseRepo.delete_by_id(
+            scenario_id=scenario_id,
+            expense_id=expense_id,
+        )
+
+        # Assert: Ensure the expense record is deleted from the database
+        scenario_expense_from_db = db.session.scalar(
+            sa.select(ScenarioExpense).where(
+                (ScenarioExpense.scenario_id == scenario_id)
+                & (ScenarioExpense.expense_id == expense_id)
             )
         )
         assert scenario_expense_from_db is None
