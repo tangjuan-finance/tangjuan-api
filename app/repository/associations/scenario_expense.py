@@ -10,30 +10,21 @@ class ScenarioExpenseRepo:
     def create(assoc: ScenarioExpenseDomain) -> ScenarioExpenseDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        expense_id = assoc.expense_id
         existing_assoc = ScenarioExpenseRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.expense_id
+            scenario_id=scenario_id, expense_id=expense_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Expense Record with scenario_id {assoc.scenario_id}, expense_id {assoc.expense_id} already exists!"
             )
 
-        # Check if scenario and expense with given ID existed
-        try:
-            scenario_model = ScenarioExpenseRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            expense_model = ScenarioExpenseRepo._get_expense_model_by_id(
-                assoc.expense_id
-            )
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioExpense(
-            scenario_id=scenario_model.id,
-            expense_id=expense_model.id,
+            scenario_id=scenario_id,
+            expense_id=expense_id,
             max_yearly_growth_rate=assoc.max_yearly_growth_rate,
             min_yearly_growth_rate=assoc.min_yearly_growth_rate,
             start_age=assoc.start_age,
@@ -130,44 +121,41 @@ class ScenarioExpenseRepo:
             updated_at=assoc_model.updated_at,
         )
 
-    # Updated from here
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, expense_id: str) -> ScenarioExpense:
         # Check if scenario existed
-        return_scenario_id = ScenarioExpenseRepo._get_scenario_model_by_id(
-            scenario_id
-        ).id
+        ScenarioExpenseRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if expense existed
-        return_expense_id = ScenarioExpenseRepo._get_expense_model_by_id(expense_id).id
+        ScenarioExpenseRepo._check_if_expense_existed_by_id(expense_id)
 
         # Get assoc by checked scenario and expense id
         assoc = db.session.scalar(
             sa.select(ScenarioExpense).where(
-                (ScenarioExpense.scenario_id == return_scenario_id)
-                & (ScenarioExpense.expense_id == return_expense_id)
+                (ScenarioExpense.scenario_id == scenario_id)
+                & (ScenarioExpense.expense_id == expense_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_expense_model_by_id(expense_id: str) -> Expense:
+    def _check_if_expense_existed_by_id(expense_id: str) -> str:
         if not isinstance(expense_id, str):
             raise TypeError("expense_id shoud be type str")
         try:
-            expense_model = db.session.get_one(Expense, expense_id)
+            db.session.get_one(Expense, expense_id)
         except NoResultFound:
             raise ValueError("Expense not found!")
 
-        return expense_model
+        return f"Expense {expense_id} existed."

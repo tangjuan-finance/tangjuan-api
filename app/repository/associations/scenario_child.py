@@ -10,28 +10,21 @@ class ScenarioChildRepo:
     def create(assoc: ScenarioChildDomain) -> ScenarioChildDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        child_id = assoc.child_id
         existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.child_id
+            scenario_id=scenario_id, child_id=child_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Child Record with scenario_id {assoc.scenario_id}, child_id {assoc.child_id} already exists!"
             )
 
-        # Check if scenario and child with given ID existed
-        try:
-            scenario_model = ScenarioChildRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            child_model = ScenarioChildRepo._get_child_model_by_id(assoc.child_id)
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioChild(
-            scenario_id=scenario_model.id,
-            child_id=child_model.id,
+            scenario_id=scenario_id,
+            child_id=child_id,
             birth_age=assoc.birth_age,
             independent_age=assoc.independent_age,
             memo=assoc.memo,
@@ -123,38 +116,38 @@ class ScenarioChildRepo:
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, child_id: str) -> ScenarioChild:
         # Check if scenario existed
-        return_scenario_id = ScenarioChildRepo._get_scenario_model_by_id(scenario_id).id
+        ScenarioChildRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if child existed
-        return_child_id = ScenarioChildRepo._get_child_model_by_id(child_id).id
+        ScenarioChildRepo._check_if_child_existed_by_id(child_id)
 
         # Get assoc by checked scenario and child id
         assoc = db.session.scalar(
             sa.select(ScenarioChild).where(
-                (ScenarioChild.scenario_id == return_scenario_id)
-                & (ScenarioChild.child_id == return_child_id)
+                (ScenarioChild.scenario_id == scenario_id)
+                & (ScenarioChild.child_id == child_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_child_model_by_id(child_id: str) -> Child:
+    def _check_if_child_existed_by_id(child_id: str) -> str:
         if not isinstance(child_id, str):
             raise TypeError("child_id shoud be type str")
         try:
-            child_model = db.session.get_one(Child, child_id)
+            db.session.get_one(Child, child_id)
         except NoResultFound:
             raise ValueError("Child not found!")
 
-        return child_model
+        return f"Child {child_id} existed."

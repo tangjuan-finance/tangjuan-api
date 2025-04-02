@@ -10,28 +10,21 @@ class ScenarioHouseRepo:
     def create(assoc: ScenarioHouseDomain) -> ScenarioHouseDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        house_id = assoc.house_id
         existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.house_id
+            scenario_id=scenario_id, house_id=house_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario House Record with scenario_id {assoc.scenario_id}, house_id {assoc.house_id} already exists!"
             )
 
-        # Check if scenario and house with given ID existed
-        try:
-            scenario_model = ScenarioHouseRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            house_model = ScenarioHouseRepo._get_house_model_by_id(assoc.house_id)
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioHouse(
-            scenario_id=scenario_model.id,
-            house_id=house_model.id,
+            scenario_id=scenario_id,
+            house_id=house_id,
             down_payment=assoc.down_payment,
             interest_rate=assoc.interest_rate,
             loan_term=assoc.loan_term,
@@ -132,38 +125,38 @@ class ScenarioHouseRepo:
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, house_id: str) -> ScenarioHouse:
         # Check if scenario existed
-        return_scenario_id = ScenarioHouseRepo._get_scenario_model_by_id(scenario_id).id
+        ScenarioHouseRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if house existed
-        return_house_id = ScenarioHouseRepo._get_house_model_by_id(house_id).id
+        ScenarioHouseRepo._check_if_house_existed_by_id(house_id)
 
         # Get assoc by checked scenario and house id
         assoc = db.session.scalar(
             sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == return_scenario_id)
-                & (ScenarioHouse.house_id == return_house_id)
+                (ScenarioHouse.scenario_id == scenario_id)
+                & (ScenarioHouse.house_id == house_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_house_model_by_id(house_id: str) -> House:
+    def _check_if_house_existed_by_id(house_id: str) -> str:
         if not isinstance(house_id, str):
             raise TypeError("house_id shoud be type str")
         try:
-            house_model = db.session.get_one(House, house_id)
+            db.session.get_one(House, house_id)
         except NoResultFound:
             raise ValueError("House not found!")
 
-        return house_model
+        return f"House {house_id} existed."

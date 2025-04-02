@@ -10,28 +10,21 @@ class ScenarioRiskRepo:
     def create(assoc: ScenarioRiskDomain) -> ScenarioRiskDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        risk_id = assoc.risk_id
         existing_assoc = ScenarioRiskRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.risk_id
+            scenario_id=scenario_id, risk_id=risk_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Risk Record with scenario_id {assoc.scenario_id}, risk_id {assoc.risk_id} already exists!"
             )
 
-        # Check if scenario and risk with given ID existed
-        try:
-            scenario_model = ScenarioRiskRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            risk_model = ScenarioRiskRepo._get_risk_model_by_id(assoc.risk_id)
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioRisk(
-            scenario_id=scenario_model.id,
-            risk_id=risk_model.id,
+            scenario_id=scenario_id,
+            risk_id=risk_id,
             max_loss=assoc.max_loss,
             min_loss=assoc.min_loss,
             start_age=assoc.start_age,
@@ -125,38 +118,38 @@ class ScenarioRiskRepo:
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, risk_id: str) -> ScenarioRisk:
         # Check if scenario existed
-        return_scenario_id = ScenarioRiskRepo._get_scenario_model_by_id(scenario_id).id
+        ScenarioRiskRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if risk existed
-        return_risk_id = ScenarioRiskRepo._get_risk_model_by_id(risk_id).id
+        ScenarioRiskRepo._check_if_risk_existed_by_id(risk_id)
 
         # Get assoc by checked scenario and risk id
         assoc = db.session.scalar(
             sa.select(ScenarioRisk).where(
-                (ScenarioRisk.scenario_id == return_scenario_id)
-                & (ScenarioRisk.risk_id == return_risk_id)
+                (ScenarioRisk.scenario_id == scenario_id)
+                & (ScenarioRisk.risk_id == risk_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_risk_model_by_id(risk_id: str) -> Risk:
+    def _check_if_risk_existed_by_id(risk_id: str) -> str:
         if not isinstance(risk_id, str):
             raise TypeError("risk_id shoud be type str")
         try:
-            risk_model = db.session.get_one(Risk, risk_id)
+            db.session.get_one(Risk, risk_id)
         except NoResultFound:
             raise ValueError("Risk not found!")
 
-        return risk_model
+        return f"Risk {risk_id} existed."

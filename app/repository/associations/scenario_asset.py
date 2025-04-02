@@ -10,28 +10,21 @@ class ScenarioAssetRepo:
     def create(assoc: ScenarioAssetDomain) -> ScenarioAssetDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        asset_id = assoc.asset_id
         existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.asset_id
+            scenario_id=scenario_id, asset_id=asset_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Asset Record with scenario_id {assoc.scenario_id}, asset_id {assoc.asset_id} already exists!"
             )
 
-        # Check if scenario and asset with given ID existed
-        try:
-            scenario_model = ScenarioAssetRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            asset_model = ScenarioAssetRepo._get_asset_model_by_id(assoc.asset_id)
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioAsset(
-            scenario_id=scenario_model.id,
-            asset_id=asset_model.id,
+            scenario_id=scenario_id,
+            asset_id=asset_id,
             max_yearly_return_rate=assoc.max_yearly_return_rate,
             min_yearly_return_rate=assoc.min_yearly_return_rate,
             allocation_percentage=assoc.allocation_percentage,
@@ -132,38 +125,38 @@ class ScenarioAssetRepo:
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, asset_id: str) -> ScenarioAsset:
         # Check if scenario existed
-        return_scenario_id = ScenarioAssetRepo._get_scenario_model_by_id(scenario_id).id
+        ScenarioAssetRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if asset existed
-        return_asset_id = ScenarioAssetRepo._get_asset_model_by_id(asset_id).id
+        ScenarioAssetRepo._check_if_asset_existed_by_id(asset_id)
 
         # Get assoc by checked scenario and asset id
         assoc = db.session.scalar(
             sa.select(ScenarioAsset).where(
-                (ScenarioAsset.scenario_id == return_scenario_id)
-                & (ScenarioAsset.asset_id == return_asset_id)
+                (ScenarioAsset.scenario_id == scenario_id)
+                & (ScenarioAsset.asset_id == asset_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_asset_model_by_id(asset_id: str) -> Asset:
+    def _check_if_asset_existed_by_id(asset_id: str) -> str:
         if not isinstance(asset_id, str):
             raise TypeError("asset_id shoud be type str")
         try:
-            asset_model = db.session.get_one(Asset, asset_id)
+            db.session.get_one(Asset, asset_id)
         except NoResultFound:
             raise ValueError("Asset not found!")
 
-        return asset_model
+        return f"Asset {asset_id} existed."

@@ -10,28 +10,21 @@ class ScenarioIncomeRepo:
     def create(assoc: ScenarioIncomeDomain) -> ScenarioIncomeDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        income_id = assoc.income_id
         existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.income_id
+            scenario_id=scenario_id, income_id=income_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Income Record with scenario_id {assoc.scenario_id}, income_id {assoc.income_id} already exists!"
             )
 
-        # Check if scenario and income with given ID existed
-        try:
-            scenario_model = ScenarioIncomeRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            income_model = ScenarioIncomeRepo._get_income_model_by_id(assoc.income_id)
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioIncome(
-            scenario_id=scenario_model.id,
-            income_id=income_model.id,
+            scenario_id=scenario_id,
+            income_id=income_id,
             max_yearly_growth_rate=assoc.max_yearly_growth_rate,
             min_yearly_growth_rate=assoc.min_yearly_growth_rate,
             start_age=assoc.start_age,
@@ -129,40 +122,38 @@ class ScenarioIncomeRepo:
     @staticmethod
     def _get_assoc_model_by_cid(scenario_id: str, income_id: str) -> ScenarioIncome:
         # Check if scenario existed
-        return_scenario_id = ScenarioIncomeRepo._get_scenario_model_by_id(
-            scenario_id
-        ).id
+        ScenarioIncomeRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if income existed
-        return_income_id = ScenarioIncomeRepo._get_income_model_by_id(income_id).id
+        ScenarioIncomeRepo._check_if_income_existed_by_id(income_id)
 
         # Get assoc by checked scenario and income id
         assoc = db.session.scalar(
             sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == return_scenario_id)
-                & (ScenarioIncome.income_id == return_income_id)
+                (ScenarioIncome.scenario_id == scenario_id)
+                & (ScenarioIncome.income_id == income_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_income_model_by_id(income_id: str) -> Income:
+    def _check_if_income_existed_by_id(income_id: str) -> str:
         if not isinstance(income_id, str):
             raise TypeError("income_id shoud be type str")
         try:
-            income_model = db.session.get_one(Income, income_id)
+            db.session.get_one(Income, income_id)
         except NoResultFound:
             raise ValueError("Income not found!")
 
-        return income_model
+        return f"Income {income_id} existed."

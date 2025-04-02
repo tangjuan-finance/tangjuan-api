@@ -10,30 +10,21 @@ class ScenarioLiabilityRepo:
     def create(assoc: ScenarioLiabilityDomain) -> ScenarioLiabilityDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""
         # Check if the association already exists
+        scenario_id = assoc.scenario_id
+        liability_id = assoc.liability_id
         existing_assoc = ScenarioLiabilityRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.liability_id
+            scenario_id=scenario_id, liability_id=liability_id
         )
         if existing_assoc:
             raise ValueError(
                 f"Scenario Liability Record with scenario_id {assoc.scenario_id}, liability_id {assoc.liability_id} already exists!"
             )
 
-        # Check if scenario and liability with given ID existed
-        try:
-            scenario_model = ScenarioLiabilityRepo._get_scenario_model_by_id(
-                assoc.scenario_id
-            )
-            liability_model = ScenarioLiabilityRepo._get_liability_model_by_id(
-                assoc.liability_id
-            )
-        except ValueError as e:
-            raise ValueError(str(e))
-
         # Instance with required attr
         # Optional attr would be None, which is set in Domain Definition
         assoc_model = ScenarioLiability(
-            scenario_id=scenario_model.id,
-            liability_id=liability_model.id,
+            scenario_id=scenario_id,
+            liability_id=liability_id,
             interest_rate=assoc.interest_rate,
             allocation_percentage=assoc.allocation_percentage,
             start_age=assoc.start_age,
@@ -137,42 +128,38 @@ class ScenarioLiabilityRepo:
         scenario_id: str, liability_id: str
     ) -> ScenarioLiability:
         # Check if scenario existed
-        return_scenario_id = ScenarioLiabilityRepo._get_scenario_model_by_id(
-            scenario_id
-        ).id
+        ScenarioLiabilityRepo._check_if_scenario_existed_by_id(scenario_id)
 
         # Check if liability existed
-        return_liability_id = ScenarioLiabilityRepo._get_liability_model_by_id(
-            liability_id
-        ).id
+        ScenarioLiabilityRepo._check_if_liability_existed_by_id(liability_id)
 
         # Get assoc by checked scenario and liability id
         assoc = db.session.scalar(
             sa.select(ScenarioLiability).where(
-                (ScenarioLiability.scenario_id == return_scenario_id)
-                & (ScenarioLiability.liability_id == return_liability_id)
+                (ScenarioLiability.scenario_id == scenario_id)
+                & (ScenarioLiability.liability_id == liability_id)
             )
         )
         return assoc
 
     @staticmethod
-    def _get_scenario_model_by_id(scenario_id: str) -> Scenario:
+    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
         if not isinstance(scenario_id, str):
             raise TypeError("scenario_id shoud be type str")
         try:
-            scenario_model = db.session.get_one(Scenario, scenario_id)
+            db.session.get_one(Scenario, scenario_id)
         except NoResultFound:
             raise ValueError("Scenario not found!")
 
-        return scenario_model
+        return f"Scenario {scenario_id} existed."
 
     @staticmethod
-    def _get_liability_model_by_id(liability_id: str) -> Liability:
+    def _check_if_liability_existed_by_id(liability_id: str) -> str:
         if not isinstance(liability_id, str):
             raise TypeError("liability_id shoud be type str")
         try:
-            liability_model = db.session.get_one(Liability, liability_id)
+            db.session.get_one(Liability, liability_id)
         except NoResultFound:
             raise ValueError("Liability not found!")
 
-        return liability_model
+        return f"Liability {liability_id} existed."
