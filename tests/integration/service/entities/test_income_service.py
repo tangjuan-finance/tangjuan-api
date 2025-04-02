@@ -1,5 +1,6 @@
-from app.service.income_service import IncomeService
-from tests.integration.service.factories import create_income_payload, create_account
+from app.service.entities.income_service import IncomeService
+from tests.integration.service.factories import create_account
+from .factories import create_income_payload
 from nanoid import generate
 import pytest
 

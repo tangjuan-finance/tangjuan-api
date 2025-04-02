@@ -1,5 +1,6 @@
-from app.service.house_service import HouseService
-from tests.integration.service.factories import create_house_payload, create_account
+from app.service.entities.house_service import HouseService
+from tests.integration.service.factories import create_account
+from .factories import create_house_payload
 from nanoid import generate
 import pytest
 

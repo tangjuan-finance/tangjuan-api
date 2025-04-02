@@ -1,5 +1,6 @@
-from app.service.expense_service import ExpenseService
-from tests.integration.service.factories import create_expense_payload, create_account
+from app.service.entities.expense_service import ExpenseService
+from tests.integration.service.factories import create_account
+from .factories import create_expense_payload
 from nanoid import generate
 import pytest
 

@@ -1,5 +1,7 @@
-from app.service.account_service import AccountService
-from tests.integration.service.factories import create_account_payload, create_account
+from app.service.entities.account_service import AccountService
+from tests.integration.service.factories import create_account
+from .factories import create_account_payload
+
 from nanoid import generate
 import pytest
 from werkzeug.security import generate_password_hash, check_password_hash

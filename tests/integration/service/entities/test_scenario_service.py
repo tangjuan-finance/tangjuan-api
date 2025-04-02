@@ -1,5 +1,6 @@
-from app.service.scenario_service import ScenarioService
-from tests.integration.service.factories import create_scenario_payload, create_account
+from app.service.entities.scenario_service import ScenarioService
+from tests.integration.service.factories import create_account
+from .factories import create_scenario_payload
 from nanoid import generate
 import pytest
 
