@@ -90,9 +90,9 @@ class TestScenarioRepoResourcesCrudCase:
         )
 
         # Assert: Ensure the assoc are config as given
-        assoc_resource = getattr(assoc_from_repo, resource_name)
-        assert assoc_resource == resource
-        assert assoc_from_repo.scenario == new_scenario
+        assoc_resource_id = getattr(assoc_from_repo, f"{resource_name}_id")
+        assert assoc_resource_id == resource.id
+        assert assoc_from_repo.scenario_id == new_scenario.id
 
         for k, v in resource_data.items():
             assoc_attr = getattr(assoc_from_repo, k)
@@ -146,11 +146,12 @@ class TestScenarioRepoResourcesCrudCase:
             resource_id=resource.id,
         )
 
-        # Assert: Assert the assoc from get_resource_by_id is the same as assoc_from_repo
-        assoc_resource_from_repo = getattr(assoc_from_repo, resource_name)
-        assoc_resource_by_id = getattr(assoc_get_by_id, resource_name)
-        assert assoc_resource_from_repo == assoc_resource_by_id
-        assert assoc_get_by_id.scenario.id == assoc_from_repo.scenario.id
+        # Assert: Assert the assoc from get_resource_by_id is with the same compose id of assoc_from_repo
+        assert assoc_get_by_id.scenario_id == assoc_from_repo.scenario_id
+
+        assoc_resource_id_from_repo = getattr(assoc_from_repo, f"{resource_name}_id")
+        assoc_resource_id_by_get = getattr(assoc_get_by_id, f"{resource_name}_id")
+        assert assoc_resource_id_from_repo == assoc_resource_id_by_get
 
     @pytest.mark.parametrize(resource_param["param"], resource_param["payload"])
     def test_retrieve_resource_list_from_scenario_repo(
@@ -178,6 +179,8 @@ class TestScenarioRepoResourcesCrudCase:
         for res in resource_list:
             self._add_resource_to_scenario(res, new_scenario, **resource_data)
 
+        resource_id_list = [res.id for res in resource_list]
+
         # Act: Get resource list
         assoc_list = ScenarioRepo.get_resource_list(
             scenario=new_scenario, resource_type=resource_domain
@@ -185,9 +188,9 @@ class TestScenarioRepoResourcesCrudCase:
 
         # Assert: Assert the assoc list
         for assoc in assoc_list:
-            assert assoc.scenario.id == new_scenario.id
-            assoc_res = getattr(assoc, resource_name)
-            assert assoc_res in resource_list
+            assert assoc.scenario_id == new_scenario.id
+            assoc_res_id = getattr(assoc, f"{resource_name}_id")
+            assert assoc_res_id in resource_id_list
 
         # Assert: Assert the assoc list and its length
         updated_len = len(assoc_list)

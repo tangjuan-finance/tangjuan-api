@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 from decimal import Decimal
 from .base import EntityDomain
+from ..associations import BaseAssociationDomain
+
 
 if TYPE_CHECKING:
     from .account import AccountDomain
@@ -44,7 +46,9 @@ class ScenarioDomain(EntityDomain):
     ):
         return getattr(association, f"{resource_type}_id")
 
-    def get_association_by_resource_id(self, resource_type: str, resource_id: str):
+    def get_association_by_resource_id(
+        self, resource_type: str, resource_id: str
+    ) -> "BaseAssociationDomain":
         """Get the association object from the corresponding collection by its resource id."""
         from app.mapper.resource_mapper import ResourceMapper
 
@@ -59,13 +63,13 @@ class ScenarioDomain(EntityDomain):
             if getattr(assoc, f"{resource_type}_id") == resource_id
         ]
 
+        if not match_associations:
+            return None
+
         if len(match_associations) > 1:
             raise ValueError(
                 f"Duplicate {resource_type.capitalize} Association: {match_associations}"
             )
-
-        if match_associations is None:
-            return None
 
         return match_associations[0]
 
@@ -77,9 +81,6 @@ class ScenarioDomain(EntityDomain):
     ) -> str:
         """Check if given association existed in this scenario"""
 
-        # Check is the scenario of given assoc is the same as this scenario
-        if association.scenario_id != self.id:
-            raise ValueError("Given association is not belong to this scenario")
         assoc_resource_id = self._get_resource_id(
             association=association, resource_type=resource_type
         )
@@ -96,8 +97,23 @@ class ScenarioDomain(EntityDomain):
 
         return f"Association with resource ID {assoc_resource_id} is not in {resource_type} collection"
 
+    def _check_assoc_validity(self, association: "BaseAssociationDomain") -> str:
+        # Check if given associatio is an AssociationDomain
+        if not isinstance(association, BaseAssociationDomain):
+            raise TypeError(f"Given object {association} is not association")
+
+        # Check is the scenario of given assoc is the same as this scenario
+        if association.scenario_id != self.id:
+            raise ValueError("Given association is not belong to this scenario")
+
+        return (
+            "Given association is an AssociationDomain object belong to this scenario"
+        )
+
     def _add_association(self, association):
         """Add the association object to the corresponding collection."""
+        self._check_assoc_validity(association)
+
         from app.mapper.resource_mapper import ResourceMapper
 
         resource_mapper = ResourceMapper.from_assoc(association)
@@ -114,6 +130,8 @@ class ScenarioDomain(EntityDomain):
 
     def _update_association(self, association, **param):
         """Update an existing association in the collection with given parameters."""
+        self._check_assoc_validity(association)
+
         from app.mapper.resource_mapper import ResourceMapper
 
         # Map the association to its resource type (e.g., Expense, Income)
@@ -146,6 +164,8 @@ class ScenarioDomain(EntityDomain):
 
     def _delete_association(self, association):
         """Delete the association object from the corresponding collection"""
+        self._check_assoc_validity(association)
+
         from app.mapper.resource_mapper import ResourceMapper
 
         # Map the association to its resource type (e.g., Expense, Income)
