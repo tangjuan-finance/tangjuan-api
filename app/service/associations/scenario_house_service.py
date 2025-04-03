@@ -1,162 +1,121 @@
 from app.domain.associations import ScenarioHouseDomain
-from app.infrastructure.models import ScenarioHouse, Scenario, House
-from app import db
-import sqlalchemy as sa
-from sqlalchemy.orm.exc import NoResultFound
+from app.repository.associations import ScenarioHouseRepo
+from app.repository.entities import HouseRepo
+from .mixin import BaseAssociationService
 
 
-class ScenarioHouseRepo:
-    @staticmethod
-    def create(assoc: ScenarioHouseDomain) -> ScenarioHouseDomain:
-        """Given an Associaiton Domain Object, store it in the database and return the stored object."""
-        # Check if the association already exists
-        scenario_id = assoc.scenario_id
-        house_id = assoc.house_id
-        existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
+class ScenarioHouseService(BaseAssociationService):
+    @classmethod
+    def create_scenario_house(cls, account_id: str, payload: dict) -> dict:
+        """Create a new scenario house assoc with validated owner."""
+
+        scenario_id, house_id = payload["scenario_id"], payload["house_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_house_ownership(account_id=account_id, house_id=house_id)
+
+        # Create assoc based on payload
+        assoc_domain = ScenarioHouseDomain(**payload)
+        assoc = ScenarioHouseRepo.create(assoc_domain)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc)
+
+    @classmethod
+    def get_scenario_house_by_id(cls, account_id: str, payload: dict) -> dict:
+        """Get the scenario house assoc by id with validated owner."""
+
+        scenario_id, house_id = payload["scenario_id"], payload["house_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_house_ownership(account_id=account_id, house_id=house_id)
+
+        # Get assoc by id
+        assoc_from_repo = ScenarioHouseRepo.get_by_id(
             scenario_id=scenario_id, house_id=house_id
         )
-        if existing_assoc:
+
+        if not assoc_from_repo:
             raise ValueError(
-                f"Scenario House Record with scenario_id {assoc.scenario_id}, house_id {assoc.house_id} already exists!"
+                f"Scenario House Association with scenario ID {scenario_id} and house ID {house_id} not found"
             )
 
-        # Instance with required attr
-        # Optional attr would be None, which is set in Domain Definition
-        assoc_model = ScenarioHouse(
-            scenario_id=scenario_id,
-            house_id=house_id,
-            down_payment=assoc.down_payment,
-            interest_rate=assoc.interest_rate,
-            loan_term=assoc.loan_term,
-            purchase_age=assoc.purchase_age,
-            sale_age=assoc.sale_age,
-            memo=assoc.memo,
-        )
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc_from_repo)
 
-        # Save the House model to the database
-        db.session.add(assoc_model)
-        db.session.commit()
+    @classmethod
+    def get_scenario_houses(cls, account_id: str, payload: dict) -> list[dict]:
+        """Get all scenario house assoc with validated owner."""
 
-        # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(assoc_model)
+        scenario_id = payload["scenario_id"]
 
-    @staticmethod
-    def save(assoc: ScenarioHouseDomain) -> ScenarioHouseDomain:
-        """Given an existing DomainObject, update it in the database and return the updated object."""
-        # Get house_model from database
-        existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.house_id
-        )
-        if not existing_assoc:
-            raise ValueError(
-                f"Scenario House Record with scenario_id {assoc.scenario_id}, house_id {assoc.house_id} not found"
-            )
-        # As existing_assoc is query by scenario_id and house_id, both id of existing_assoc would be the same as assoc
-        existing_assoc.down_payment = assoc.down_payment
-        existing_assoc.interest_rate = assoc.interest_rate
-        existing_assoc.loan_term = assoc.loan_term
-        existing_assoc.purchase_age = assoc.purchase_age
-        existing_assoc.sale_age = assoc.sale_age
-        existing_assoc.memo = assoc.memo
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
 
-        db.session.commit()
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_by_id(scenario_id: str, house_id: str) -> ScenarioHouseDomain | None:
-        """Retrieve an house by ID and return as DomainObject."""
-        # Get house_model from database
-        existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            scenario_id, house_id
-        )
-
-        if not existing_assoc:
-            return None
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioHouseRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_list(scenario_id: str) -> list[ScenarioHouseDomain]:
-        """Retrieve all houses and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(
-            sa.select(ScenarioHouse).where((ScenarioHouse.scenario_id == scenario_id))
-        ).all()
-
+        # Generate the list of dict based on the assocs got from the repo
         return [
-            ScenarioHouseRepo._map_to_domain(
-                assoc,
-            )
-            for assoc in assoc_model_list
+            cls._create_response(assoc=assoc)
+            for assoc in ScenarioHouseRepo.get_list(scenario_id=scenario_id)
         ]
 
-    @staticmethod
-    def delete_by_id(scenario_id: str, house_id: str) -> None:
-        """Given an house ID, remove it from the database."""
-        # Get house_model from database
-        existing_assoc = ScenarioHouseRepo._get_assoc_model_by_cid(
-            scenario_id, house_id
-        )
+    @classmethod
+    def update_scenario_house(cls, account_id: str, payload: dict) -> dict:
+        """Update the scenario house assoc with validated owner."""
 
-        if existing_assoc:
-            db.session.delete(existing_assoc)
-            db.session.commit()
+        # Get the Scenario House Association
+        assoc = cls.get_scenario_house_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        return None
+        # Update the Scenario House Association based on given payload
+        for field in payload.keys():
+            setattr(assoc, field, payload[field])
 
-    @staticmethod
-    def _map_to_domain(assoc_model: ScenarioHouse) -> ScenarioHouseDomain:
-        """Helper method to map the ScenarioHouse model to a ScenarioHouseDomain object."""
-        return ScenarioHouseDomain(
-            scenario_id=assoc_model.scenario_id,
-            house_id=assoc_model.house_id,
-            down_payment=assoc_model.down_payment,
-            interest_rate=assoc_model.interest_rate,
-            loan_term=assoc_model.loan_term,
-            purchase_age=assoc_model.purchase_age,
-            sale_age=assoc_model.sale_age,
-            memo=assoc_model.memo,
-            created_at=assoc_model.created_at,
-            updated_at=assoc_model.updated_at,
-        )
+        # Set the change by repo
+        updated_assoc = ScenarioHouseRepo.save(assoc)
 
-    @staticmethod
-    def _get_assoc_model_by_cid(scenario_id: str, house_id: str) -> ScenarioHouse:
-        # Check if scenario existed
-        ScenarioHouseRepo._check_if_scenario_existed_by_id(scenario_id)
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=updated_assoc)
 
-        # Check if house existed
-        ScenarioHouseRepo._check_if_house_existed_by_id(house_id)
+    @classmethod
+    def delete_scenario_house_by_id(cls, account_id: str, payload: dict) -> str:
+        """Delete the scenario house assoc by ID with validated owner."""
+        # Get the Scenario House Association
+        # Raises if not found or unauthorized
+        cls.get_scenario_house_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        # Get assoc by checked scenario and house id
-        assoc = db.session.scalar(
-            sa.select(ScenarioHouse).where(
-                (ScenarioHouse.scenario_id == scenario_id)
-                & (ScenarioHouse.house_id == house_id)
-            )
-        )
-        return assoc
+        # Get the scenario and house ID
+        scenario_id, house_id = payload["scenario_id"], payload["house_id"]
+
+        # Delete the assoc
+        ScenarioHouseRepo.delete_by_id(scenario_id=scenario_id, house_id=house_id)
+
+        return f"Scenario House with scenario ID {scenario_id} and house ID {house_id} deleted successfully"
 
     @staticmethod
-    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
-        if not isinstance(scenario_id, str):
-            raise TypeError("scenario_id shoud be type str")
-        try:
-            db.session.get_one(Scenario, scenario_id)
-        except NoResultFound:
-            raise ValueError("Scenario not found!")
-
-        return f"Scenario {scenario_id} existed."
+    def _create_response(assoc: ScenarioHouseDomain) -> dict:
+        return {
+            "association": assoc,
+            "house": HouseRepo.get_by_id(house_id=assoc.house_id),
+        }
 
     @staticmethod
-    def _check_if_house_existed_by_id(house_id: str) -> str:
+    def _check_house_ownership(account_id: str, house_id: str) -> str:
         if not isinstance(house_id, str):
-            raise TypeError("house_id shoud be type str")
-        try:
-            db.session.get_one(House, house_id)
-        except NoResultFound:
-            raise ValueError("House not found!")
+            raise TypeError(
+                f"House ID should be type str, not type {type(house_id).__name__}"
+            )
 
-        return f"House {house_id} existed."
+        house_from_repo = HouseRepo.get_by_id(house_id=house_id)
+
+        if not house_from_repo:
+            raise ValueError(f"House with ID {house_id} not found")
+
+        if house_from_repo.owner.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this house")
+
+        return "This account owned this house"

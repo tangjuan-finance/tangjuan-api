@@ -1,162 +1,121 @@
 from app.domain.associations import ScenarioAssetDomain
-from app.infrastructure.models import ScenarioAsset, Scenario, Asset
-from app import db
-import sqlalchemy as sa
-from sqlalchemy.orm.exc import NoResultFound
+from app.repository.associations import ScenarioAssetRepo
+from app.repository.entities import AssetRepo
+from .mixin import BaseAssociationService
 
 
-class ScenarioAssetRepo:
-    @staticmethod
-    def create(assoc: ScenarioAssetDomain) -> ScenarioAssetDomain:
-        """Given an Associaiton Domain Object, store it in the database and return the stored object."""
-        # Check if the association already exists
-        scenario_id = assoc.scenario_id
-        asset_id = assoc.asset_id
-        existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
+class ScenarioAssetService(BaseAssociationService):
+    @classmethod
+    def create_scenario_asset(cls, account_id: str, payload: dict) -> dict:
+        """Create a new scenario asset assoc with validated owner."""
+
+        scenario_id, asset_id = payload["scenario_id"], payload["asset_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_asset_ownership(account_id=account_id, asset_id=asset_id)
+
+        # Create assoc based on payload
+        assoc_domain = ScenarioAssetDomain(**payload)
+        assoc = ScenarioAssetRepo.create(assoc_domain)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc)
+
+    @classmethod
+    def get_scenario_asset_by_id(cls, account_id: str, payload: dict) -> dict:
+        """Get the scenario asset assoc by id with validated owner."""
+
+        scenario_id, asset_id = payload["scenario_id"], payload["asset_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_asset_ownership(account_id=account_id, asset_id=asset_id)
+
+        # Get assoc by id
+        assoc_from_repo = ScenarioAssetRepo.get_by_id(
             scenario_id=scenario_id, asset_id=asset_id
         )
-        if existing_assoc:
+
+        if not assoc_from_repo:
             raise ValueError(
-                f"Scenario Asset Record with scenario_id {assoc.scenario_id}, asset_id {assoc.asset_id} already exists!"
+                f"Scenario Asset Association with scenario ID {scenario_id} and asset ID {asset_id} not found"
             )
 
-        # Instance with required attr
-        # Optional attr would be None, which is set in Domain Definition
-        assoc_model = ScenarioAsset(
-            scenario_id=scenario_id,
-            asset_id=asset_id,
-            max_yearly_return_rate=assoc.max_yearly_return_rate,
-            min_yearly_return_rate=assoc.min_yearly_return_rate,
-            allocation_percentage=assoc.allocation_percentage,
-            start_age=assoc.start_age,
-            end_age=assoc.end_age,
-            memo=assoc.memo,
-        )
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc_from_repo)
 
-        # Save the Asset model to the database
-        db.session.add(assoc_model)
-        db.session.commit()
+    @classmethod
+    def get_scenario_assets(cls, account_id: str, payload: dict) -> list[dict]:
+        """Get all scenario asset assoc with validated owner."""
 
-        # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(assoc_model)
+        scenario_id = payload["scenario_id"]
 
-    @staticmethod
-    def save(assoc: ScenarioAssetDomain) -> ScenarioAssetDomain:
-        """Given an existing DomainObject, update it in the database and return the updated object."""
-        # Get asset_model from database
-        existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.asset_id
-        )
-        if not existing_assoc:
-            raise ValueError(
-                f"Scenario Asset Record with scenario_id {assoc.scenario_id}, asset_id {assoc.asset_id} not found"
-            )
-        # As existing_assoc is query by scenario_id and asset_id, both id of existing_assoc would be the same as assoc
-        existing_assoc.max_yearly_return_rate = assoc.max_yearly_return_rate
-        existing_assoc.min_yearly_return_rate = assoc.min_yearly_return_rate
-        existing_assoc.allocation_percentage = assoc.allocation_percentage
-        existing_assoc.start_age = assoc.start_age
-        existing_assoc.end_age = assoc.end_age
-        existing_assoc.memo = assoc.memo
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
 
-        db.session.commit()
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_by_id(scenario_id: str, asset_id: str) -> ScenarioAssetDomain | None:
-        """Retrieve an asset by ID and return as DomainObject."""
-        # Get asset_model from database
-        existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            scenario_id, asset_id
-        )
-
-        if not existing_assoc:
-            return None
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioAssetRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_list(scenario_id: str) -> list[ScenarioAssetDomain]:
-        """Retrieve all assets and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(
-            sa.select(ScenarioAsset).where((ScenarioAsset.scenario_id == scenario_id))
-        ).all()
-
+        # Generate the list of dict based on the assocs got from the repo
         return [
-            ScenarioAssetRepo._map_to_domain(
-                assoc,
-            )
-            for assoc in assoc_model_list
+            cls._create_response(assoc=assoc)
+            for assoc in ScenarioAssetRepo.get_list(scenario_id=scenario_id)
         ]
 
-    @staticmethod
-    def delete_by_id(scenario_id: str, asset_id: str) -> None:
-        """Given an asset ID, remove it from the database."""
-        # Get asset_model from database
-        existing_assoc = ScenarioAssetRepo._get_assoc_model_by_cid(
-            scenario_id, asset_id
-        )
+    @classmethod
+    def update_scenario_asset(cls, account_id: str, payload: dict) -> dict:
+        """Update the scenario asset assoc with validated owner."""
 
-        if existing_assoc:
-            db.session.delete(existing_assoc)
-            db.session.commit()
+        # Get the Scenario Asset Association
+        assoc = cls.get_scenario_asset_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        return None
+        # Update the Scenario Asset Association based on given payload
+        for field in payload.keys():
+            setattr(assoc, field, payload[field])
 
-    @staticmethod
-    def _map_to_domain(assoc_model: ScenarioAsset) -> ScenarioAssetDomain:
-        """Helper method to map the ScenarioAsset model to a ScenarioAssetDomain object."""
-        return ScenarioAssetDomain(
-            scenario_id=assoc_model.scenario_id,
-            asset_id=assoc_model.asset_id,
-            max_yearly_return_rate=assoc_model.max_yearly_return_rate,
-            min_yearly_return_rate=assoc_model.min_yearly_return_rate,
-            allocation_percentage=assoc_model.allocation_percentage,
-            start_age=assoc_model.start_age,
-            end_age=assoc_model.end_age,
-            memo=assoc_model.memo,
-            created_at=assoc_model.created_at,
-            updated_at=assoc_model.updated_at,
-        )
+        # Set the change by repo
+        updated_assoc = ScenarioAssetRepo.save(assoc)
 
-    @staticmethod
-    def _get_assoc_model_by_cid(scenario_id: str, asset_id: str) -> ScenarioAsset:
-        # Check if scenario existed
-        ScenarioAssetRepo._check_if_scenario_existed_by_id(scenario_id)
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=updated_assoc)
 
-        # Check if asset existed
-        ScenarioAssetRepo._check_if_asset_existed_by_id(asset_id)
+    @classmethod
+    def delete_scenario_asset_by_id(cls, account_id: str, payload: dict) -> str:
+        """Delete the scenario asset assoc by ID with validated owner."""
+        # Get the Scenario Asset Association
+        # Raises if not found or unauthorized
+        cls.get_scenario_asset_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        # Get assoc by checked scenario and asset id
-        assoc = db.session.scalar(
-            sa.select(ScenarioAsset).where(
-                (ScenarioAsset.scenario_id == scenario_id)
-                & (ScenarioAsset.asset_id == asset_id)
-            )
-        )
-        return assoc
+        # Get the scenario and asset ID
+        scenario_id, asset_id = payload["scenario_id"], payload["asset_id"]
+
+        # Delete the assoc
+        ScenarioAssetRepo.delete_by_id(scenario_id=scenario_id, asset_id=asset_id)
+
+        return f"Scenario Asset with scenario ID {scenario_id} and asset ID {asset_id} deleted successfully"
 
     @staticmethod
-    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
-        if not isinstance(scenario_id, str):
-            raise TypeError("scenario_id shoud be type str")
-        try:
-            db.session.get_one(Scenario, scenario_id)
-        except NoResultFound:
-            raise ValueError("Scenario not found!")
-
-        return f"Scenario {scenario_id} existed."
+    def _create_response(assoc: ScenarioAssetDomain) -> dict:
+        return {
+            "association": assoc,
+            "asset": AssetRepo.get_by_id(asset_id=assoc.asset_id),
+        }
 
     @staticmethod
-    def _check_if_asset_existed_by_id(asset_id: str) -> str:
+    def _check_asset_ownership(account_id: str, asset_id: str) -> str:
         if not isinstance(asset_id, str):
-            raise TypeError("asset_id shoud be type str")
-        try:
-            db.session.get_one(Asset, asset_id)
-        except NoResultFound:
-            raise ValueError("Asset not found!")
+            raise TypeError(
+                f"Asset ID should be type str, not type {type(asset_id).__name__}"
+            )
 
-        return f"Asset {asset_id} existed."
+        asset_from_repo = AssetRepo.get_by_id(asset_id=asset_id)
+
+        if not asset_from_repo:
+            raise ValueError(f"Asset with ID {asset_id} not found")
+
+        if asset_from_repo.owner.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this asset")
+
+        return "This account owned this asset"

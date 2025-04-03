@@ -6,6 +6,11 @@ class BaseAssociationService:
 
     @staticmethod
     def _check_scenario_ownership(account_id: str, scenario_id: str) -> str:
+        if not isinstance(scenario_id, str):
+            raise TypeError(
+                f"Scenario ID should be type str, not type {type(scenario_id).__name__}"
+            )
+
         scenario_from_repo = ScenarioRepo.get_by_id(scenario_id=scenario_id)
 
         if not scenario_from_repo:

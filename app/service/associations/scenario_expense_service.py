@@ -105,10 +105,15 @@ class ScenarioExpenseService(BaseAssociationService):
 
     @staticmethod
     def _check_expense_ownership(account_id: str, expense_id: str) -> str:
+        if not isinstance(expense_id, str):
+            raise TypeError(
+                f"Expense ID should be type str, not type {type(expense_id).__name__}"
+            )
+
         expense_from_repo = ExpenseRepo.get_by_id(expense_id=expense_id)
 
         if not expense_from_repo:
-            raise ValueError(f"Scenario with ID {expense_id} not found")
+            raise ValueError(f"Expense with ID {expense_id} not found")
 
         if expense_from_repo.owner.id != account_id:
             raise PermissionError(f"Account {account_id} does not own this expense")

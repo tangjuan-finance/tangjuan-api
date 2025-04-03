@@ -1,159 +1,121 @@
 from app.domain.associations import ScenarioIncomeDomain
-from app.infrastructure.models import ScenarioIncome, Scenario, Income
-from app import db
-import sqlalchemy as sa
-from sqlalchemy.orm.exc import NoResultFound
+from app.repository.associations import ScenarioIncomeRepo
+from app.repository.entities import IncomeRepo
+from .mixin import BaseAssociationService
 
 
-class ScenarioIncomeRepo:
-    @staticmethod
-    def create(assoc: ScenarioIncomeDomain) -> ScenarioIncomeDomain:
-        """Given an Associaiton Domain Object, store it in the database and return the stored object."""
-        # Check if the association already exists
-        scenario_id = assoc.scenario_id
-        income_id = assoc.income_id
-        existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
+class ScenarioIncomeService(BaseAssociationService):
+    @classmethod
+    def create_scenario_income(cls, account_id: str, payload: dict) -> dict:
+        """Create a new scenario income assoc with validated owner."""
+
+        scenario_id, income_id = payload["scenario_id"], payload["income_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_income_ownership(account_id=account_id, income_id=income_id)
+
+        # Create assoc based on payload
+        assoc_domain = ScenarioIncomeDomain(**payload)
+        assoc = ScenarioIncomeRepo.create(assoc_domain)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc)
+
+    @classmethod
+    def get_scenario_income_by_id(cls, account_id: str, payload: dict) -> dict:
+        """Get the scenario income assoc by id with validated owner."""
+
+        scenario_id, income_id = payload["scenario_id"], payload["income_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_income_ownership(account_id=account_id, income_id=income_id)
+
+        # Get assoc by id
+        assoc_from_repo = ScenarioIncomeRepo.get_by_id(
             scenario_id=scenario_id, income_id=income_id
         )
-        if existing_assoc:
+
+        if not assoc_from_repo:
             raise ValueError(
-                f"Scenario Income Record with scenario_id {assoc.scenario_id}, income_id {assoc.income_id} already exists!"
+                f"Scenario Income Association with scenario ID {scenario_id} and income ID {income_id} not found"
             )
 
-        # Instance with required attr
-        # Optional attr would be None, which is set in Domain Definition
-        assoc_model = ScenarioIncome(
-            scenario_id=scenario_id,
-            income_id=income_id,
-            max_yearly_growth_rate=assoc.max_yearly_growth_rate,
-            min_yearly_growth_rate=assoc.min_yearly_growth_rate,
-            start_age=assoc.start_age,
-            end_age=assoc.end_age,
-            memo=assoc.memo,
-        )
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc_from_repo)
 
-        # Save the Income model to the database
-        db.session.add(assoc_model)
-        db.session.commit()
+    @classmethod
+    def get_scenario_incomes(cls, account_id: str, payload: dict) -> list[dict]:
+        """Get all scenario income assoc with validated owner."""
 
-        # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(assoc_model)
+        scenario_id = payload["scenario_id"]
 
-    @staticmethod
-    def save(assoc: ScenarioIncomeDomain) -> ScenarioIncomeDomain:
-        """Given an existing DomainObject, update it in the database and return the updated object."""
-        # Get income_model from database
-        existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.income_id
-        )
-        if not existing_assoc:
-            raise ValueError(
-                f"Scenario Income Record with scenario_id {assoc.scenario_id}, income_id {assoc.income_id} not found"
-            )
-        # As existing_assoc is query by scenario_id and income_id, both id of existing_assoc would be the same as assoc
-        existing_assoc.max_yearly_growth_rate = assoc.max_yearly_growth_rate
-        existing_assoc.min_yearly_growth_rate = assoc.min_yearly_growth_rate
-        existing_assoc.start_age = assoc.start_age
-        existing_assoc.end_age = assoc.end_age
-        existing_assoc.memo = assoc.memo
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
 
-        db.session.commit()
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_by_id(scenario_id: str, income_id: str) -> ScenarioIncomeDomain | None:
-        """Retrieve an income by ID and return as DomainObject."""
-        # Get income_model from database
-        existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            scenario_id, income_id
-        )
-
-        if not existing_assoc:
-            return None
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioIncomeRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_list(scenario_id: str) -> list[ScenarioIncomeDomain]:
-        """Retrieve all incomes and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(
-            sa.select(ScenarioIncome).where((ScenarioIncome.scenario_id == scenario_id))
-        ).all()
-
+        # Generate the list of dict based on the assocs got from the repo
         return [
-            ScenarioIncomeRepo._map_to_domain(
-                assoc,
-            )
-            for assoc in assoc_model_list
+            cls._create_response(assoc=assoc)
+            for assoc in ScenarioIncomeRepo.get_list(scenario_id=scenario_id)
         ]
 
-    @staticmethod
-    def delete_by_id(scenario_id: str, income_id: str) -> None:
-        """Given an income ID, remove it from the database."""
-        # Get income_model from database
-        existing_assoc = ScenarioIncomeRepo._get_assoc_model_by_cid(
-            scenario_id, income_id
-        )
+    @classmethod
+    def update_scenario_income(cls, account_id: str, payload: dict) -> dict:
+        """Update the scenario income assoc with validated owner."""
 
-        if existing_assoc:
-            db.session.delete(existing_assoc)
-            db.session.commit()
+        # Get the Scenario Income Association
+        assoc = cls.get_scenario_income_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        return None
+        # Update the Scenario Income Association based on given payload
+        for field in payload.keys():
+            setattr(assoc, field, payload[field])
 
-    @staticmethod
-    def _map_to_domain(assoc_model: ScenarioIncome) -> ScenarioIncomeDomain:
-        """Helper method to map the ScenarioIncome model to a ScenarioIncomeDomain object."""
-        return ScenarioIncomeDomain(
-            scenario_id=assoc_model.scenario_id,
-            income_id=assoc_model.income_id,
-            max_yearly_growth_rate=assoc_model.max_yearly_growth_rate,
-            min_yearly_growth_rate=assoc_model.min_yearly_growth_rate,
-            start_age=assoc_model.start_age,
-            end_age=assoc_model.end_age,
-            memo=assoc_model.memo,
-            created_at=assoc_model.created_at,
-            updated_at=assoc_model.updated_at,
-        )
+        # Set the change by repo
+        updated_assoc = ScenarioIncomeRepo.save(assoc)
 
-    @staticmethod
-    def _get_assoc_model_by_cid(scenario_id: str, income_id: str) -> ScenarioIncome:
-        # Check if scenario existed
-        ScenarioIncomeRepo._check_if_scenario_existed_by_id(scenario_id)
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=updated_assoc)
 
-        # Check if income existed
-        ScenarioIncomeRepo._check_if_income_existed_by_id(income_id)
+    @classmethod
+    def delete_scenario_income_by_id(cls, account_id: str, payload: dict) -> str:
+        """Delete the scenario income assoc by ID with validated owner."""
+        # Get the Scenario Income Association
+        # Raises if not found or unauthorized
+        cls.get_scenario_income_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        # Get assoc by checked scenario and income id
-        assoc = db.session.scalar(
-            sa.select(ScenarioIncome).where(
-                (ScenarioIncome.scenario_id == scenario_id)
-                & (ScenarioIncome.income_id == income_id)
-            )
-        )
-        return assoc
+        # Get the scenario and income ID
+        scenario_id, income_id = payload["scenario_id"], payload["income_id"]
+
+        # Delete the assoc
+        ScenarioIncomeRepo.delete_by_id(scenario_id=scenario_id, income_id=income_id)
+
+        return f"Scenario Income with scenario ID {scenario_id} and income ID {income_id} deleted successfully"
 
     @staticmethod
-    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
-        if not isinstance(scenario_id, str):
-            raise TypeError("scenario_id shoud be type str")
-        try:
-            db.session.get_one(Scenario, scenario_id)
-        except NoResultFound:
-            raise ValueError("Scenario not found!")
-
-        return f"Scenario {scenario_id} existed."
+    def _create_response(assoc: ScenarioIncomeDomain) -> dict:
+        return {
+            "association": assoc,
+            "income": IncomeRepo.get_by_id(income_id=assoc.income_id),
+        }
 
     @staticmethod
-    def _check_if_income_existed_by_id(income_id: str) -> str:
+    def _check_income_ownership(account_id: str, income_id: str) -> str:
         if not isinstance(income_id, str):
-            raise TypeError("income_id shoud be type str")
-        try:
-            db.session.get_one(Income, income_id)
-        except NoResultFound:
-            raise ValueError("Income not found!")
+            raise TypeError(
+                f"Income ID should be type str, not type {type(income_id).__name__}"
+            )
 
-        return f"Income {income_id} existed."
+        income_from_repo = IncomeRepo.get_by_id(income_id=income_id)
+
+        if not income_from_repo:
+            raise ValueError(f"Income with ID {income_id} not found")
+
+        if income_from_repo.owner.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this income")
+
+        return "This account owned this income"

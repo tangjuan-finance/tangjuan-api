@@ -1,153 +1,121 @@
 from app.domain.associations import ScenarioChildDomain
-from app.infrastructure.models import ScenarioChild, Scenario, Child
-from app import db
-import sqlalchemy as sa
-from sqlalchemy.orm.exc import NoResultFound
+from app.repository.associations import ScenarioChildRepo
+from app.repository.entities import ChildRepo
+from .mixin import BaseAssociationService
 
 
-class ScenarioChildRepo:
-    @staticmethod
-    def create(assoc: ScenarioChildDomain) -> ScenarioChildDomain:
-        """Given an Associaiton Domain Object, store it in the database and return the stored object."""
-        # Check if the association already exists
-        scenario_id = assoc.scenario_id
-        child_id = assoc.child_id
-        existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
+class ScenarioChildService(BaseAssociationService):
+    @classmethod
+    def create_scenario_child(cls, account_id: str, payload: dict) -> dict:
+        """Create a new scenario child assoc with validated parent."""
+
+        scenario_id, child_id = payload["scenario_id"], payload["child_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_child_parentship(account_id=account_id, child_id=child_id)
+
+        # Create assoc based on payload
+        assoc_domain = ScenarioChildDomain(**payload)
+        assoc = ScenarioChildRepo.create(assoc_domain)
+
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc)
+
+    @classmethod
+    def get_scenario_child_by_id(cls, account_id: str, payload: dict) -> dict:
+        """Get the scenario child assoc by id with validated parent."""
+
+        scenario_id, child_id = payload["scenario_id"], payload["child_id"]
+
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+        cls._check_child_parentship(account_id=account_id, child_id=child_id)
+
+        # Get assoc by id
+        assoc_from_repo = ScenarioChildRepo.get_by_id(
             scenario_id=scenario_id, child_id=child_id
         )
-        if existing_assoc:
+
+        if not assoc_from_repo:
             raise ValueError(
-                f"Scenario Child Record with scenario_id {assoc.scenario_id}, child_id {assoc.child_id} already exists!"
+                f"Scenario Child Association with scenario ID {scenario_id} and child ID {child_id} not found"
             )
 
-        # Instance with required attr
-        # Optional attr would be None, which is set in Domain Definition
-        assoc_model = ScenarioChild(
-            scenario_id=scenario_id,
-            child_id=child_id,
-            birth_age=assoc.birth_age,
-            independent_age=assoc.independent_age,
-            memo=assoc.memo,
-        )
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=assoc_from_repo)
 
-        # Save the Child model to the database
-        db.session.add(assoc_model)
-        db.session.commit()
+    @classmethod
+    def get_scenario_children(cls, account_id: str, payload: dict) -> list[dict]:
+        """Get all scenario child assoc with validated parent."""
 
-        # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(assoc_model)
+        scenario_id = payload["scenario_id"]
 
-    @staticmethod
-    def save(assoc: ScenarioChildDomain) -> ScenarioChildDomain:
-        """Given an existing DomainObject, update it in the database and return the updated object."""
-        # Get child_model from database
-        existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            assoc.scenario_id, assoc.child_id
-        )
-        if not existing_assoc:
-            raise ValueError(
-                f"Scenario Child Record with scenario_id {assoc.scenario_id}, child_id {assoc.child_id} not found"
-            )
-        # As existing_assoc is query by scenario_id and child_id, both id of existing_assoc would be the same as assoc
-        existing_assoc.birth_age = assoc.birth_age
-        existing_assoc.independent_age = assoc.independent_age
-        existing_assoc.memo = assoc.memo
+        # Check if the account own both resources
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
 
-        db.session.commit()
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_by_id(scenario_id: str, child_id: str) -> ScenarioChildDomain | None:
-        """Retrieve an child by ID and return as DomainObject."""
-        # Get child_model from database
-        existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            scenario_id, child_id
-        )
-
-        if not existing_assoc:
-            return None
-
-        # Return the domain object with attributes populated from the database
-        return ScenarioChildRepo._map_to_domain(existing_assoc)
-
-    @staticmethod
-    def get_list(scenario_id: str) -> list[ScenarioChildDomain]:
-        """Retrieve all children and return as a list of DomainObjects."""
-        assoc_model_list = db.session.scalars(
-            sa.select(ScenarioChild).where((ScenarioChild.scenario_id == scenario_id))
-        ).all()
-
+        # Generate the list of dict based on the assocs got from the repo
         return [
-            ScenarioChildRepo._map_to_domain(
-                assoc,
-            )
-            for assoc in assoc_model_list
+            cls._create_response(assoc=assoc)
+            for assoc in ScenarioChildRepo.get_list(scenario_id=scenario_id)
         ]
 
-    @staticmethod
-    def delete_by_id(scenario_id: str, child_id: str) -> None:
-        """Given an child ID, remove it from the database."""
-        # Get child_model from database
-        existing_assoc = ScenarioChildRepo._get_assoc_model_by_cid(
-            scenario_id, child_id
-        )
+    @classmethod
+    def update_scenario_child(cls, account_id: str, payload: dict) -> dict:
+        """Update the scenario child assoc with validated parent."""
 
-        if existing_assoc:
-            db.session.delete(existing_assoc)
-            db.session.commit()
+        # Get the Scenario Child Association
+        assoc = cls.get_scenario_child_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        return None
+        # Update the Scenario Child Association based on given payload
+        for field in payload.keys():
+            setattr(assoc, field, payload[field])
 
-    @staticmethod
-    def _map_to_domain(assoc_model: ScenarioChild) -> ScenarioChildDomain:
-        """Helper method to map the ScenarioChild model to a ScenarioChildDomain object."""
-        return ScenarioChildDomain(
-            scenario_id=assoc_model.scenario_id,
-            child_id=assoc_model.child_id,
-            birth_age=assoc_model.birth_age,
-            independent_age=assoc_model.independent_age,
-            memo=assoc_model.memo,
-            created_at=assoc_model.created_at,
-            updated_at=assoc_model.updated_at,
-        )
+        # Set the change by repo
+        updated_assoc = ScenarioChildRepo.save(assoc)
 
-    @staticmethod
-    def _get_assoc_model_by_cid(scenario_id: str, child_id: str) -> ScenarioChild:
-        # Check if scenario existed
-        ScenarioChildRepo._check_if_scenario_existed_by_id(scenario_id)
+        # Generate the response dict with the assoc
+        return cls._create_response(assoc=updated_assoc)
 
-        # Check if child existed
-        ScenarioChildRepo._check_if_child_existed_by_id(child_id)
+    @classmethod
+    def delete_scenario_child_by_id(cls, account_id: str, payload: dict) -> str:
+        """Delete the scenario child assoc by ID with validated parent."""
+        # Get the Scenario Child Association
+        # Raises if not found or unauthorized
+        cls.get_scenario_child_by_id(account_id=account_id, payload=payload)[
+            "association"
+        ]
 
-        # Get assoc by checked scenario and child id
-        assoc = db.session.scalar(
-            sa.select(ScenarioChild).where(
-                (ScenarioChild.scenario_id == scenario_id)
-                & (ScenarioChild.child_id == child_id)
-            )
-        )
-        return assoc
+        # Get the scenario and child ID
+        scenario_id, child_id = payload["scenario_id"], payload["child_id"]
+
+        # Delete the assoc
+        ScenarioChildRepo.delete_by_id(scenario_id=scenario_id, child_id=child_id)
+
+        return f"Scenario Child with scenario ID {scenario_id} and child ID {child_id} deleted successfully"
 
     @staticmethod
-    def _check_if_scenario_existed_by_id(scenario_id: str) -> str:
-        if not isinstance(scenario_id, str):
-            raise TypeError("scenario_id shoud be type str")
-        try:
-            db.session.get_one(Scenario, scenario_id)
-        except NoResultFound:
-            raise ValueError("Scenario not found!")
-
-        return f"Scenario {scenario_id} existed."
+    def _create_response(assoc: ScenarioChildDomain) -> dict:
+        return {
+            "association": assoc,
+            "child": ChildRepo.get_by_id(child_id=assoc.child_id),
+        }
 
     @staticmethod
-    def _check_if_child_existed_by_id(child_id: str) -> str:
+    def _check_child_parentship(account_id: str, child_id: str) -> str:
         if not isinstance(child_id, str):
-            raise TypeError("child_id shoud be type str")
-        try:
-            db.session.get_one(Child, child_id)
-        except NoResultFound:
-            raise ValueError("Child not found!")
+            raise TypeError(
+                f"Child ID should be type str, not type {type(child_id).__name__}"
+            )
 
-        return f"Child {child_id} existed."
+        child_from_repo = ChildRepo.get_by_id(child_id=child_id)
+
+        if not child_from_repo:
+            raise ValueError(f"Child with ID {child_id} not found")
+
+        if child_from_repo.parent.id != account_id:
+            raise PermissionError(f"Account {account_id} does not own this child")
+
+        return "This account owned this child"
