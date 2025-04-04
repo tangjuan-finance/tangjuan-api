@@ -83,11 +83,12 @@ class AssetDomainFactory(ResourceDomainFactory, factory.Factory):
 
     name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=10000, max=1000000)
-    max_yearly_return_rate = factory.Faker(
-        "pydecimal", left_digits=1, right_digits=2, min_value=0.06, max_value=1.0
-    )
     min_yearly_return_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-1.0, max_value=0.05
+    )
+    max_yearly_return_rate = factory.LazyAttribute(
+        lambda o: o.min_yearly_return_rate
+        + fake.pydecimal(left_digits=1, right_digits=2, min_value=0, max_value=0.1)
     )
     start_age = factory.Faker("random_int", min=20, max=65)
     end_age = factory.LazyAttribute(
@@ -104,11 +105,12 @@ class ExpenseDomainFactory(ResourceDomainFactory, factory.Factory):
 
     name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=1000, max=100000)
-    max_yearly_growth_rate = factory.Faker(
-        "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
-    )
     min_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-0.5, max_value=0
+    )
+    max_yearly_growth_rate = factory.LazyAttribute(
+        lambda o: o.min_yearly_growth_rate
+        + fake.pydecimal(left_digits=1, right_digits=2, min_value=0, max_value=0.5)
     )
     start_age = factory.Faker("random_int", min=20, max=65)
     end_age = factory.LazyAttribute(
@@ -145,11 +147,12 @@ class IncomeDomainFactory(ResourceDomainFactory, factory.Factory):
 
     name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=20000, max=200000)
-    max_yearly_growth_rate = factory.Faker(
-        "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.5
-    )
     min_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-0.5, max_value=0
+    )
+    max_yearly_growth_rate = factory.LazyAttribute(
+        lambda o: o.min_yearly_growth_rate
+        + fake.pydecimal(left_digits=1, right_digits=2, min_value=0, max_value=0.5)
     )
     start_age = factory.Faker("random_int", min=20, max=65)
     end_age = factory.LazyAttribute(
@@ -183,15 +186,15 @@ class RiskDomainFactory(ResourceDomainFactory, factory.Factory):
         model = RiskDomain
 
     name = factory.Faker("text", max_nb_chars=20)
-    max_loss = factory.Faker("random_int", min=10000, max=500000)
     min_loss = factory.Faker("random_int", min=5000, max=10000)
+    max_loss = factory.LazyAttribute(
+        lambda o: o.min_loss + fake.random_int(min=0, max=500000)
+    )
     start_age = factory.Faker("random_int", min=20, max=65)
     end_age = factory.LazyAttribute(
         lambda o: o.start_age + fake.random_int(min=0, max=30)
     )
     owner = factory.SubFactory(AccountDomainFactory)
-
-    # Optional attr
 
 
 class ScenarioDomainFactory(ResourceDomainFactory, factory.Factory):
