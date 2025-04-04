@@ -28,7 +28,7 @@ class TimestampMixin:
 
 class BaseAgeIntervalMixin:
     start_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-    end_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
+    end_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
 
 class BaseAgeIntervalOptionalMixin:

@@ -1,4 +1,3 @@
-from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
@@ -11,7 +10,7 @@ from app.infrastructure.models import (
 
 class Child(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     birth_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-    independent_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
+    independent_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
     parent_id: so.Mapped[int] = so.mapped_column(

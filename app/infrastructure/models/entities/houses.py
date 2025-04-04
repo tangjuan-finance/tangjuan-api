@@ -1,4 +1,3 @@
-from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
@@ -18,7 +17,7 @@ class House(
     interest_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
     loan_term: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
     purchase_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-    sale_age: so.Mapped[Optional[int]] = so.mapped_column(sa.SmallInteger)
+    sale_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(
