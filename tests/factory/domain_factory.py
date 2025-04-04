@@ -27,6 +27,20 @@ class IdDomainFactory(factory.Factory):
     id = factory.LazyFunction(lambda: generate(size=13))
 
 
+class ResourceDomainFactory(IdDomainFactory, factory.Factory):
+    """Abstract Factory to add an optional decription field."""
+
+    class Meta:
+        abstract = True  # This prevents instantiation without a model
+
+    description = factory.LazyAttribute(
+        lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
+    )
+
+    class Params:
+        optional = False
+
+
 class AccountDomainFactory(IdDomainFactory, factory.Factory):
     """Factory for AccountDomain"""
 
@@ -47,7 +61,7 @@ class AccountDomainFactory(IdDomainFactory, factory.Factory):
         return last_seen
 
 
-class ChildDomainFactory(IdDomainFactory, factory.Factory):
+class ChildDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for ChildDomain"""
 
     class Meta:
@@ -55,11 +69,15 @@ class ChildDomainFactory(IdDomainFactory, factory.Factory):
 
     name = factory.Faker("text", max_nb_chars=20)
     birth_age = factory.Faker("random_int", min=20, max=50)
-    independent_age = factory.LazyAttribute(lambda o: o.birth_age + 20)
     parent = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    independent_age = factory.LazyAttribute(
+        lambda o: o.birth_age + fake.random_int(min=20, max=30) if o.optional else None
+    )
 
-class AssetDomainFactory(IdDomainFactory, factory.Factory):
+
+class AssetDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for AssetDomain"""
 
     class Meta:
@@ -76,8 +94,13 @@ class AssetDomainFactory(IdDomainFactory, factory.Factory):
     start_age = factory.Faker("random_int", min=20, max=65)
     owner = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=30) if o.optional else None
+    )
 
-class ExpenseDomainFactory(IdDomainFactory, factory.Factory):
+
+class ExpenseDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for ExpenseDomain"""
 
     class Meta:
@@ -94,8 +117,13 @@ class ExpenseDomainFactory(IdDomainFactory, factory.Factory):
     start_age = factory.Faker("random_int", min=20, max=65)
     owner = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=30) if o.optional else None
+    )
 
-class HouseDomainFactory(IdDomainFactory, factory.Factory):
+
+class HouseDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for HouseDomain"""
 
     class Meta:
@@ -111,8 +139,15 @@ class HouseDomainFactory(IdDomainFactory, factory.Factory):
     purchase_age = factory.Faker("random_int", min=20, max=65)
     owner = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    sale_age = factory.LazyAttribute(
+        lambda o: o.purchase_age + fake.random_int(min=0, max=30)
+        if o.optional
+        else None
+    )
 
-class IncomeDomainFactory(IdDomainFactory, factory.Factory):
+
+class IncomeDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for IncomeDomain"""
 
     class Meta:
@@ -129,8 +164,13 @@ class IncomeDomainFactory(IdDomainFactory, factory.Factory):
     start_age = factory.Faker("random_int", min=20, max=65)
     owner = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=30) if o.optional else None
+    )
 
-class LiabilityDomainFactory(IdDomainFactory, factory.Factory):
+
+class LiabilityDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for LiabilityDomain"""
 
     class Meta:
@@ -142,11 +182,13 @@ class LiabilityDomainFactory(IdDomainFactory, factory.Factory):
         "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.2
     )
     start_age = factory.Faker("random_int", min=20, max=65)
-    end_age = factory.LazyAttribute(lambda o: o.start_age + 10)
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=30)
+    )
     owner = factory.SubFactory(AccountDomainFactory)
 
 
-class RiskDomainFactory(IdDomainFactory, factory.Factory):
+class RiskDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for RiskDomain"""
 
     class Meta:
@@ -158,8 +200,13 @@ class RiskDomainFactory(IdDomainFactory, factory.Factory):
     start_age = factory.Faker("random_int", min=20, max=65)
     owner = factory.SubFactory(AccountDomainFactory)
 
+    # Optional attr
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=30) if o.optional else None
+    )
 
-class ScenarioDomainFactory(IdDomainFactory, factory.Factory):
+
+class ScenarioDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for ScenarioDomain"""
 
     class Meta:
