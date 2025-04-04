@@ -11,8 +11,8 @@ class TestRandomRateStrategyCase:
             asset.amount,
             asset.start_age,
             asset.end_age,
-            asset.min_rate,
-            asset.max_rate,
+            asset.min_yearly_return_rate,
+            asset.max_yearly_return_rate,
         )
         result = RandomRateStrategy.apply(
             value=value,

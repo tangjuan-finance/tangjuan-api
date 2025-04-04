@@ -22,6 +22,7 @@ class TestRiskRepoCase:
         assert risk_from_repo.max_loss == risk_from_db.max_loss
         assert risk_from_repo.min_loss == risk_from_db.min_loss
         assert risk_from_repo.start_age == risk_from_db.start_age
+        assert risk_from_repo.end_age == risk_from_db.end_age
         assert risk_from_repo.owner.id == risk_from_db.owner.id
         assert risk_from_repo.created_at == risk_from_db.created_at
         assert risk_from_repo.updated_at == risk_from_db.updated_at

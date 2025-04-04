@@ -3,20 +3,13 @@ from tests.factory import RiskDomainFactory
 
 
 class TestRiskDomainCase:
-    def test_create_risk_domain(self, default_risk_domain, default_account_domain):
-        # Assert
-        assert default_risk_domain.name == "Default Risk Domain"
-        assert default_risk_domain.max_loss == 100000
-        assert default_risk_domain.min_loss == 50000
-        assert default_risk_domain.start_age == 20
-        assert default_risk_domain.owner == default_account_domain
-
     def test_factory_risk_domain(self):
         # Arrange
         name = "Default Risk Domain"
         max_loss = 100000
         min_loss = 50000
         start_age = 20
+        end_age = 30
 
         # Act
         risk = RiskDomainFactory(
@@ -24,6 +17,7 @@ class TestRiskDomainCase:
             max_loss=max_loss,
             min_loss=min_loss,
             start_age=start_age,
+            end_age=end_age,
         )
 
         # Assert

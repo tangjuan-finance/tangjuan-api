@@ -24,6 +24,7 @@ class TestHouseRepoCase:
         assert house_from_repo.interest_rate == house_from_db.interest_rate
         assert house_from_repo.loan_term == house_from_db.loan_term
         assert house_from_repo.purchase_age == house_from_db.purchase_age
+        assert house_from_repo.sale_age == house_from_db.sale_age
         assert house_from_repo.owner.id == house_from_db.owner.id
         assert house_from_repo.created_at == house_from_db.created_at
         assert house_from_repo.updated_at == house_from_db.updated_at

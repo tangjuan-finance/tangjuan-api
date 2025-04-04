@@ -29,6 +29,7 @@ class TestIncomeRepoCase:
             == income_from_db.min_yearly_growth_rate
         )
         assert income_from_repo.start_age == income_from_db.start_age
+        assert income_from_repo.end_age == income_from_db.end_age
         assert income_from_repo.owner.id == income_from_db.owner.id
         assert income_from_repo.created_at == income_from_db.created_at
         assert income_from_repo.updated_at == income_from_db.updated_at

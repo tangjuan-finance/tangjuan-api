@@ -4,17 +4,6 @@ from tests.factory import LiabilityDomainFactory
 
 
 class TestLiabilityDomainCase:
-    def test_create_liability_domain(
-        self, default_liability_domain, default_account_domain
-    ):
-        # Assert
-        assert default_liability_domain.name == "Default Liability Domain"
-        assert default_liability_domain.principal_amount == 50000
-        assert default_liability_domain.interest_rate == Decimal("0.5")
-        assert default_liability_domain.start_age == 20
-        assert default_liability_domain.end_age == 50
-        assert default_liability_domain.owner == default_account_domain
-
     def test_factory_liability_domain(self):
         # Arrange
         name = "Default Liability Domain"

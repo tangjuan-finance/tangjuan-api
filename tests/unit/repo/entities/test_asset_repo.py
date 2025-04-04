@@ -29,6 +29,7 @@ class TestAssetRepoCase:
             == asset_from_db.min_yearly_return_rate
         )
         assert asset_from_repo.start_age == asset_from_db.start_age
+        assert asset_from_repo.end_age == asset_from_db.end_age
         assert asset_from_repo.owner.id == asset_from_db.owner.id
         assert asset_from_repo.created_at == asset_from_db.created_at
         assert asset_from_repo.updated_at == asset_from_db.updated_at

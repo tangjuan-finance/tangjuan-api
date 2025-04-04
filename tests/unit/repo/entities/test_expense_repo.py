@@ -29,6 +29,7 @@ class TestExpenseRepoCase:
             == expense_from_db.min_yearly_growth_rate
         )
         assert expense_from_repo.start_age == expense_from_db.start_age
+        assert expense_from_repo.end_age == expense_from_db.end_age
         assert expense_from_repo.owner.id == expense_from_db.owner.id
         assert expense_from_repo.created_at == expense_from_db.created_at
         assert expense_from_repo.updated_at == expense_from_db.updated_at

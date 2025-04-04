@@ -63,12 +63,14 @@ def default_risk(default_account_domain):
     max_loss = 100000
     min_loss = 50000
     start_age = 20
+    end_age = 30
 
     risk = create_entity(
         Risk,
         owner=default_account_domain,
         name=name,
         start_age=start_age,
+        end_age=end_age,
         max_loss=max_loss,
         min_loss=min_loss,
     )
@@ -102,6 +104,7 @@ def default_income(default_account_domain):
     max_yearly_growth_rate = 0.5
     min_yearly_growth_rate = -0.5
     start_age = 20
+    end_age = 65
 
     income = create_entity(
         Income,
@@ -111,6 +114,7 @@ def default_income(default_account_domain):
         max_yearly_growth_rate=max_yearly_growth_rate,
         min_yearly_growth_rate=min_yearly_growth_rate,
         start_age=start_age,
+        end_age=end_age,
     )
     yield income
 
@@ -123,6 +127,7 @@ def default_house(default_account_domain):
     interest_rate = 3.0
     loan_term = 40
     purchase_age = 20
+    sale_age = 40
 
     house = create_entity(
         House,
@@ -133,6 +138,7 @@ def default_house(default_account_domain):
         interest_rate=interest_rate,
         loan_term=loan_term,
         purchase_age=purchase_age,
+        sale_age=sale_age,
     )
     yield house
 
@@ -144,6 +150,7 @@ def default_expense(default_account_domain):
     max_yearly_growth_rate = 0.5
     min_yearly_growth_rate = -0.5
     start_age = 20
+    end_age = 100
 
     expense = create_entity(
         Expense,
@@ -153,6 +160,7 @@ def default_expense(default_account_domain):
         max_yearly_growth_rate=max_yearly_growth_rate,
         min_yearly_growth_rate=min_yearly_growth_rate,
         start_age=start_age,
+        end_age=end_age,
     )
     yield expense
 
@@ -180,6 +188,7 @@ def default_asset(default_account_domain):
     max_yearly_return_rate = 0.5
     min_yearly_return_rate = -0.5
     start_age = 20
+    end_age = 100
 
     asset = create_entity(
         Asset,
@@ -189,5 +198,6 @@ def default_asset(default_account_domain):
         max_yearly_return_rate=max_yearly_return_rate,
         min_yearly_return_rate=min_yearly_return_rate,
         start_age=start_age,
+        end_age=end_age,
     )
     yield asset
