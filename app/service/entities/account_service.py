@@ -1,10 +1,9 @@
 from app.domain.entities import AccountDomain
 from app.repository.entities import AccountRepo
-from .mixin import OwnerRequiredServiceMixin
 from werkzeug.security import generate_password_hash
 
 
-class AccountService(OwnerRequiredServiceMixin):
+class AccountService:
     # Fields required during creation
     _required_fields = {
         "name",

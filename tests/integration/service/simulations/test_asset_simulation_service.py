@@ -1,13 +1,60 @@
+# import pytest
 from app.service.simulations import AssetSimulationService
+from app.domain.entities import AssetDomain
+from tests.factory import create_asset
+from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
+from decimal import Decimal, ROUND_UP
 
 
 class TestAssetSimulationServiceCase:
     """Test cases for AssetSimulationService."""
 
-    def test_get_asset_simulation_by_id_service_type_checking(self, default_asset):
-        """Test get the simulation of an asset by ID"""
+    def _fake_asset_simulate(
+        self,
+        value: Decimal,
+        min_rate: Decimal,
+        max_rate: Decimal,
+        start_age: int,
+        end_age: int,
+        Strategy: BaseSimulateStrategy,
+        **kwargs,
+    ) -> dict:
+        prev = Decimal(value).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
+        values = [prev]
+
+        for _ in range(start_age + 1, end_age + 1):
+            prev = Strategy.apply(
+                value=prev, min_rate=min_rate, max_rate=max_rate, **kwargs
+            )
+            values.append(prev)
+
+        return {
+            "ages": list(range(start_age, end_age + 1)),
+            "values": values,
+        }
+
+    def _generate_asset_payload(
+        self, asset: AssetDomain, strategy: str = "random_rate"
+    ) -> dict:
+        return {
+            "asset_id": asset.id,
+            "strategy": strategy,
+        }
+
+    def test_get_asset_simulation_by_id_service_type_checking(
+        self, default_account, default_asset
+    ):
+        """Test the simulation of an asset by ID is correct typed"""
+        # Arrange: Get account id
+        account_id = default_account.id
+
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=default_asset)
+
         # Act: Get the simulation with default strategy
-        result = AssetSimulationService.simulate(asset=default_asset)
+        result = AssetSimulationService.simulate_asset(
+            account_id=account_id, payload=payload
+        )
         ages, values = result.get("ages"), result.get("values")
 
         # Assert: Check if both ages and values existed
@@ -18,38 +65,85 @@ class TestAssetSimulationServiceCase:
         assert isinstance(ages, list)
         assert isinstance(values, list)
 
-    def test_get_asset_simulation_by_id_service_with_random_rate_strategy(
-        self, default_asset
+    def test_get_asset_simulation_by_id_service_with_default_strategy(
+        self, default_account
     ):
-        """Test get the simulation of an asset by ID"""
+        """Test the random rate simulation of an asset by ID"""
+        # Arrange: Create a fresh asset by repo as this test would alter asset domain
+        asset = create_asset(owner=default_account)
 
         # Arrange: Specifying strategy
         strategy = "random_rate"
 
-        # Arrange: Get rate interval
-        min_rate, max_rate = (
-            default_asset.min_yearly_return_rate,
-            default_asset.max_yearly_return_rate,
-        )
+        # Arrange: Get account id
+        account_id = default_account.id
 
-        # Act: Get the simulation
-        _, values = AssetSimulationService.simulate(
-            asset=default_asset, strategy=strategy
-        )
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=asset, strategy=strategy)
 
-        # Arange: Create min, max values boundry
-        asset_with_min_rate = default_asset
-        asset_with_min_rate.max_yearly_return_rate = min_rate
+        # Act: Get the simulation with default strategy
+        values = AssetSimulationService.simulate_asset(
+            account_id=account_id, payload=payload
+        )["values"]
 
-        asset_with_max_rate = default_asset
-        asset_with_max_rate.min_yearly_return_rate = max_rate
-
-        _, min_values = AssetSimulationService.simulate(
-            asset=asset_with_min_rate, strategy=strategy
-        )
-        _, max_values = AssetSimulationService.simulate(
-            asset=asset_with_max_rate, strategy=strategy
-        )
+        # Arrange: Create bound
+        value = asset.amount
+        min_rate, max_rate = asset.min_yearly_return_rate, asset.max_yearly_return_rate
+        start_age, end_age = asset.start_age, asset.end_age
+        min_values = self._fake_asset_simulate(
+            value=value,
+            min_rate=min_rate,
+            max_rate=min_rate,
+            start_age=start_age,
+            end_age=end_age,
+            Strategy=RandomRateStrategy,
+        )["values"]
+        max_values = self._fake_asset_simulate(
+            value=value,
+            min_rate=max_rate,
+            max_rate=max_rate,
+            start_age=start_age,
+            end_age=end_age,
+            Strategy=RandomRateStrategy,
+        )["values"]
 
         for idx in range(len(values)):
             assert min_values[idx] <= values[idx] <= max_values[idx]
+
+    # def test_get_asset_simulation_by_id_service_with_random_rate_strategy(
+    #     self, default_account
+    # ):
+    #     """Test the random rate simulation of an asset by ID"""
+    #     # Arrange: Create a fresh asset by repo as this test would alter asset domain
+    #     asset = create_asset()
+
+    #     # Arrange: Specifying strategy
+    #     strategy = "random_rate"
+
+    #     # Arrange: Get rate interval
+    #     min_rate, max_rate = (
+    #         asset.min_yearly_return_rate,
+    #         asset.max_yearly_return_rate,
+    #     )
+
+    #     # Act: Get the simulation
+    #     _, values = AssetSimulationService.simulate(
+    #         asset=asset, strategy=strategy
+    #     )
+
+    #     # Arange: Create min, max values boundry
+    #     asset_with_min_rate = asset
+    #     asset_with_min_rate.max_yearly_return_rate = min_rate
+
+    #     asset_with_max_rate = asset
+    #     asset_with_max_rate.min_yearly_return_rate = max_rate
+
+    #     _, min_values = AssetSimulationService.simulate(
+    #         asset=asset_with_min_rate, strategy=strategy
+    #     )
+    #     _, max_values = AssetSimulationService.simulate(
+    #         asset=asset_with_max_rate, strategy=strategy
+    #     )
+
+    # for idx in range(len(values)):
+    #     assert min_values[idx] <= values[idx] <= max_values[idx]

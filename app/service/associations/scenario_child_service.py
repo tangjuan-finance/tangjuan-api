@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioChildDomain
 from app.repository.associations import ScenarioChildRepo
 from app.repository.entities import ChildRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioChildService(BaseAssociationService):

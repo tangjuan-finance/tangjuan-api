@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioLiabilityDomain
 from app.repository.associations import ScenarioLiabilityRepo
 from app.repository.entities import LiabilityRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioLiabilityService(BaseAssociationService):
@@ -105,8 +105,8 @@ class ScenarioLiabilityService(BaseAssociationService):
             "liability": LiabilityRepo.get_by_id(liability_id=assoc.liability_id),
         }
 
-    @staticmethod
-    def _check_liability_ownership(account_id: str, liability_id: str) -> str:
+    @classmethod
+    def _check_liability_ownership(cls, account_id: str, liability_id: str) -> str:
         if not isinstance(liability_id, str):
             raise TypeError(
                 f"Liability ID should be type str, not type {type(liability_id).__name__}"
@@ -117,7 +117,8 @@ class ScenarioLiabilityService(BaseAssociationService):
         if not liability_from_repo:
             raise ValueError(f"Liability with ID {liability_id} not found")
 
-        if liability_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this liability")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=liability_from_repo.owner.id
+        )
 
         return "This account owned this liability"

@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioRiskDomain
 from app.repository.associations import ScenarioRiskRepo
 from app.repository.entities import RiskRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioRiskService(BaseAssociationService):
@@ -103,8 +103,8 @@ class ScenarioRiskService(BaseAssociationService):
             "risk": RiskRepo.get_by_id(risk_id=assoc.risk_id),
         }
 
-    @staticmethod
-    def _check_risk_ownership(account_id: str, risk_id: str) -> str:
+    @classmethod
+    def _check_risk_ownership(cls, account_id: str, risk_id: str) -> str:
         if not isinstance(risk_id, str):
             raise TypeError(
                 f"Risk ID should be type str, not type {type(risk_id).__name__}"
@@ -115,7 +115,8 @@ class ScenarioRiskService(BaseAssociationService):
         if not risk_from_repo:
             raise ValueError(f"Risk with ID {risk_id} not found")
 
-        if risk_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this risk")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=risk_from_repo.owner.id
+        )
 
         return "This account owned this risk"

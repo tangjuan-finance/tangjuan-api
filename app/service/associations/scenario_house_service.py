@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioHouseDomain
 from app.repository.associations import ScenarioHouseRepo
 from app.repository.entities import HouseRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioHouseService(BaseAssociationService):
@@ -103,8 +103,8 @@ class ScenarioHouseService(BaseAssociationService):
             "house": HouseRepo.get_by_id(house_id=assoc.house_id),
         }
 
-    @staticmethod
-    def _check_house_ownership(account_id: str, house_id: str) -> str:
+    @classmethod
+    def _check_house_ownership(cls, account_id: str, house_id: str) -> str:
         if not isinstance(house_id, str):
             raise TypeError(
                 f"House ID should be type str, not type {type(house_id).__name__}"
@@ -115,7 +115,8 @@ class ScenarioHouseService(BaseAssociationService):
         if not house_from_repo:
             raise ValueError(f"House with ID {house_id} not found")
 
-        if house_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this house")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=house_from_repo.owner.id
+        )
 
         return "This account owned this house"

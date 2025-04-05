@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioAssetDomain
 from app.repository.associations import ScenarioAssetRepo
 from app.repository.entities import AssetRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioAssetService(BaseAssociationService):

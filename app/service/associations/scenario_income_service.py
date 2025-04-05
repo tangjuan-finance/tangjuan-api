@@ -1,7 +1,7 @@
 from app.domain.associations import ScenarioIncomeDomain
 from app.repository.associations import ScenarioIncomeRepo
 from app.repository.entities import IncomeRepo
-from .mixin import BaseAssociationService
+from .base import BaseAssociationService
 
 
 class ScenarioIncomeService(BaseAssociationService):
@@ -103,8 +103,8 @@ class ScenarioIncomeService(BaseAssociationService):
             "income": IncomeRepo.get_by_id(income_id=assoc.income_id),
         }
 
-    @staticmethod
-    def _check_income_ownership(account_id: str, income_id: str) -> str:
+    @classmethod
+    def _check_income_ownership(cls, account_id: str, income_id: str) -> str:
         if not isinstance(income_id, str):
             raise TypeError(
                 f"Income ID should be type str, not type {type(income_id).__name__}"
@@ -115,7 +115,8 @@ class ScenarioIncomeService(BaseAssociationService):
         if not income_from_repo:
             raise ValueError(f"Income with ID {income_id} not found")
 
-        if income_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this income")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=income_from_repo.owner.id
+        )
 
         return "This account owned this income"
