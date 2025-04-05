@@ -45,8 +45,8 @@ class ScenarioService(OwnerRequiredServiceMixin):
         scenario = ScenarioDomain(**scenario_payload)
         return ScenarioRepo.create(scenario)
 
-    @staticmethod
-    def get_scenario_by_id(account_id: str, payload: dict) -> ScenarioDomain:
+    @classmethod
+    def get_scenario_by_id(cls, account_id: str, payload: dict) -> ScenarioDomain:
         """Retrieve a specific scenario by ID."""
         scenario_id = payload.get("id")
         if not scenario_id:
@@ -57,8 +57,9 @@ class ScenarioService(OwnerRequiredServiceMixin):
             raise ValueError(f"Scenario with ID {scenario_id} not found")
 
         # Check if the account owns the scenario
-        if scenario_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=scenario_from_repo.owner.id
+        )
 
         return scenario_from_repo
 

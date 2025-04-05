@@ -103,8 +103,8 @@ class ScenarioChildService(BaseAssociationService):
             "child": ChildRepo.get_by_id(child_id=assoc.child_id),
         }
 
-    @staticmethod
-    def _check_child_parentship(account_id: str, child_id: str) -> str:
+    @classmethod
+    def _check_child_parentship(cls, account_id: str, child_id: str) -> str:
         if not isinstance(child_id, str):
             raise TypeError(
                 f"Child ID should be type str, not type {type(child_id).__name__}"
@@ -115,7 +115,8 @@ class ScenarioChildService(BaseAssociationService):
         if not child_from_repo:
             raise ValueError(f"Child with ID {child_id} not found")
 
-        if child_from_repo.parent.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this child")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=child_from_repo.parent.id
+        )
 
         return "This account owned this child"

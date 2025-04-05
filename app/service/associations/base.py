@@ -1,9 +1,9 @@
 from app.repository.entities import ScenarioRepo
-from app.service.base import BaseService
+from app.service.mixin import CheckOwnershipMixin
 
 
-class BaseAssociationService(BaseService):
-    """Mixin for all associations"""
+class BaseAssociationService(CheckOwnershipMixin):
+    """Base for all associations"""
 
     @classmethod
     def _check_scenario_ownership(cls, account_id: str, scenario_id: str) -> str:

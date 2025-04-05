@@ -103,8 +103,8 @@ class ScenarioAssetService(BaseAssociationService):
             "asset": AssetRepo.get_by_id(asset_id=assoc.asset_id),
         }
 
-    @staticmethod
-    def _check_asset_ownership(account_id: str, asset_id: str) -> str:
+    @classmethod
+    def _check_asset_ownership(cls, account_id: str, asset_id: str) -> str:
         if not isinstance(asset_id, str):
             raise TypeError(
                 f"Asset ID should be type str, not type {type(asset_id).__name__}"
@@ -115,7 +115,8 @@ class ScenarioAssetService(BaseAssociationService):
         if not asset_from_repo:
             raise ValueError(f"Asset with ID {asset_id} not found")
 
-        if asset_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this asset")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=asset_from_repo.owner.id
+        )
 
         return "This account owned this asset"

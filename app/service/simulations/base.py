@@ -1,6 +1,6 @@
 from abc import ABC
-from app.service.base import BaseService
+from app.service.mixin import CheckOwnershipMixin
 
 
-class BaseSimulationService(ABC, BaseService):
+class BaseSimulationService(ABC, CheckOwnershipMixin):
     pass

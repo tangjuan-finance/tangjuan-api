@@ -48,8 +48,8 @@ class AssetService(OwnerRequiredServiceMixin):
         asset = AssetDomain(**asset_payload)
         return AssetRepo.create(asset)
 
-    @staticmethod
-    def get_asset_by_id(account_id: str, payload: dict) -> AssetDomain:
+    @classmethod
+    def get_asset_by_id(cls, account_id: str, payload: dict) -> AssetDomain:
         """Retrieve a specific asset by ID."""
         asset_id = payload.get("id")
         if not asset_id:
@@ -60,8 +60,9 @@ class AssetService(OwnerRequiredServiceMixin):
             raise ValueError(f"Asset with ID {asset_id} not found")
 
         # Check if the account owns the asset
-        if asset_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=asset_from_repo.owner.id
+        )
 
         return asset_from_repo
 

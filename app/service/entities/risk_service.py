@@ -47,8 +47,8 @@ class RiskService(OwnerRequiredServiceMixin):
         risk = RiskDomain(**risk_payload)
         return RiskRepo.create(risk)
 
-    @staticmethod
-    def get_risk_by_id(account_id: str, payload: dict) -> RiskDomain:
+    @classmethod
+    def get_risk_by_id(cls, account_id: str, payload: dict) -> RiskDomain:
         """Retrieve a specific risk by ID."""
         risk_id = payload.get("id")
         if not risk_id:
@@ -59,8 +59,9 @@ class RiskService(OwnerRequiredServiceMixin):
             raise ValueError(f"Risk with ID {risk_id} not found")
 
         # Check if the account owns the risk
-        if risk_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=risk_from_repo.owner.id
+        )
 
         return risk_from_repo
 

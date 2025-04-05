@@ -47,8 +47,8 @@ class LiabilityService(OwnerRequiredServiceMixin):
         liability = LiabilityDomain(**liability_payload)
         return LiabilityRepo.create(liability)
 
-    @staticmethod
-    def get_liability_by_id(account_id: str, payload: dict) -> LiabilityDomain:
+    @classmethod
+    def get_liability_by_id(cls, account_id: str, payload: dict) -> LiabilityDomain:
         """Retrieve a specific liability by ID."""
         liability_id = payload["id"]
         liability_from_repo = LiabilityRepo.get_by_id(liability_id)
@@ -57,8 +57,9 @@ class LiabilityService(OwnerRequiredServiceMixin):
             raise ValueError(f"Liability with ID {liability_id} not found")
 
         # Check if the account owns the liability
-        if liability_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=liability_from_repo.owner.id
+        )
 
         return liability_from_repo
 

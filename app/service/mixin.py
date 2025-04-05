@@ -1,7 +1,7 @@
 from abc import ABC
 
 
-class BaseService(ABC):
+class CheckOwnershipMixin(ABC):
     def _check_ownership_by_id(account_id: str, owner_id: str):
         # Check if the account owns the entity
         if owner_id != account_id:

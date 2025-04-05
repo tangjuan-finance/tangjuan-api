@@ -1,8 +1,9 @@
 from app.domain.entities import AccountDomain
 from app.repository.entities import AccountRepo
+from app.service.mixin import CheckOwnershipMixin
 
 
-class OwnerRequiredServiceMixin:
+class OwnerRequiredServiceMixin(CheckOwnershipMixin):
     """Mixin for services that require ownership validation."""
 
     @staticmethod

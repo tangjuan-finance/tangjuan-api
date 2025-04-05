@@ -48,8 +48,8 @@ class ExpenseService(OwnerRequiredServiceMixin):
         expense = ExpenseDomain(**expense_payload)
         return ExpenseRepo.create(expense)
 
-    @staticmethod
-    def get_expense_by_id(account_id: str, payload: dict) -> ExpenseDomain:
+    @classmethod
+    def get_expense_by_id(cls, account_id: str, payload: dict) -> ExpenseDomain:
         """Retrieve a specific expense by ID."""
         expense_id = payload.get("id")
         if not expense_id:
@@ -60,8 +60,9 @@ class ExpenseService(OwnerRequiredServiceMixin):
             raise ValueError(f"Expense with ID {expense_id} not found")
 
         # Check if the account owns the expense
-        if expense_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=expense_from_repo.owner.id
+        )
 
         return expense_from_repo
 

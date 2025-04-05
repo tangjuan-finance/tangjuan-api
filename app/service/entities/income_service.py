@@ -48,8 +48,8 @@ class IncomeService(OwnerRequiredServiceMixin):
         income = IncomeDomain(**income_payload)
         return IncomeRepo.create(income)
 
-    @staticmethod
-    def get_income_by_id(account_id: str, payload: dict) -> IncomeDomain:
+    @classmethod
+    def get_income_by_id(cls, account_id: str, payload: dict) -> IncomeDomain:
         """Retrieve a specific income by ID."""
         income_id = payload.get("id")
         if not income_id:
@@ -60,8 +60,9 @@ class IncomeService(OwnerRequiredServiceMixin):
             raise ValueError(f"Income with ID {income_id} not found")
 
         # Check if the account owns the income
-        if income_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=income_from_repo.owner.id
+        )
 
         return income_from_repo
 

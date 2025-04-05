@@ -49,8 +49,8 @@ class HouseService(OwnerRequiredServiceMixin):
         house = HouseDomain(**house_payload)
         return HouseRepo.create(house)
 
-    @staticmethod
-    def get_house_by_id(account_id: str, payload: dict) -> HouseDomain:
+    @classmethod
+    def get_house_by_id(cls, account_id: str, payload: dict) -> HouseDomain:
         """Retrieve a specific house by ID."""
         house_id = payload.get("id")
         if not house_id:
@@ -61,8 +61,9 @@ class HouseService(OwnerRequiredServiceMixin):
             raise ValueError(f"House with ID {house_id} not found")
 
         # Check if the account owns the house
-        if house_from_repo.owner.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=house_from_repo.owner.id
+        )
 
         return house_from_repo
 

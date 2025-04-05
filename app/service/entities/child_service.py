@@ -49,8 +49,8 @@ class ChildService(OwnerRequiredServiceMixin):
         child = ChildDomain(**child_payload)
         return ChildRepo.create(child)
 
-    @staticmethod
-    def get_child_by_id(account_id: str, payload: dict) -> ChildDomain:
+    @classmethod
+    def get_child_by_id(cls, account_id: str, payload: dict) -> ChildDomain:
         """Retrieve a specific child by ID."""
         child_id = payload.get("id")
         if not child_id:
@@ -61,8 +61,9 @@ class ChildService(OwnerRequiredServiceMixin):
             raise ValueError(f"Child with ID {child_id} not found")
 
         # Check if the account owns the child
-        if child_from_repo.parent.id != account_id:
-            raise PermissionError(f"Account {account_id} does not own this resource")
+        cls._check_ownership_by_id(
+            account_id=account_id, owner_id=child_from_repo.parent.id
+        )
 
         return child_from_repo
 
