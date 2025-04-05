@@ -1,28 +1,29 @@
+from dataclasses import dataclass
 from .base import BaseSimulateStrategy
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 import random
 
 
+@dataclass
 class RandomRateStrategy(BaseSimulateStrategy):
-    @staticmethod
-    def _generate_random_rate(min_rate: Decimal, max_rate: Decimal) -> Decimal:
-        """Generate a random Decimal rate between min_rate and max_rate, rounded to 2 decimals."""
+    min_rate: Decimal
+    max_rate: Decimal
 
+    def _generate_random_rate(self) -> Decimal:
+        """
+        Generate a random rate between min_rate and max_rate as a Decimal,
+        rounded to 2 decimal places.
+        """
         # Convert to float for random.uniform, then back to Decimal
-        random_float = random.uniform(float(min_rate), float(max_rate))
+        random_float = random.uniform(float(self.min_rate), float(self.max_rate))
         return Decimal(str(round(random_float, 2)))
 
-    @classmethod
     def apply(
-        cls,
+        self,
         value: Decimal,
-        min_rate: Decimal,
-        max_rate: Decimal,
     ) -> Decimal:
         """Calculate next value by applying a random rate."""
-        rate = cls._generate_random_rate(min_rate, max_rate)
-
+        rate = self._generate_random_rate()
+        result = value * (Decimal("1") + rate)
         # Calculate the new value and round it to 2 decimal places
-        return (value * (Decimal("1") + rate)).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        return self._format_result(result)
