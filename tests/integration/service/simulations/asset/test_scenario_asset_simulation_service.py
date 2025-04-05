@@ -1,139 +1,152 @@
-# import pytest
-# from app.service.simulations import AssetSimulationService
-# from app.domain.entities import ScenarioDomain, AssetDomain
-# from app.domain.associations import ScenarioAssetDomain
-# from app.service.associations import ScenarioAssetService
-# from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-# from decimal import Decimal, ROUND_UP
-# from typing import Optional
+import pytest
+from app.service.simulations import ScenarioAssetSimulationService
+from app.domain.entities import AssetDomain
+from app.domain.associations import ScenarioAssetDomain
+from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
+from tests.factory import create_scenario_asset
+from decimal import Decimal, ROUND_UP
+from typing import Optional
 
 
-# class TestScenarioAssetSimulationServiceCase:
-#     """Test cases for ScenarioAssetSimulationService."""
+class TestScenarioAssetSimulationServiceCase:
+    """Test cases for ScenarioAssetSimulationService."""
 
-#     def _generate_assoc_payload(scenario: ScenarioAssetService, asset: AssetDomain, **kwargs) -> dict:
-#         return {
+    @pytest.fixture(scope="function")
+    def default_asset_assoc(self, default_scenario, default_asset):
+        yield create_scenario_asset(
+            scenario_id=default_scenario.id, asset_id=default_asset.id
+        )
 
-#         }
+    def _generate_scenario_asset_payload(
+        self,
+        scenario_id: str,
+        asset_id: Optional[str] = None,
+        strategy: str = "random_rate",
+    ) -> dict:
+        payload = {
+            "scenario_id": scenario_id,
+            "strategy": strategy,
+        }
 
-#     def _generate_asset_payload(
-#         self, scenario: ScenarioDomain, asset: Optional[AssetDomain] = None, strategy: str = "random_rate"
-#     ) -> dict:
+        if asset_id:
+            payload["asset_id"] = asset_id
 
-#         payload = {
-#             "scenario_id": scenario.id,
-#             "strategy": strategy,
-#         }
+        return payload
 
-#         if asset:
-#             payload["asset_id"] = asset.id
+    def _fake_scenario_asset_simulate(
+        self,
+        asset: AssetDomain,
+        assoc: ScenarioAssetDomain,
+        strategy_class: BaseSimulateStrategy,
+    ) -> dict:
+        amount = asset.amount
+        start_age = assoc.start_age or asset.start_age
+        end_age = assoc.end_age or asset.end_age
 
-#         return payload
+        prev = Decimal(amount).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
+        values = [prev]
 
-#     def _fake_asset_simulate(
-#         self,
-#         asset: AssetDomain,
-#         strategy_class: BaseSimulateStrategy,
-#     ) -> dict:
-#         amount, start_age, end_age = asset.amount, asset.start_age, asset.end_age
+        for _ in range(start_age + 1, end_age + 1):
+            prev = strategy_class.apply(value=prev)
+            values.append(prev)
 
-#         prev = Decimal(amount).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
-#         values = [prev]
+        return {
+            "ages": list(range(start_age, end_age + 1)),
+            "values": values,
+        }
 
-#         for _ in range(start_age + 1, end_age + 1):
-#             prev = strategy_class.apply(value=prev)
-#             values.append(prev)
+    def test_simulate_asset_in_scenario_service_type_checking(
+        self, default_account, default_asset_assoc
+    ):
+        """Test the simulation of an asset by ID is correct typed"""
+        # Arrange: Get account id
+        account_id = default_account.id
 
-#         return {
-#             "ages": list(range(start_age, end_age + 1)),
-#             "values": values,
-#         }
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_asset_assoc.scenario_id,
+            asset_id=default_asset_assoc.asset_id,
+        )
 
-#     def test_get_scenario_asset_simulation_by_id_service_type_checking(
-#         self, default_account, default_scenario, default_asset
-#     ):
-#         """Test the simulation of an asset by ID is correct typed"""
-#         # Arrange: Get account id
-#         account_id = default_account.id
-#         assoc_payload = {
-#             "scenario_id": default_scenario.id,
-#             "asset_id": default_asset.id,
-#             "allocation_percentage": 0.3,
-#             "start_age":
-#         }
+        # Act: Get the simulation with default strategy
+        result = ScenarioAssetSimulationService.simulate_asset_in_scenario(
+            account_id=account_id, payload=payload
+        )
+        ages, values = result.get("ages"), result.get("values")
 
-#         assoc = ScenarioAssetService.create_scenario_asset(
+        # Assert: Check if both ages and values existed
+        assert ages is not None
+        assert values is not None
 
-#         )
+        # Assert: Check if both ages and values are a list
+        assert isinstance(ages, list)
+        assert isinstance(values, list)
 
+    def test_get_scenario_asset_simulation_by_id_service_with_default_strategy(
+        self, default_account, default_scenario, default_asset
+    ):
+        """Test the random rate simulation of an asset by ID"""
+        # Arrange: Specifying strategy
+        strategy = "random_rate"
 
-#         # Arrange: Create payload
-#         payload = self._generate_asset_payload(asset=default_asset)
+        # Arange: Create Assoc
+        assoc = create_scenario_asset(
+            scenario_id=default_scenario.id, asset_id=default_asset.id
+        )
 
-#         # Act: Get the simulation with default strategy
-#         result = AssetSimulationService.simulate_asset(
-#             account_id=account_id, payload=payload
-#         )
-#         ages, values = result.get("ages"), result.get("values")
+        # Arrange: Get rate interval
+        min_rate, max_rate = (
+            assoc.min_yearly_return_rate,
+            assoc.max_yearly_return_rate,
+        )
 
-#         # Assert: Check if both ages and values existed
-#         assert ages is not None
-#         assert values is not None
+        # Arrange: Create min boundry
+        min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
+        min_values = self._fake_scenario_asset_simulate(
+            asset=default_asset,
+            assoc=assoc,
+            strategy_class=min_strategy,
+        )["values"]
 
-#         # Assert: Check if both ages and values are a list
-#         assert isinstance(ages, list)
-#         assert isinstance(values, list)
+        # Arrange: Create max boundry
+        max_strategy = RandomRateStrategy(min_rate=max_rate, max_rate=max_rate)
+        max_values = self._fake_scenario_asset_simulate(
+            asset=default_asset,
+            assoc=assoc,
+            strategy_class=max_strategy,
+        )["values"]
 
-#     def test_get_scenario_asset_simulation_by_id_service_with_default_strategy(
-#         self, default_account, default_asset
-#     ):
-#         """Test the random rate simulation of an asset by ID"""
-#         # Arrange: Specifying strategy
-#         strategy = "random_rate"
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_scenario.id,
+            asset_id=default_asset.id,
+            strategy=strategy,
+        )
 
-#         # Arrange: Get rate interval
-#         min_rate, max_rate = (
-#             default_asset.min_yearly_return_rate,
-#             default_asset.max_yearly_return_rate,
-#         )
+        # Act: Get the simulation with default strategy
+        values = ScenarioAssetSimulationService.simulate_asset_in_scenario(
+            account_id=default_account.id, payload=payload
+        )["values"]
+        breakpoint()
+        # Assert: Check if values in bound
+        for idx in range(len(values)):
+            assert min_values[idx] <= values[idx] <= max_values[idx]
 
-#         # Arrange: Create min boundry
-#         min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
-#         min_values = self._fake_asset_simulate(
-#             asset=default_asset,
-#             strategy_class=min_strategy,
-#         )["values"]
+    def test_get_scenario_asset_simulation_by_id_with_invalid_strategy(
+        self, default_account, default_asset_assoc
+    ):
+        # Arrange: Set an invalid strategy
+        strategy = "invalid_strategy"
 
-#         # Arrange: Create max boundry
-#         max_strategy = RandomRateStrategy(min_rate=max_rate, max_rate=max_rate)
-#         max_values = self._fake_asset_simulate(
-#             asset=default_asset,
-#             strategy_class=max_strategy,
-#         )["values"]
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_asset_assoc.scenario_id,
+            asset_id=default_asset_assoc.asset_id,
+            strategy=strategy,
+        )
 
-#         # Arrange: Create payload
-#         payload = self._generate_asset_payload(asset=default_asset, strategy=strategy)
-
-#         # Act: Get the simulation with default strategy
-#         values = AssetSimulationService.simulate_asset(
-#             account_id=default_account.id, payload=payload
-#         )["values"]
-
-#         # Assert: Check if values in bound
-#         for idx in range(len(values)):
-#             assert min_values[idx] <= values[idx] <= max_values[idx]
-
-#     def test_get_scenario_asset_simulation_by_id_with_invalid_strategy(
-#         self, default_account, default_asset
-#     ):
-#         # Arrange: Set an invalid strategy
-#         strategy = "invalid_strategy"
-
-#         # Arrange: Create payload
-#         payload = self._generate_asset_payload(asset=default_asset, strategy=strategy)
-
-#         # Act: Get the simulation with invalid strategy should raise Value Error
-#         with pytest.raises(ValueError):
-#             AssetSimulationService.simulate_asset(
-#                 account_id=default_account.id, payload=payload
-#             )
+        # Act: Get the simulation with invalid strategy should raise Value Error
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.simulate_asset_in_scenario(
+                account_id=default_account.id, payload=payload
+            )

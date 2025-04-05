@@ -31,6 +31,15 @@ from .association_factory import (
     ScenarioLiabilityDomainFactory,
     ScenarioRiskDomainFactory,
 )
+from .create_association import (
+    create_scenario_expense,
+    create_scenario_income,
+    create_scenario_house,
+    create_scenario_child,
+    create_scenario_risk,
+    create_scenario_asset,
+    create_scenario_liability,
+)
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -61,4 +70,11 @@ __all__ = [
     "ScenarioIncomeDomainFactory",
     "ScenarioLiabilityDomainFactory",
     "ScenarioRiskDomainFactory",
+    "create_scenario_expense",
+    "create_scenario_income",
+    "create_scenario_house",
+    "create_scenario_child",
+    "create_scenario_risk",
+    "create_scenario_asset",
+    "create_scenario_liability",
 ]

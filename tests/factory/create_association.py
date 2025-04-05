@@ -30,32 +30,44 @@ from app.repository.associations import (
 
 
 def create_scenario_expense(scenario_id: str, expense_id: str) -> ScenarioExpenseDomain:
-    assoc = ScenarioExpenseDomainFactory(scenario_id=scenario_id, expense_id=expense_id)
+    assoc = ScenarioExpenseDomainFactory(
+        optional=True, scenario_id=scenario_id, expense_id=expense_id
+    )
     return ScenarioExpenseRepo.create(assoc)
 
 
 def create_scenario_income(scenario_id: str, income_id: str) -> ScenarioIncomeDomain:
-    assoc = ScenarioIncomeDomainFactory(scenario_id=scenario_id, income_id=income_id)
+    assoc = ScenarioIncomeDomainFactory(
+        optional=True, scenario_id=scenario_id, income_id=income_id
+    )
     return ScenarioIncomeRepo.create(assoc)
 
 
 def create_scenario_house(scenario_id: str, house_id: str) -> ScenarioHouseDomain:
-    assoc = ScenarioHouseDomainFactory(scenario_id=scenario_id, house_id=house_id)
+    assoc = ScenarioHouseDomainFactory(
+        optional=True, scenario_id=scenario_id, house_id=house_id
+    )
     return ScenarioHouseRepo.create(assoc)
 
 
 def create_scenario_child(scenario_id: str, child_id: str) -> ScenarioChildDomain:
-    assoc = ScenarioChildDomainFactory(scenario_id=scenario_id, child_id=child_id)
+    assoc = ScenarioChildDomainFactory(
+        optional=True, scenario_id=scenario_id, child_id=child_id
+    )
     return ScenarioChildRepo.create(assoc)
 
 
 def create_scenario_risk(scenario_id: str, risk_id: str) -> ScenarioRiskDomain:
-    assoc = ScenarioRiskDomainFactory(scenario_id=scenario_id, risk_id=risk_id)
+    assoc = ScenarioRiskDomainFactory(
+        optional=True, scenario_id=scenario_id, risk_id=risk_id
+    )
     return ScenarioRiskRepo.create(assoc)
 
 
 def create_scenario_asset(scenario_id: str, asset_id: str) -> ScenarioAssetDomain:
-    assoc = ScenarioAssetDomainFactory(scenario_id=scenario_id, asset_id=asset_id)
+    assoc = ScenarioAssetDomainFactory(
+        optional=True, scenario_id=scenario_id, asset_id=asset_id
+    )
     return ScenarioAssetRepo.create(assoc)
 
 
@@ -63,6 +75,6 @@ def create_scenario_liability(
     scenario_id: str, liability_id: str
 ) -> ScenarioLiabilityDomain:
     assoc = ScenarioLiabilityDomainFactory(
-        scenario_id=scenario_id, liability_id=liability_id
+        optional=True, scenario_id=scenario_id, liability_id=liability_id
     )
     return ScenarioLiabilityRepo.create(assoc)
