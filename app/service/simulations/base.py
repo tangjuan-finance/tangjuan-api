@@ -3,4 +3,6 @@ from app.service.mixin import CheckOwnershipMixin
 
 
 class BaseSimulationService(ABC, CheckOwnershipMixin):
-    pass
+    @classmethod
+    def _get_duration(cls, start: int, end: int) -> list:
+        return list(range(start, end + 1))

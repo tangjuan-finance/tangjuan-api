@@ -1,4 +1,4 @@
-# import pytest
+import pytest
 from app.service.simulations import AssetSimulationService
 from app.domain.entities import AssetDomain
 from tests.factory import create_asset
@@ -110,40 +110,20 @@ class TestAssetSimulationServiceCase:
         for idx in range(len(values)):
             assert min_values[idx] <= values[idx] <= max_values[idx]
 
-    # def test_get_asset_simulation_by_id_service_with_random_rate_strategy(
-    #     self, default_account
-    # ):
-    #     """Test the random rate simulation of an asset by ID"""
-    #     # Arrange: Create a fresh asset by repo as this test would alter asset domain
-    #     asset = create_asset()
+    def test_get_asset_simulation_by_id_with_invalid_strategy(
+        self, default_account, default_asset
+    ):
+        # Arrange: Set an invalid strategy
+        strategy = "invalid_strategy"
 
-    #     # Arrange: Specifying strategy
-    #     strategy = "random_rate"
+        # Arrange: Get account id
+        account_id = default_account.id
 
-    #     # Arrange: Get rate interval
-    #     min_rate, max_rate = (
-    #         asset.min_yearly_return_rate,
-    #         asset.max_yearly_return_rate,
-    #     )
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=default_asset, strategy=strategy)
 
-    #     # Act: Get the simulation
-    #     _, values = AssetSimulationService.simulate(
-    #         asset=asset, strategy=strategy
-    #     )
-
-    #     # Arange: Create min, max values boundry
-    #     asset_with_min_rate = asset
-    #     asset_with_min_rate.max_yearly_return_rate = min_rate
-
-    #     asset_with_max_rate = asset
-    #     asset_with_max_rate.min_yearly_return_rate = max_rate
-
-    #     _, min_values = AssetSimulationService.simulate(
-    #         asset=asset_with_min_rate, strategy=strategy
-    #     )
-    #     _, max_values = AssetSimulationService.simulate(
-    #         asset=asset_with_max_rate, strategy=strategy
-    #     )
-
-    # for idx in range(len(values)):
-    #     assert min_values[idx] <= values[idx] <= max_values[idx]
+        # Act: Get the simulation with invalid strategy should raise Value Error
+        with pytest.raises(ValueError):
+            AssetSimulationService.simulate_asset(
+                account_id=account_id, payload=payload
+            )
