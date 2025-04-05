@@ -1,14 +1,4 @@
 import factory
-from tests.factory.domain_factory import (
-    ScenarioDomainFactory,
-    ExpenseDomainFactory,
-    IncomeDomainFactory,
-    HouseDomainFactory,
-    ChildDomainFactory,
-    RiskDomainFactory,
-    AssetDomainFactory,
-    LiabilityDomainFactory,
-)
 
 from app.domain.associations import (
     ScenarioExpenseDomain,
@@ -20,6 +10,7 @@ from app.domain.associations import (
     ScenarioLiabilityDomain,
 )
 import faker
+from nanoid import generate
 
 fake = faker.Faker()
 
@@ -30,7 +21,8 @@ class BaseAssociationDomainFactory(factory.Factory):
     class Meta:
         abstract = True  # This prevents instantiation without a model
 
-    scenario_id = factory.SubFactory(ScenarioDomainFactory)
+    # Fake id, not reflect to real resource
+    scenario_id = factory.LazyFunction(lambda: generate(size=13))
     memo = factory.LazyAttribute(
         lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
     )
@@ -45,7 +37,8 @@ class ScenarioChildDomainFactory(BaseAssociationDomainFactory, factory.Factory):
     class Meta:
         model = ScenarioChildDomain
 
-    child_id = factory.SubFactory(ChildDomainFactory)
+    # Fake id, not reflect to real resource
+    child_id = factory.LazyFunction(lambda: generate(size=13))
     birth_age = factory.LazyAttribute(
         lambda o: fake.random_int(min=20, max=50) if o.optional else None
     )
@@ -62,7 +55,8 @@ class ScenarioAssetDomainFactory(BaseAssociationDomainFactory, factory.Factory):
     class Meta:
         model = ScenarioAssetDomain
 
-    asset_id = factory.SubFactory(AssetDomainFactory)
+    # Fake id, not reflect to real resource
+    asset_id = factory.LazyFunction(lambda: generate(size=13))
     allocation_percentage = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.00, max_value=1
     )
@@ -95,7 +89,8 @@ class ScenarioExpenseDomainFactory(BaseAssociationDomainFactory, factory.Factory
     class Meta:
         model = ScenarioExpenseDomain
 
-    expense_id = factory.SubFactory(ExpenseDomainFactory)
+    # Fake id, not reflect to real resource
+    expense_id = factory.LazyFunction(lambda: generate(size=13))
     min_yearly_growth_rate = factory.LazyAttribute(
         lambda o: fake.pydecimal(
             left_digits=1, right_digits=2, min_value=-0.5, max_value=0
@@ -125,7 +120,8 @@ class ScenarioHouseDomainFactory(BaseAssociationDomainFactory, factory.Factory):
     class Meta:
         model = ScenarioHouseDomain
 
-    house_id = factory.SubFactory(HouseDomainFactory)
+    # Fake id, not reflect to real resource
+    house_id = factory.LazyFunction(lambda: generate(size=13))
     down_payment = factory.LazyAttribute(
         lambda o: fake.random_int(min=10000, max=500000) if o.optional else None
     )
@@ -155,7 +151,8 @@ class ScenarioIncomeDomainFactory(BaseAssociationDomainFactory, factory.Factory)
     class Meta:
         model = ScenarioIncomeDomain
 
-    income_id = factory.SubFactory(IncomeDomainFactory)
+    # Fake id, not reflect to real resource
+    income_id = factory.LazyFunction(lambda: generate(size=13))
     min_yearly_growth_rate = factory.LazyAttribute(
         lambda o: fake.pydecimal(
             left_digits=1, right_digits=2, min_value=-0.5, max_value=0
@@ -185,7 +182,8 @@ class ScenarioLiabilityDomainFactory(BaseAssociationDomainFactory, factory.Facto
     class Meta:
         model = ScenarioLiabilityDomain
 
-    liability_id = factory.SubFactory(LiabilityDomainFactory)
+    # Fake id, not reflect to real resource
+    liability_id = factory.LazyFunction(lambda: generate(size=13))
     allocation_percentage = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.00, max_value=1
     )
@@ -210,7 +208,8 @@ class ScenarioRiskDomainFactory(BaseAssociationDomainFactory, factory.Factory):
     class Meta:
         model = ScenarioRiskDomain
 
-    risk_id = factory.SubFactory(RiskDomainFactory)
+    # Fake id, not reflect to real resource
+    risk_id = factory.LazyFunction(lambda: generate(size=13))
     min_loss = factory.LazyAttribute(
         lambda o: fake.random_int(min=5000, max=30000) if o.optional else None
     )

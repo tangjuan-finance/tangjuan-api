@@ -1,70 +1,68 @@
-# from app.domain.entities import (
-#     AccountDomain,
-#     ScenarioDomain,
-#     ExpenseDomain,
-#     IncomeDomain,
-#     HouseDomain,
-#     ChildDomain,
-#     RiskDomain,
-#     AssetDomain,
-#     LiabilityDomain,
-# )
+from app.domain.associations import (
+    ScenarioExpenseDomain,
+    ScenarioIncomeDomain,
+    ScenarioHouseDomain,
+    ScenarioChildDomain,
+    ScenarioRiskDomain,
+    ScenarioAssetDomain,
+    ScenarioLiabilityDomain,
+)
 
-# from app.domain.associations import (
-#     ScenarioExpenseDomain,
-#     ScenarioIncomeDomain,
-#     ScenarioHouseDomain,
-#     ScenarioChildDomain,
-#     ScenarioRiskDomain,
-#     ScenarioAssetDomain,
-#     ScenarioLiabilityDomain,
-# )
+from tests.factory import (
+    ScenarioExpenseDomainFactory,
+    ScenarioIncomeDomainFactory,
+    ScenarioHouseDomainFactory,
+    ScenarioChildDomainFactory,
+    ScenarioRiskDomainFactory,
+    ScenarioAssetDomainFactory,
+    ScenarioLiabilityDomainFactory,
+)
 
-
-# def create_scenario_expense(
-#     scenario: ScenarioDomain, expense: ExpenseDomain
-# ) -> ScenarioExpenseDomain:
-#     expense = ExpenseDomainFactory(owner=owner)
-#     return ExpenseRepo.create(expense)
-
-
-# def create_scenario_income(
-#     scenario: ScenarioDomain, income: IncomeDomain
-# ) -> ScenarioIncomeDomain:
-#     income = IncomeDomainFactory(owner=owner)
-#     return IncomeRepo.create(income)
+from app.repository.associations import (
+    ScenarioExpenseRepo,
+    ScenarioIncomeRepo,
+    ScenarioHouseRepo,
+    ScenarioChildRepo,
+    ScenarioRiskRepo,
+    ScenarioAssetRepo,
+    ScenarioLiabilityRepo,
+)
 
 
-# def create_scenario_house(
-#     scenario: ScenarioDomain, house: HouseDomain
-# ) -> ScenarioHouseDomain:
-#     house = HouseDomainFactory(owner=owner)
-#     return HouseRepo.create(house)
+def create_scenario_expense(scenario_id: str, expense_id: str) -> ScenarioExpenseDomain:
+    assoc = ScenarioExpenseDomainFactory(scenario_id=scenario_id, expense_id=expense_id)
+    return ScenarioExpenseRepo.create(assoc)
 
 
-# def create_scenario_child(
-#     parent: AccountDomain, child: ChildDomain
-# ) -> ScenarioChildDomain:
-#     child = ChildDomainFactory(parent=parent)
-#     return ChildRepo.create(child)
+def create_scenario_income(scenario_id: str, income_id: str) -> ScenarioIncomeDomain:
+    assoc = ScenarioIncomeDomainFactory(scenario_id=scenario_id, income_id=income_id)
+    return ScenarioIncomeRepo.create(assoc)
 
 
-# def create_scenario_risk(
-#     scenario: ScenarioDomain, risk: RiskDomain
-# ) -> ScenarioRiskDomain:
-#     risk = RiskDomainFactory(owner=owner)
-#     return RiskRepo.create(risk)
+def create_scenario_house(scenario_id: str, house_id: str) -> ScenarioHouseDomain:
+    assoc = ScenarioHouseDomainFactory(scenario_id=scenario_id, house_id=house_id)
+    return ScenarioHouseRepo.create(assoc)
 
 
-# def create_scenario_asset(
-#     scenario: ScenarioDomain, asset: AssetDomain
-# ) -> ScenarioAssetDomain:
-#     asset = AssetDomainFactory(owner=owner)
-#     return AssetRepo.create(asset)
+def create_scenario_child(scenario_id: str, child_id: str) -> ScenarioChildDomain:
+    assoc = ScenarioChildDomainFactory(scenario_id=scenario_id, child_id=child_id)
+    return ScenarioChildRepo.create(assoc)
 
 
-# def create_scenario_liability(
-#     scenario: ScenarioDomain, liability: LiabilityDomain
-# ) -> ScenarioLiabilityDomain:
-#     liability = LiabilityDomainFactory(owner=owner)
-#     return LiabilityRepo.create(liability)
+def create_scenario_risk(scenario_id: str, risk_id: str) -> ScenarioRiskDomain:
+    assoc = ScenarioRiskDomainFactory(scenario_id=scenario_id, risk_id=risk_id)
+    return ScenarioRiskRepo.create(assoc)
+
+
+def create_scenario_asset(scenario_id: str, asset_id: str) -> ScenarioAssetDomain:
+    assoc = ScenarioAssetDomainFactory(scenario_id=scenario_id, asset_id=asset_id)
+    return ScenarioAssetRepo.create(assoc)
+
+
+def create_scenario_liability(
+    scenario_id: str, liability_id: str
+) -> ScenarioLiabilityDomain:
+    assoc = ScenarioLiabilityDomainFactory(
+        scenario_id=scenario_id, liability_id=liability_id
+    )
+    return ScenarioLiabilityRepo.create(assoc)
