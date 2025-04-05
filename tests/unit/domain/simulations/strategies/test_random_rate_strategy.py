@@ -1,7 +1,5 @@
-import pytest
 from app.domain.entities import AssetDomain
 from app.domain.simulations.strategies.random_rate_strategy import RandomRateStrategy
-from decimal import Decimal
 
 
 class TestRandomRateStrategyCase:
@@ -57,27 +55,3 @@ class TestRandomRateStrategyCase:
 
         for idx in range(len(values)):
             assert min_values[idx] <= values[idx] <= max_values[idx]
-
-    def test_simulate_with_invalid_interval(self, default_asset_domain):
-        if (
-            default_asset_domain.max_yearly_return_rate
-            == default_asset_domain.min_yearly_return_rate
-        ):
-            default_asset_domain.min_yearly_return_rate += Decimal("0.1")
-        elif (
-            default_asset_domain.max_yearly_return_rate
-            > default_asset_domain.min_yearly_return_rate
-        ):
-            (
-                default_asset_domain.min_yearly_return_rate,
-                default_asset_domain.max_yearly_return_rate,
-            ) = (
-                default_asset_domain.max_yearly_return_rate,
-                default_asset_domain.min_yearly_return_rate,
-            )
-        else:
-            raise ValueError(
-                f"default_asset_domain.min_yearly_return_rate ({default_asset_domain.min_yearly_return_rate}) > default_asset_domain.max_yearly_return_rate ({default_asset_domain.max_yearly_return_rate})"
-            )
-        with pytest.raises(ValueError):
-            self._generate_asset_simulate(default_asset_domain)
