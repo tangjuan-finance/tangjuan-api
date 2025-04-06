@@ -12,6 +12,7 @@ class ScenarioAssetSimulationService(AssetSimulationService):
     @classmethod
     def simulate_asset_in_scenario(cls, account_id: str, payload: dict) -> dict:
         asset = cls._get_asset_entity(account_id=account_id, payload=payload)
+        # assoc = cls._get_assoc_entity(account_id=account_id, payload=payload)
         strategy_class = cls._get_strategy_class(payload)
         strategy = cls._build_strategy_from_asset(
             strategy_class=strategy_class, asset=asset

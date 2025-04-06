@@ -3,9 +3,10 @@ from app.infrastructure.models import Asset, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class AssetRepo:
+class AssetRepo(EntityRepo):
     @staticmethod
     def create(asset: AssetDomain) -> AssetDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

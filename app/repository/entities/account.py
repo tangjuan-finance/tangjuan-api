@@ -2,9 +2,10 @@ from app.domain.entities import AccountDomain
 from app.infrastructure.models import Account
 from app import db
 import sqlalchemy as sa
+from .base import EntityRepo
 
 
-class AccountRepo:
+class AccountRepo(EntityRepo):
     @staticmethod
     def create(account: AccountDomain) -> AccountDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

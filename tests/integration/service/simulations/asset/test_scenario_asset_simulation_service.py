@@ -4,7 +4,6 @@ from app.domain.entities import AssetDomain
 from app.domain.associations import ScenarioAssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
 from tests.factory import create_scenario_asset
-from decimal import Decimal, ROUND_UP
 from typing import Optional
 
 
@@ -40,20 +39,12 @@ class TestScenarioAssetSimulationServiceCase:
         strategy_class: BaseSimulateStrategy,
     ) -> dict:
         amount = asset.amount
-        start_age = assoc.start_age or asset.start_age
-        end_age = assoc.end_age or asset.end_age
+        start = assoc.start_age or asset.start_age
+        end = assoc.end_age or asset.end_age
 
-        prev = Decimal(amount).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
-        values = [prev]
-
-        for _ in range(start_age + 1, end_age + 1):
-            prev = strategy_class.apply(value=prev)
-            values.append(prev)
-
-        return {
-            "ages": list(range(start_age, end_age + 1)),
-            "values": values,
-        }
+        return ScenarioAssetSimulationService._generate_simulation(
+            amount=amount, start=start, end=end, strategy=strategy_class
+        )
 
     def test_simulate_asset_in_scenario_service_type_checking(
         self, default_account, default_asset_assoc

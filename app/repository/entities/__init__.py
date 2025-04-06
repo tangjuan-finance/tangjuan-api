@@ -7,6 +7,8 @@ from .child import ChildRepo
 from .risk import RiskRepo
 from .asset import AssetRepo
 from .liability import LiabilityRepo
+from .base import ResourceRepo
+
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -19,4 +21,5 @@ __all__ = [
     "RiskRepo",
     "AssetRepo",
     "LiabilityRepo",
+    "ResourceRepo",
 ]

@@ -2,7 +2,9 @@ import pytest
 from app.service.simulations import AssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from decimal import Decimal, ROUND_UP
+from decimal import Decimal
+from tests.factory import AssetDomainFactory
+from app.repository.entities import AssetRepo
 
 
 class TestAssetSimulationServiceCase:
@@ -13,19 +15,12 @@ class TestAssetSimulationServiceCase:
         asset: AssetDomain,
         strategy_class: BaseSimulateStrategy,
     ) -> dict:
-        amount, start_age, end_age = asset.amount, asset.start_age, asset.end_age
+        amount, start, end = asset.amount, asset.start_age, asset.end_age
 
-        prev = Decimal(amount).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
-        values = [prev]
-
-        for _ in range(start_age + 1, end_age + 1):
-            prev = strategy_class.apply(value=prev)
-            values.append(prev)
-
-        return {
-            "ages": list(range(start_age, end_age + 1)),
-            "values": values,
-        }
+        # Use internal method to generate simulaiton
+        return AssetSimulationService._generate_simulation(
+            amount=amount, start=start, end=end, strategy=strategy_class
+        )
 
     def _generate_asset_payload(
         self, asset: AssetDomain, strategy: str = "random_rate"
@@ -112,3 +107,32 @@ class TestAssetSimulationServiceCase:
             AssetSimulationService.simulate_asset(
                 account_id=default_account.id, payload=payload
             )
+
+    def test_get_asset_simulation_by_id_service_rate_is_falsy(self, default_account):
+        """Test the simulation of an asset by ID when rate is falsy"""
+        # Arrange: Get account id
+        account_id = default_account.id
+
+        # Arrange: Create an asset with falsy rate
+        asset = AssetDomainFactory(
+            owner=default_account,
+            min_yearly_return_rate=Decimal("0.00"),
+            max_yearly_return_rate=Decimal("0.00"),
+        )
+        asset_from_repo = AssetRepo.create(asset)
+
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=asset_from_repo)
+
+        # Act: Get the simulation with default strategy
+        result = AssetSimulationService.simulate_asset(
+            account_id=account_id, payload=payload
+        )
+        _, values = result.get("ages"), result.get("values")
+
+        # Assert: Check if values existed
+        assert values is not None
+
+        # Assert: Check if the values is as expected
+        for v in values:
+            assert v == asset.amount

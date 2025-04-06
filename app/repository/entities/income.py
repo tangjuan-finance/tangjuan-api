@@ -3,9 +3,10 @@ from app.infrastructure.models import Income, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class IncomeRepo:
+class IncomeRepo(EntityRepo):
     @staticmethod
     def create(income: IncomeDomain) -> IncomeDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

@@ -3,9 +3,10 @@ from app.infrastructure.models import Child, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class ChildRepo:
+class ChildRepo(EntityRepo):
     @staticmethod
     def create(child: ChildDomain) -> ChildDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

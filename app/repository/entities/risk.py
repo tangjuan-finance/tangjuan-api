@@ -3,9 +3,10 @@ from app.infrastructure.models import Risk, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class RiskRepo:
+class RiskRepo(EntityRepo):
     @staticmethod
     def create(risk: RiskDomain) -> RiskDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

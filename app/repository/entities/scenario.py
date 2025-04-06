@@ -3,9 +3,10 @@ from app.infrastructure.models import Scenario, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class ScenarioRepo:
+class ScenarioRepo(EntityRepo):
     @staticmethod
     def create(scenario: ScenarioDomain) -> ScenarioDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

@@ -3,9 +3,10 @@ from app.infrastructure.models import Expense, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class ExpenseRepo:
+class ExpenseRepo(EntityRepo):
     @staticmethod
     def create(expense: ExpenseDomain) -> ExpenseDomain:
         """Given a DomainObject, store it in the database and return the stored object."""

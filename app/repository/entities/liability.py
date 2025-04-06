@@ -3,9 +3,10 @@ from app.infrastructure.models import Liability, Account
 from app import db
 import sqlalchemy as sa
 from .account import AccountRepo
+from .base import EntityRepo
 
 
-class LiabilityRepo:
+class LiabilityRepo(EntityRepo):
     @staticmethod
     def create(liability: LiabilityDomain) -> LiabilityDomain:
         """Given a DomainObject, store it in the database and return the stored object."""
