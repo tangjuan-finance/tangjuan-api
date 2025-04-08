@@ -3,9 +3,10 @@ from app.infrastructure.models import ScenarioAsset, Scenario, Asset
 from app import db
 import sqlalchemy as sa
 from sqlalchemy.orm.exc import NoResultFound
+from .base import AssociationRepo
 
 
-class ScenarioAssetRepo:
+class ScenarioAssetRepo(AssociationRepo):
     @staticmethod
     def create(assoc: ScenarioAssetDomain) -> ScenarioAssetDomain:
         """Given an Associaiton Domain Object, store it in the database and return the stored object."""

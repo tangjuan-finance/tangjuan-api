@@ -118,7 +118,7 @@ class TestScenarioAssetSimulationServiceCase:
         values = ScenarioAssetSimulationService.simulate_asset_in_scenario(
             account_id=default_account.id, payload=payload
         )["values"]
-        breakpoint()
+
         # Assert: Check if values in bound
         for idx in range(len(values)):
             assert min_values[idx] <= values[idx] <= max_values[idx]

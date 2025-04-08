@@ -1,16 +1,43 @@
-from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
-from datetime import datetime
-from abc import ABC
-
-if TYPE_CHECKING:
-    from ..entities import ScenarioRepo  # Imported only for type hints
+from abc import ABC, abstractmethod
+from app.domain.associations import BaseAssociationDomain
 
 
-# Every Association should have scenario_id, created_at, and updated_at
-@dataclass(kw_only=True)
-class BaseAssociationRepo(ABC):
-    scenario: "ScenarioRepo"  # Use a forward reference (string)
-    memo: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
+# Repo class for all entity
+class AssociationRepo(ABC):
+    @staticmethod
+    @abstractmethod
+    def create(*args, **kwargs) -> BaseAssociationDomain:
+        """Create and return the corresponding association."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def save(*args, **kwargs) -> BaseAssociationDomain:
+        """Save and return the corresponding association."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_by_id(*args, **kwargs) -> BaseAssociationDomain | None:
+        """Return association by ID or None if not found."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_list(*args, **kwargs) -> list[BaseAssociationDomain]:
+        """Return a list of associations owned by the same account.
+        Or empty list if no instance founded
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def delete_by_id(*args, **kwargs) -> None:
+        """Delete the association by ID."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _map_to_domain(*args, **kwargs) -> BaseAssociationDomain:
+        """Map ORM model to association."""
+        pass

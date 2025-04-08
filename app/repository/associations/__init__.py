@@ -5,6 +5,7 @@ from .scenario_child import ScenarioChildRepo
 from .scenario_risk import ScenarioRiskRepo
 from .scenario_asset import ScenarioAssetRepo
 from .scenario_liability import ScenarioLiabilityRepo
+from .base import AssociationRepo
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "ScenarioRiskRepo",
     "ScenarioAssetRepo",
     "ScenarioLiabilityRepo",
+    "AssociationRepo",
 ]
