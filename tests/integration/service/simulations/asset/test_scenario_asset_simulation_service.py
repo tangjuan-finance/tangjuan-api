@@ -3,7 +3,14 @@ from app.service.simulations import ScenarioAssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.associations import ScenarioAssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from tests.factory import create_asset, create_scenario_asset
+from tests.factory import (
+    create_asset,
+    create_scenario_asset,
+    create_fake_id,
+    AssetDomainFactory,
+    ScenarioAssetDomainFactory,
+    ScenarioDomainFactory,
+)
 from typing import Optional
 from decimal import Decimal
 from collections import defaultdict
@@ -160,6 +167,90 @@ class TestScenarioAssetSimulationServiceCase:
                 account_id=default_account.id, payload=payload
             )
 
+    def test_get_scenario_asset_simulation_by_id_service_rate_non_owner(
+        self, default_asset_assoc
+    ):
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_asset_assoc.scenario_id,
+            asset_id=default_asset_assoc.asset_id,
+        )
+
+        # Arrange: Create fake account id
+        fake_account_id = create_fake_id()
+
+        # Act: Get the simulation with non-owner account should raise PermissionError
+        with pytest.raises(PermissionError):
+            ScenarioAssetSimulationService.simulate_asset_in_scenario(
+                account_id=fake_account_id, payload=payload
+            )
+
+    def test_get_scenario_asset_simulation_by_id_service_rate_non_existed_asset(
+        self, default_account, default_scenario
+    ):
+        # Arrange: Create a non-saved asset
+        non_saved_asset = AssetDomainFactory(owner=default_account)
+
+        # Arrange: Create association from the non-saved asset without saving the association
+        assoc = ScenarioAssetDomainFactory(
+            scenario_id=default_scenario.id, asset_id=non_saved_asset.id
+        )
+
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=assoc.scenario_id,
+            asset_id=assoc.asset_id,
+        )
+
+        # Act: Get the simulation with non-saved asset should raise ValueError
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.simulate_asset_in_scenario(
+                account_id=default_account, payload=payload
+            )
+
+    def test_get_scenario_asset_simulation_by_id_service_rate_non_existed_scenario(
+        self, default_account, default_asset
+    ):
+        # Arrange: Create a non-saved asset
+        non_saved_scenario = ScenarioDomainFactory(owner=default_account)
+
+        # Arrange: Create association from the non-saved scenario without saving the association
+        assoc = ScenarioAssetDomainFactory(
+            scenario_id=non_saved_scenario.id, asset_id=default_asset.id
+        )
+
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=assoc.scenario_id,
+            asset_id=assoc.asset_id,
+        )
+
+        # Act: Get the simulation with non-saved scenario should raise ValueError
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.simulate_asset_in_scenario(
+                account_id=default_account.id, payload=payload
+            )
+
+    def test_get_scenario_asset_simulation_by_id_service_rate_non_existed_assoc(
+        self, default_account, default_scenario, default_asset
+    ):
+        # Arrange: Create non-saved association
+        assoc = ScenarioAssetDomainFactory(
+            scenario_id=default_scenario.id, asset_id=default_asset.id
+        )
+
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=assoc.scenario_id,
+            asset_id=assoc.asset_id,
+        )
+
+        # Act: Get the simulation with non-saved association should raise ValueError
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.simulate_asset_in_scenario(
+                account_id=default_account.id, payload=payload
+            )
+
     def test_get_scenario_assets_simulation_service_with_default_strategy(
         self, default_account, default_scenario
     ):
@@ -195,6 +286,29 @@ class TestScenarioAssetSimulationServiceCase:
         # Assert: Check if all new assets in the list
         for asset in new_assets_list:
             assert asset in update_assets_list
+
+    def test_get_scenario_assets_simulation_by_id_service_rate_non_existed_scenario(
+        self, default_account, default_asset
+    ):
+        # Arrange: Create a non-saved asset
+        non_saved_scenario = ScenarioDomainFactory(owner=default_account)
+
+        # Arrange: Create association from the non-saved scenario without saving the association
+        assoc = ScenarioAssetDomainFactory(
+            scenario_id=non_saved_scenario.id, asset_id=default_asset.id
+        )
+
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=assoc.scenario_id,
+            asset_id=assoc.asset_id,
+        )
+
+        # Act: Get the simulation with non-saved scenario should raise ValueError
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.simulate_assets_in_scenario(
+                account_id=default_account.id, payload=payload
+            )
 
     def test_get_aggregate_scenario_asset_simulation_service_with_default_strategy(
         self, default_account, default_scenario
@@ -253,4 +367,27 @@ class TestScenarioAssetSimulationServiceCase:
                 aggregrate_min_simulation[age]
                 <= value
                 <= aggregrate_max_simulation[age]
+            )
+
+    def test_get_aggregate_scenario_assets_simulation_by_id_service_rate_non_existed_scenario(
+        self, default_account, default_asset
+    ):
+        # Arrange: Create a non-saved asset
+        non_saved_scenario = ScenarioDomainFactory(owner=default_account)
+
+        # Arrange: Create association from the non-saved scenario without saving the association
+        assoc = ScenarioAssetDomainFactory(
+            scenario_id=non_saved_scenario.id, asset_id=default_asset.id
+        )
+
+        # Arrange: Create payload
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=assoc.scenario_id,
+            asset_id=assoc.asset_id,
+        )
+
+        # Act: Get the simulation with non-saved scenario should raise ValueError
+        with pytest.raises(ValueError):
+            ScenarioAssetSimulationService.aggregate_assets_in_scenario(
+                account_id=default_account.id, payload=payload
             )

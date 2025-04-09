@@ -3,7 +3,7 @@ from app.service.simulations import AssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
 from decimal import Decimal
-from tests.factory import AssetDomainFactory
+from tests.factory import AssetDomainFactory, create_fake_id
 from app.repository.entities import AssetRepo
 
 
@@ -136,3 +136,31 @@ class TestAssetSimulationServiceCase:
         # Assert: Check if the values is as expected
         for v in values:
             assert v == asset.amount
+
+    def test_get_asset_simulation_by_id_service_rate_non_owner(self, default_asset):
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=default_asset)
+
+        # Arrange: Create fake account id
+        fake_account_id = create_fake_id()
+
+        # Act: Get the simulation with invalid strategy should raise Value Error
+        with pytest.raises(PermissionError):
+            AssetSimulationService.simulate_asset(
+                account_id=fake_account_id, payload=payload
+            )
+
+    def test_get_asset_simulation_by_id_service_rate_non_existed_asset(
+        self, default_account
+    ):
+        # Arrange: Create a non-saved asset
+        non_saved_asset = AssetDomainFactory(owner=default_account)
+
+        # Arrange: Create payload
+        payload = self._generate_asset_payload(asset=non_saved_asset)
+
+        # Act: Get the simulation with invalid strategy should raise Value Error
+        with pytest.raises(ValueError):
+            AssetSimulationService.simulate_asset(
+                account_id=default_account, payload=payload
+            )

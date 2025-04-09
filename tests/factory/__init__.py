@@ -40,6 +40,7 @@ from .create_association import (
     create_scenario_asset,
     create_scenario_liability,
 )
+from .create_fake_id import create_fake_id
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -77,4 +78,5 @@ __all__ = [
     "create_scenario_risk",
     "create_scenario_asset",
     "create_scenario_liability",
+    "create_fake_id",
 ]
