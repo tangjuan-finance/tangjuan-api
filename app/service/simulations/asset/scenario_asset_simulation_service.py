@@ -6,6 +6,8 @@ from .base import BaseAssetSimulation
 
 from app.repository.entities import AssetRepo
 from app.repository.associations import ScenarioAssetRepo
+from decimal import Decimal
+from collections import defaultdict
 
 
 class ScenarioAssetSimulationService(
@@ -63,6 +65,23 @@ class ScenarioAssetSimulationService(
             data.append({"asset_id": asset.id, "simulation": simulation})
 
         return data
+
+    @classmethod
+    def aggregate_assets_in_scenario(cls, account_id: str, payload: dict) -> dict:
+        data = cls.simulate_assets_in_scenario(account_id=account_id, payload=payload)
+        aggregate = defaultdict(Decimal)
+
+        # Aggregate the value based on age
+        for item in data:
+            sim = item["simulation"]
+            for age, value in zip(sim["ages"], sim["values"]):
+                aggregate[age] += value
+
+        # Sort and formatted
+        sorted_ages = sorted(aggregate.keys())
+        return cls._format_output(
+            ages=sorted_ages, values=[aggregate[age] for age in sorted_ages]
+        )
 
     @classmethod
     def _generate_simulation_by_asset_and_assoc(

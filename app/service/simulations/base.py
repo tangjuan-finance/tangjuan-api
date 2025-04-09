@@ -72,17 +72,15 @@ class BaseSimulationService(CheckOwnershipMixin):
         """
         Generate simulated values and corresponding ages over a range.
         """
-        ages = cls._get_duration(start=start, end=end)
-        values = cls._simulate(
-            amount=amount,
-            start=start,
-            end=end,
-            strategy=strategy,
+        return cls._format_output(
+            ages=cls._get_duration(start=start, end=end),
+            values=cls._simulate(
+                amount=amount,
+                start=start,
+                end=end,
+                strategy=strategy,
+            ),
         )
-        return {
-            "ages": ages,
-            "values": values,
-        }
 
     @classmethod
     def _get_duration(cls, start: int, end: int) -> list:
@@ -105,6 +103,16 @@ class BaseSimulationService(CheckOwnershipMixin):
             prev = strategy.apply(prev)
             values.append(prev)
         return values
+
+    @classmethod
+    def _format_output(cls, ages: list, values: list) -> dict:
+        """
+        Format output
+        """
+        return {
+            "ages": ages,
+            "values": values,
+        }
 
 
 class BaseAssociationSimulationService(BaseSimulationService):

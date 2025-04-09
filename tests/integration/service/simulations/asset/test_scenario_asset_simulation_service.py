@@ -5,6 +5,8 @@ from app.domain.associations import ScenarioAssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
 from tests.factory import create_asset, create_scenario_asset
 from typing import Optional
+from decimal import Decimal
+from collections import defaultdict
 
 
 class TestScenarioAssetSimulationServiceCase:
@@ -32,8 +34,9 @@ class TestScenarioAssetSimulationServiceCase:
 
         return payload
 
+    @classmethod
     def _fake_scenario_asset_simulate(
-        self,
+        cls,
         asset: AssetDomain,
         assoc: ScenarioAssetDomain,
         strategy_class: BaseSimulateStrategy,
@@ -45,6 +48,33 @@ class TestScenarioAssetSimulationServiceCase:
         return ScenarioAssetSimulationService._generate_simulation(
             amount=amount, start=start, end=end, strategy=strategy_class
         )
+
+    @classmethod
+    def _create_min_max_simulations(
+        cls,
+        asset: AssetDomain,
+        assoc: ScenarioAssetDomain,
+        min_rate: Decimal,
+        max_rate: Decimal,
+        strategy_class: BaseSimulateStrategy,
+    ) -> tuple:
+        # Arrange: Create min boundry
+        min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
+        min_simulations = cls._fake_scenario_asset_simulate(
+            asset=asset,
+            assoc=assoc,
+            strategy_class=min_strategy,
+        )
+
+        # Arrange: Create max boundry
+        max_strategy = RandomRateStrategy(min_rate=max_rate, max_rate=max_rate)
+        max_simulations = cls._fake_scenario_asset_simulate(
+            asset=asset,
+            assoc=assoc,
+            strategy_class=max_strategy,
+        )
+
+        return min_simulations, max_simulations
 
     def test_simulate_asset_in_scenario_service_type_checking(
         self, default_account, default_asset_assoc
@@ -85,27 +115,15 @@ class TestScenarioAssetSimulationServiceCase:
             scenario_id=default_scenario.id, asset_id=default_asset.id
         )
 
-        # Arrange: Get rate interval
-        min_rate, max_rate = (
-            assoc.min_yearly_return_rate,
-            assoc.max_yearly_return_rate,
+        # Arrange: Generate min-max boundry
+        min_simulations, max_simulations = self._create_min_max_simulations(
+            asset=default_asset,
+            assoc=assoc,
+            min_rate=assoc.min_yearly_return_rate,
+            max_rate=assoc.max_yearly_return_rate,
+            strategy_class=RandomRateStrategy,
         )
-
-        # Arrange: Create min boundry
-        min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
-        min_values = self._fake_scenario_asset_simulate(
-            asset=default_asset,
-            assoc=assoc,
-            strategy_class=min_strategy,
-        )["values"]
-
-        # Arrange: Create max boundry
-        max_strategy = RandomRateStrategy(min_rate=max_rate, max_rate=max_rate)
-        max_values = self._fake_scenario_asset_simulate(
-            asset=default_asset,
-            assoc=assoc,
-            strategy_class=max_strategy,
-        )["values"]
+        min_values, max_values = min_simulations["values"], max_simulations["values"]
 
         # Arrange: Create payload
         payload = self._generate_scenario_asset_payload(
@@ -142,18 +160,12 @@ class TestScenarioAssetSimulationServiceCase:
                 account_id=default_account.id, payload=payload
             )
 
-    def test_get_scenario_assets_simulation_by_id_service_with_default_strategy(
+    def test_get_scenario_assets_simulation_service_with_default_strategy(
         self, default_account, default_scenario
     ):
         """Test the random rate simulation of all assets in the scenario given its ID"""
         # Arrange: Specifying strategy
         strategy = "random_rate"
-
-        # Arrange: Create payload for get the init result from simulate_assets_in_scenario
-        payload = self._generate_scenario_asset_payload(
-            scenario_id=default_scenario.id,
-            strategy=strategy,
-        )
 
         # Arange: Create five new assets and assocs
         NEW_ASSET_COUNT = 5
@@ -166,7 +178,13 @@ class TestScenarioAssetSimulationServiceCase:
             create_scenario_asset(scenario_id=default_scenario.id, asset_id=asset.id)
             new_assets_list.append(asset.id)
 
-        # Act: Get the simulations again
+        # Arrange: Create payload for get result from simulate_assets_in_scenario
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_scenario.id,
+            strategy=strategy,
+        )
+
+        # Act: Get the simulations
         update_result = ScenarioAssetSimulationService.simulate_assets_in_scenario(
             account_id=default_account.id, payload=payload
         )
@@ -177,3 +195,62 @@ class TestScenarioAssetSimulationServiceCase:
         # Assert: Check if all new assets in the list
         for asset in new_assets_list:
             assert asset in update_assets_list
+
+    def test_get_aggregate_scenario_asset_simulation_service_with_default_strategy(
+        self, default_account, default_scenario
+    ):
+        """Test the random rate simulation of all assets in the scenario given its ID"""
+        # Arrange: Specifying strategy
+        strategy = "random_rate"
+
+        # Arrange: Define the min-max boundry
+        aggregrate_min_simulation = defaultdict(Decimal)
+        aggregrate_max_simulation = defaultdict(Decimal)
+
+        # Arange: Create five new assets and assocs
+        NEW_ASSET_COUNT = 5
+        new_assets_list = []
+        for _ in range(NEW_ASSET_COUNT):
+            # Create the asset
+            asset = create_asset(default_account)
+
+            # Create the assoc
+            assoc = create_scenario_asset(
+                scenario_id=default_scenario.id, asset_id=asset.id
+            )
+            new_assets_list.append(asset.id)
+
+            # Create the min-max boundry
+            min_simulations, max_simulations = self._create_min_max_simulations(
+                asset=asset,
+                assoc=assoc,
+                min_rate=assoc.min_yearly_return_rate,
+                max_rate=assoc.max_yearly_return_rate,
+                strategy_class=RandomRateStrategy,
+            )
+
+            # Update min values to aggregate
+            for age, value in zip(min_simulations["ages"], min_simulations["values"]):
+                aggregrate_min_simulation[age] += value
+
+            # Update max values to aggregate
+            for age, value in zip(max_simulations["ages"], max_simulations["values"]):
+                aggregrate_max_simulation[age] += value
+
+        # Arrange: Create payload for get the result from simulate_assets_in_scenario
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_scenario.id,
+            strategy=strategy,
+        )
+
+        # Act: Get the aggregate result
+        aggregate_values = ScenarioAssetSimulationService.aggregate_assets_in_scenario(
+            account_id=default_account.id, payload=payload
+        )
+
+        for age, value in zip(aggregate_values["ages"], aggregate_values["values"]):
+            assert (
+                aggregrate_min_simulation[age]
+                <= value
+                <= aggregrate_max_simulation[age]
+            )
