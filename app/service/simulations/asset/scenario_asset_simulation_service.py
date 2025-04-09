@@ -13,6 +13,7 @@ class ScenarioAssetSimulationService(
 ):
     @classmethod
     def simulate_asset_in_scenario(cls, account_id: str, payload: dict) -> dict:
+        # Validate input
         asset_id, scenario_id, strategy_name = cls.validate_assoc_simulation_input(
             payload=payload,
             resource_type="asset",
@@ -25,13 +26,48 @@ class ScenarioAssetSimulationService(
         )
 
         # Get assoc
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
         assoc = cls._get_resource_association_by_repo(
-            account_id=account_id,
             scenario_id=scenario_id,
             entity_id=asset_id,
             assoc_repo=ScenarioAssetRepo,
         )
 
+        # Generate simulation
+        return cls._generate_simulation_by_asset_and_assoc(
+            asset=asset, assoc=assoc, strategy_name=strategy_name
+        )
+
+    @classmethod
+    def simulate_assets_in_scenario(cls, account_id: str, payload: dict) -> dict:
+        # Validate account own the scenario, scenario exist
+        strategy_name = cls.get_strategy_name_from_payload(
+            payload=payload, default_strategy=cls.DEFAULT_STRATEGY
+        )
+        scenario_id = cls.get_scenario_id_from_payload(payload)
+        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
+
+        # For assets belong to scenario
+        assocs = ScenarioAssetRepo.get_list(scenario_id)
+        data = []
+        for assoc in assocs:
+            # Get asset
+            asset = cls._get_resource_domain_by_repo(
+                account_id=account_id, entity_id=assoc.asset_id, repo=AssetRepo
+            )
+
+            # Run simulation
+            simulation = cls._generate_simulation_by_asset_and_assoc(
+                asset=asset, assoc=assoc, strategy_name=strategy_name
+            )
+            data.append({"asset_id": asset.id, "simulation": simulation})
+
+        return data
+
+    @classmethod
+    def _generate_simulation_by_asset_and_assoc(
+        cls, asset: AssetDomain, assoc: ScenarioAssetDomain, strategy_name: str
+    ) -> dict:
         # Get strategy
         strategy = cls._build_strategy_from_asset_and_assoc(
             strategy_name=strategy_name, asset=asset, assoc=assoc

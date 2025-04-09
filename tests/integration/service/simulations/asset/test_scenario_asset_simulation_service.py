@@ -3,7 +3,7 @@ from app.service.simulations import ScenarioAssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.associations import ScenarioAssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from tests.factory import create_scenario_asset
+from tests.factory import create_asset, create_scenario_asset
 from typing import Optional
 
 
@@ -141,3 +141,39 @@ class TestScenarioAssetSimulationServiceCase:
             ScenarioAssetSimulationService.simulate_asset_in_scenario(
                 account_id=default_account.id, payload=payload
             )
+
+    def test_get_scenario_assets_simulation_by_id_service_with_default_strategy(
+        self, default_account, default_scenario
+    ):
+        """Test the random rate simulation of all assets in the scenario given its ID"""
+        # Arrange: Specifying strategy
+        strategy = "random_rate"
+
+        # Arrange: Create payload for get the init result from simulate_assets_in_scenario
+        payload = self._generate_scenario_asset_payload(
+            scenario_id=default_scenario.id,
+            strategy=strategy,
+        )
+
+        # Arange: Create five new assets and assocs
+        NEW_ASSET_COUNT = 5
+        new_assets_list = []
+        for _ in range(NEW_ASSET_COUNT):
+            # Create the asset
+            asset = create_asset(default_account)
+
+            # Create the assoc
+            create_scenario_asset(scenario_id=default_scenario.id, asset_id=asset.id)
+            new_assets_list.append(asset.id)
+
+        # Act: Get the simulations again
+        update_result = ScenarioAssetSimulationService.simulate_assets_in_scenario(
+            account_id=default_account.id, payload=payload
+        )
+
+        # Act: Get the updated asset ID lists in the result
+        update_assets_list = [asset["asset_id"] for asset in update_result]
+
+        # Assert: Check if all new assets in the list
+        for asset in new_assets_list:
+            assert asset in update_assets_list

@@ -16,18 +16,26 @@ class BaseSimulationService(CheckOwnershipMixin):
         cls, payload: dict, resource_type: str, default_strategy: str
     ) -> tuple[str, str]:
         """Validates and returns (resource_id, strategy_name)"""
-        resource_id_key = f"{resource_type}_id"
-        resource_id = payload.get(resource_id_key)
-        strategy_name = payload.get("strategy", default_strategy)
-
-        missing = []
-        if not resource_id:
-            missing.append(resource_id_key)
-
-        if missing:
-            raise ValueError(f"Missing required field(s): {', '.join(missing)}")
+        resource_id = cls.get_resource_id_from_payload(resource_type, payload)
+        strategy_name = cls.get_strategy_name_from_payload(payload, default_strategy)
 
         return resource_id, strategy_name
+
+    @classmethod
+    def get_resource_id_from_payload(cls, resource_type: str, payload: dict) -> str:
+        resource_id_key = f"{resource_type}_id"
+        resource_id = payload.get(resource_id_key)
+
+        if not resource_id:
+            raise ValueError(f"Missing {resource_type}")
+
+        return resource_id
+
+    @classmethod
+    def get_strategy_name_from_payload(
+        cls, payload: dict, default_strategy: str
+    ) -> str:
+        return payload.get("strategy", default_strategy)
 
     @classmethod
     def _get_resource_domain_by_repo(
@@ -40,15 +48,8 @@ class BaseSimulationService(CheckOwnershipMixin):
         if not entity:
             raise ValueError(f"Resource with ID {entity_id} not found")
 
-        # Get owner ID from either parent or directly
-        owner_id = (
-            getattr(entity.parent, "id", None)
-            if hasattr(entity, "parent")
-            else entity.owner.id
-        )
-
         # Check if the account own the resource
-        cls._check_ownership_by_id(account_id=account_id, owner_id=owner_id)
+        cls._check_ownership(account_id=account_id, entity=entity)
         return entity
 
     @classmethod
@@ -120,12 +121,18 @@ class BaseAssociationSimulationService(BaseSimulationService):
             default_strategy=default_strategy,
         )
 
-        # Validate scenario id
+        # Validate and get scenario id
+        scenario_id = cls.get_scenario_id_from_payload(payload)
+
+        return resource_id, scenario_id, strategy_name
+
+    @classmethod
+    def get_scenario_id_from_payload(cls, payload) -> str:
         scenario_id = payload.get("scenario_id")
         if not scenario_id:
             raise ValueError(f"Missing required field: {scenario_id}")
 
-        return resource_id, scenario_id, strategy_name
+        return scenario_id
 
     @classmethod
     def _check_scenario_ownership(cls, account_id: str, scenario_id: str) -> None:
@@ -145,7 +152,6 @@ class BaseAssociationSimulationService(BaseSimulationService):
     @classmethod
     def _get_resource_association_by_repo(
         cls,
-        account_id: str,
         scenario_id: str,
         entity_id: str,
         assoc_repo: AssociationRepo,
@@ -153,7 +159,6 @@ class BaseAssociationSimulationService(BaseSimulationService):
         """
         Get the association of a resource using its repo and verify ownership.
         """
-        cls._check_scenario_ownership(account_id=account_id, scenario_id=scenario_id)
         assoc = assoc_repo.get_by_id(scenario_id, entity_id)
         if not assoc:
             raise ValueError(
