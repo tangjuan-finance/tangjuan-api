@@ -1,8 +1,12 @@
-# from .expense_simulation_service import ExpenseSimulationService
+from .expense import (
+    ExpenseSimulationService,
+    ScenarioExpenseSimulationService,
+)
 from .income import (
     IncomeSimulationService,
     ScenarioIncomeSimulationService,
-)  # from .house_simulation_service import HouseSimulationService
+)
+# from .house_simulation_service import HouseSimulationService
 
 # from .child_simulation_service import ChildSimulationService
 # from .risk_simulation_service import RiskSimulationService
@@ -14,14 +18,14 @@ from .asset import (
 
 # Define __all__ to specify the public interface
 __all__ = [
-    # "ExpenseSimulationService",
+    "ExpenseSimulationService",
     "IncomeSimulationService",
     # "HouseSimulationService",
     # "ChildSimulationService",
     # "RiskSimulationService",
     "AssetSimulationService",
     # "LiabilitySimulationService",
-    # "ScenarioExpenseSimulationService",
+    "ScenarioExpenseSimulationService",
     "ScenarioIncomeSimulationService",
     # "ScenarioHouseSimulationService",
     # "ScenarioChildSimulationService",
