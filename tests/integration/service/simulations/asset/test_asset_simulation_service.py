@@ -22,6 +22,7 @@ class TestAssetSimulationServiceCase:
 
         # Create asset fake service
         service = FakeSimulationService(AssetSimulationConfig)
+
         # Use internal method to generate simulaiton
         return service._fake_entity_simulate(
             amount=amount, start_age=start_age, end_age=end_age, strategy=strategy_class
