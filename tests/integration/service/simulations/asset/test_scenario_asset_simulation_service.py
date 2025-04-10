@@ -72,7 +72,7 @@ class TestScenarioAssetSimulationServiceCase:
         strategy_class: BaseSimulateStrategy,
     ) -> tuple:
         # Arrange: Create min boundry
-        min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
+        min_strategy = strategy_class(min_rate=min_rate, max_rate=min_rate)
         min_simulations = cls._fake_scenario_asset_simulate(
             asset=asset,
             assoc=assoc,
