@@ -205,7 +205,7 @@ class TestScenarioAssetSimulationServiceCase:
         # Act: Get the simulation with non-saved asset should raise ValueError
         with pytest.raises(ValueError):
             ScenarioAssetSimulationService.simulate_asset_in_scenario(
-                account_id=default_account, payload=payload
+                account_id=default_account.id, payload=payload
             )
 
     def test_get_scenario_asset_simulation_by_id_service_rate_non_existed_scenario(

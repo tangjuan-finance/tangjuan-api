@@ -115,7 +115,7 @@ class ScenarioAssetService(BaseAssociationService):
         if not asset_from_repo:
             raise ValueError(f"Asset with ID {asset_id} not found")
 
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=asset_from_repo.owner.id
         )
 

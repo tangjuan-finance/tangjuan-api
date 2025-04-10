@@ -115,7 +115,7 @@ class ScenarioExpenseService(BaseAssociationService):
         if not expense_from_repo:
             raise ValueError(f"Expense with ID {expense_id} not found")
 
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=expense_from_repo.owner.id
         )
 

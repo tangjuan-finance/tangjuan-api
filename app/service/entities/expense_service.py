@@ -60,7 +60,7 @@ class ExpenseService(OwnerRequiredServiceMixin):
             raise ValueError(f"Expense with ID {expense_id} not found")
 
         # Check if the account owns the expense
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=expense_from_repo.owner.id
         )
 

@@ -1,9 +1,12 @@
 import pytest
+
 from app.service.simulations import AssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
+from app.service.simulations.asset.config import AssetSimulationConfig
 from decimal import Decimal
 from tests.factory import AssetDomainFactory, create_fake_id
+from tests.integration.service.simulations.fake import FakeSimulationService
 from app.repository.entities import AssetRepo
 
 
@@ -15,11 +18,13 @@ class TestAssetSimulationServiceCase:
         asset: AssetDomain,
         strategy_class: BaseSimulateStrategy,
     ) -> dict:
-        amount, start, end = asset.amount, asset.start_age, asset.end_age
+        amount, start_age, end_age = asset.amount, asset.start_age, asset.end_age
 
+        # Create asset fake service
+        service = FakeSimulationService(AssetSimulationConfig)
         # Use internal method to generate simulaiton
-        return AssetSimulationService._generate_simulation(
-            amount=amount, start=start, end=end, strategy=strategy_class
+        return service._fake_entity_simulate(
+            amount=amount, start_age=start_age, end_age=end_age, strategy=strategy_class
         )
 
     def _generate_asset_payload(

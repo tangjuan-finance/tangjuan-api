@@ -5,7 +5,7 @@
 # from .risk_simulation_service import RiskSimulationService
 from .asset import (
     AssetSimulationService,
-    ScenarioAssetSimulationService,
+    # ScenarioAssetSimulationService,
 )
 # from .liability_simulation_service import LiabilitySimulationService
 

@@ -61,7 +61,7 @@ class ChildService(OwnerRequiredServiceMixin):
             raise ValueError(f"Child with ID {child_id} not found")
 
         # Check if the account owns the child
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=child_from_repo.parent.id
         )
 

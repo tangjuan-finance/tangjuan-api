@@ -115,7 +115,7 @@ class ScenarioRiskService(BaseAssociationService):
         if not risk_from_repo:
             raise ValueError(f"Risk with ID {risk_id} not found")
 
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=risk_from_repo.owner.id
         )
 

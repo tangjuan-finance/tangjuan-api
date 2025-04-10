@@ -61,7 +61,7 @@ class HouseService(OwnerRequiredServiceMixin):
             raise ValueError(f"House with ID {house_id} not found")
 
         # Check if the account owns the house
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=house_from_repo.owner.id
         )
 

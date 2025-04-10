@@ -17,7 +17,7 @@ class BaseAssociationService(CheckOwnershipMixin):
         if not scenario_from_repo:
             raise ValueError(f"Scenario with ID {scenario_id} not found")
 
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=scenario_from_repo.owner.id
         )
 

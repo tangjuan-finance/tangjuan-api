@@ -115,7 +115,7 @@ class ScenarioIncomeService(BaseAssociationService):
         if not income_from_repo:
             raise ValueError(f"Income with ID {income_id} not found")
 
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=income_from_repo.owner.id
         )
 

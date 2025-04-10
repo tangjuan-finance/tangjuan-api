@@ -60,7 +60,7 @@ class AssetService(OwnerRequiredServiceMixin):
             raise ValueError(f"Asset with ID {asset_id} not found")
 
         # Check if the account owns the asset
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=asset_from_repo.owner.id
         )
 

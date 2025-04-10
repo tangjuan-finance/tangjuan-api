@@ -59,7 +59,7 @@ class RiskService(OwnerRequiredServiceMixin):
             raise ValueError(f"Risk with ID {risk_id} not found")
 
         # Check if the account owns the risk
-        cls._check_ownership_by_id(
+        cls._check_entity_ownership_by_id(
             account_id=account_id, owner_id=risk_from_repo.owner.id
         )
 
