@@ -1,7 +1,8 @@
 from typing import Type
-from decimal import Decimal, ROUND_UP
+from decimal import Decimal
 from collections import defaultdict
 
+from app.domain.simulations.strategies.utils import format_simulation_output
 from app.domain.simulations.strategies import BaseSimulateStrategy, RandomRateStrategy
 from app.repository.entities import ResourceRepo
 from app.domain.entities import ResourceDomain
@@ -49,15 +50,7 @@ class BaseSimulationService(CheckOwnershipMixin):
             getattr(resource, self.end_attr),
         )
 
-        return self._format_output(
-            ages=self._get_duration(start=start, end=end),
-            values=self._simulate(
-                amount=resource.amount,
-                start=start,
-                end=end,
-                strategy=strategy,
-            ),
-        )
+        return strategy.simulate_years(start=start, end=end, amount=resource.amount)
 
     def _get_resource_id_from_payload(self, resource_type: str, payload: dict) -> str:
         key = f"{self.resource_type}_id"
@@ -112,35 +105,6 @@ class BaseSimulationService(CheckOwnershipMixin):
             return RandomRateStrategy(min_rate=min_rate, max_rate=max_rate)
 
         raise ValueError(f"Unsupported strategy class: {strategy_class.__name__}")
-
-    def _get_duration(self, start: int, end: int) -> list:
-        """
-        Generate a list of years from start to end (inclusive).
-        """
-        return list(range(start, end + 1))
-
-    def _simulate(
-        self, amount: int, start: int, end: int, strategy: BaseSimulateStrategy
-    ) -> list:
-        """
-        Simulate value growth over a given period using a simulation strategy.
-        """
-        prev = Decimal(amount).quantize(exp=Decimal("1.00"), rounding=ROUND_UP)
-        values = [prev]
-
-        for _ in range(start + 1, end + 1):
-            prev = strategy.apply(prev)
-            values.append(prev)
-        return values
-
-    def _format_output(self, ages: list, values: list) -> dict:
-        """
-        Format output
-        """
-        return {
-            "ages": ages,
-            "values": values,
-        }
 
 
 class BaseAssociationSimulationService(BaseSimulationService):
@@ -221,7 +185,7 @@ class BaseAssociationSimulationService(BaseSimulationService):
 
         # Sort and formatted
         sorted_ages = sorted(aggregate.keys())
-        return self._format_output(
+        return format_simulation_output(
             ages=sorted_ages, values=[aggregate[age] for age in sorted_ages]
         )
 
@@ -240,15 +204,7 @@ class BaseAssociationSimulationService(BaseSimulationService):
             end_attr=self.end_attr,
         )
 
-        return self._format_output(
-            ages=self._get_duration(start=start, end=end),
-            values=self._simulate(
-                amount=resource.amount,
-                start=start,
-                end=end,
-                strategy=strategy,
-            ),
-        )
+        return strategy.simulate_years(start=start, end=end, amount=resource.amount)
 
     def _extract_scenario_id_from_payload(self, payload) -> str:
         scenario_id = payload.get("scenario_id")

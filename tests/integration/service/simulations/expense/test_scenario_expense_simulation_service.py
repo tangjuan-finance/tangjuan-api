@@ -3,8 +3,6 @@ from app.service.simulations import ScenarioExpenseSimulationService
 from app.domain.entities import ExpenseDomain
 from app.domain.associations import ScenarioExpenseDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from app.service.simulations.expense.config import ExpenseSimulationConfig
-from tests.integration.service.simulations.fake import FakeSimulationService
 from tests.factory import (
     create_expense,
     create_scenario_expense,
@@ -54,12 +52,8 @@ class TestScenarioExpenseSimulationServiceCase:
         start_age = assoc.start_age or expense.start_age
         end_age = assoc.end_age or expense.end_age
 
-        # Create expense fake service
-        service = FakeSimulationService(ExpenseSimulationConfig)
-
-        # Use internal method to generate simulaiton
-        return service._fake_entity_simulate(
-            amount=amount, start_age=start_age, end_age=end_age, strategy=strategy_class
+        return strategy_class.simulate_years(
+            start=start_age, end=end_age, amount=amount
         )
 
     @classmethod

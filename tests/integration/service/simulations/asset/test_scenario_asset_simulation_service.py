@@ -3,8 +3,6 @@ from app.service.simulations import ScenarioAssetSimulationService
 from app.domain.entities import AssetDomain
 from app.domain.associations import ScenarioAssetDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from app.service.simulations.asset.config import AssetSimulationConfig
-from tests.integration.service.simulations.fake import FakeSimulationService
 from tests.factory import (
     create_asset,
     create_scenario_asset,
@@ -54,12 +52,8 @@ class TestScenarioAssetSimulationServiceCase:
         start_age = assoc.start_age or asset.start_age
         end_age = assoc.end_age or asset.end_age
 
-        # Create asset fake service
-        service = FakeSimulationService(AssetSimulationConfig)
-
-        # Use internal method to generate simulaiton
-        return service._fake_entity_simulate(
-            amount=amount, start_age=start_age, end_age=end_age, strategy=strategy_class
+        return strategy_class.simulate_years(
+            start=start_age, end=end_age, amount=amount
         )
 
     @classmethod

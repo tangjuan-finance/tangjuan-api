@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from .base import BaseSimulateStrategy
+from .mixin import YearlyValueSimulationMixin
 from decimal import Decimal
 import random
 
 
 @dataclass
-class RandomRateStrategy(BaseSimulateStrategy):
+class RandomRateStrategy(BaseSimulateStrategy, YearlyValueSimulationMixin):
     min_rate: Decimal
     max_rate: Decimal
 
@@ -27,3 +28,9 @@ class RandomRateStrategy(BaseSimulateStrategy):
         result = value * (Decimal("1") + rate)
         # Calculate the new value and round it to 2 decimal places
         return self._format_result(result)
+
+    def simulate_years(self, start: int, end: int, amount: int) -> list:
+        return self._format_output(
+            ages=self._get_duration(start=start, end=end),
+            values=self._simulate_years(start=start, end=end, amount=amount),
+        )

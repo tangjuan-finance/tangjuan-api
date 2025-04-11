@@ -17,29 +17,41 @@ class TestRandomRateStrategyCase:
             value=Decimal(amount).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
         )
 
-    def test_check_simulate_result_boundry(self, default_asset_domain):
-        amount = default_asset_domain.amount
+    def test_check_simulate_year_boundry(self, default_asset_domain):
+        # Arrange: Get amount
+        amount, start, end = (
+            default_asset_domain.amount,
+            default_asset_domain.start_age,
+            default_asset_domain.end_age,
+        )
 
-        # Arrange: Generate simulation
-        strategy = self._create_strategy(asset=default_asset_domain)
-        value = self._simulate_asset(amount=amount, strategy=strategy)
-
-        # Assert: Check if value is
-        assert value is not None
-        assert isinstance(value, Decimal)
-
-        # Arrange: Get rate interval
+        # Arrange: Get min-max rate
         min_rate, max_rate = (
             default_asset_domain.min_yearly_return_rate,
             default_asset_domain.max_yearly_return_rate,
         )
 
-        # Arrange: Create min boundry
+        # Arrange: Get min-max boundry
         min_strategy = RandomRateStrategy(min_rate=min_rate, max_rate=min_rate)
-        min_value = self._simulate_asset(amount=amount, strategy=min_strategy)
+        min_values = min_strategy.simulate_years(start=start, end=end, amount=amount)[
+            "values"
+        ]
 
         # Arrange: Create max boundry
         max_strategy = RandomRateStrategy(min_rate=max_rate, max_rate=max_rate)
-        max_value = self._simulate_asset(amount=amount, strategy=max_strategy)
+        max_values = max_strategy.simulate_years(start=start, end=end, amount=amount)[
+            "values"
+        ]
 
-        assert min_value <= value <= max_value
+        # Act: Create strategy
+        strategy = self._create_strategy(default_asset_domain)
+
+        # Act: Create simulate by year ranges
+        values = strategy.simulate_years(start=start, end=end, amount=amount)["values"]
+
+        if not values:
+            raise ValueError(f"Values simulated from strategy {strategy} missing")
+
+        # Assert: Check if values in max-min boundry
+        for idx in range(len(values)):
+            min_values[idx] <= values[idx] <= max_values[idx]

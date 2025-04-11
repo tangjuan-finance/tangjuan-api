@@ -3,8 +3,6 @@ from app.service.simulations import ScenarioIncomeSimulationService
 from app.domain.entities import IncomeDomain
 from app.domain.associations import ScenarioIncomeDomain
 from app.domain.simulations.strategies import RandomRateStrategy, BaseSimulateStrategy
-from app.service.simulations.income.config import IncomeSimulationConfig
-from tests.integration.service.simulations.fake import FakeSimulationService
 from tests.factory import (
     create_income,
     create_scenario_income,
@@ -54,12 +52,8 @@ class TestScenarioIncomeSimulationServiceCase:
         start_age = assoc.start_age or income.start_age
         end_age = assoc.end_age or income.end_age
 
-        # Create income fake service
-        service = FakeSimulationService(IncomeSimulationConfig)
-
-        # Use internal method to generate simulaiton
-        return service._fake_entity_simulate(
-            amount=amount, start_age=start_age, end_age=end_age, strategy=strategy_class
+        return strategy_class.simulate_years(
+            start=start_age, end=end_age, amount=amount
         )
 
     @classmethod
