@@ -7,13 +7,13 @@ from app.infrastructure.models import (
     TimestampMixin,
     BaseMemoMixin,
 )
+from decimal import Decimal
 
 
 class ScenarioRisk(
     BaseAgeIntervalOptionalMixin, TimestampMixin, BaseMemoMixin, db.Model
 ):
-    max_loss: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
-    min_loss: so.Mapped[Optional[int]] = so.mapped_column(sa.BigInteger)
+    probability: so.Mapped[Optional[Decimal]] = so.mapped_column(sa.DECIMAL(5, 2))
 
     scenario_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),

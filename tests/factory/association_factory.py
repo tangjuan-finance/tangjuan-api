@@ -210,11 +210,10 @@ class ScenarioRiskDomainFactory(BaseAssociationDomainFactory, factory.Factory):
 
     # Fake id, not reflect to real resource
     risk_id = factory.LazyFunction(lambda: generate(size=13))
-    min_loss = factory.LazyAttribute(
-        lambda o: fake.random_int(min=5000, max=30000) if o.optional else None
-    )
-    max_loss = factory.LazyAttribute(
-        lambda o: (o.min_loss + fake.random_int(min=0, max=500000))
+    probability = factory.LazyAttribute(
+        lambda o: fake.pydecimal(
+            left_digits=1, right_digits=2, min_value=0, max_value=0.8
+        )
         if o.optional
         else None
     )

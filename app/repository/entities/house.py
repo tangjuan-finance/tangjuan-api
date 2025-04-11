@@ -18,10 +18,11 @@ class HouseRepo(EntityRepo):
             interest_rate=house.interest_rate,
             loan_term=house.loan_term,
             purchase_age=house.purchase_age,
+            sale_age=house.sale_age,
         )
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "sale_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             setattr(house_model, attr, getattr(house, attr, None))
 
@@ -61,10 +62,11 @@ class HouseRepo(EntityRepo):
         house_model.interest_rate = house.interest_rate
         house_model.loan_term = house.loan_term
         house_model.purchase_age = house.purchase_age
+        house_model.sale_age = house.sale_age
         house_model.owner = owner
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "sale_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             origin_attr = getattr(house_model, attr)
             setattr(house_model, attr, getattr(house, attr, origin_attr))

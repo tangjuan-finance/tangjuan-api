@@ -16,12 +16,7 @@ class TestRiskServiceCase:
 
         # Arrange: Define the expected fields that should be part of the RiskDomain
         payload = create_risk_payload(account_id)
-        fields = {
-            "name",
-            "description",
-            "min_loss",
-            "start_age",
-        }
+        fields = {"name", "description", "amount", "probability", "start_age"}
 
         # Act: Call the service to create the risk
         risk_domain = RiskService.create_risk(account_id=account_id, payload=payload)

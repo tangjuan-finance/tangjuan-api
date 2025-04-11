@@ -13,8 +13,8 @@ class RiskRepo(EntityRepo):
         # Instance with required attr
         risk_model = Risk(
             name=risk.name,
-            max_loss=risk.max_loss,
-            min_loss=risk.min_loss,
+            amount=risk.amount,
+            probability=risk.probability,
             start_age=risk.start_age,
         )
 
@@ -50,8 +50,8 @@ class RiskRepo(EntityRepo):
 
         # Update Risk Model
         risk_model.name = risk.name
-        risk_model.max_loss = risk.max_loss
-        risk_model.min_loss = risk.min_loss
+        risk_model.amount = risk.amount
+        risk_model.probability = risk.probability
         risk_model.start_age = risk.start_age
         risk_model.owner = owner
 
@@ -105,8 +105,8 @@ class RiskRepo(EntityRepo):
         return RiskDomain(
             id=risk_model.id,
             name=risk_model.name,
-            max_loss=risk_model.max_loss,
-            min_loss=risk_model.min_loss,
+            amount=risk_model.amount,
+            probability=risk_model.probability,
             start_age=risk_model.start_age,
             created_at=risk_model.created_at,
             updated_at=risk_model.updated_at,

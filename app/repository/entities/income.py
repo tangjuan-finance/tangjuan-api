@@ -17,10 +17,11 @@ class IncomeRepo(EntityRepo):
             max_yearly_growth_rate=income.max_yearly_growth_rate,
             min_yearly_growth_rate=income.min_yearly_growth_rate,
             start_age=income.start_age,
+            end_age=income.end_age,
         )
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             setattr(income_model, attr, getattr(income, attr, None))
 
@@ -61,10 +62,11 @@ class IncomeRepo(EntityRepo):
         income_model.max_yearly_growth_rate = income.max_yearly_growth_rate
         income_model.min_yearly_growth_rate = income.min_yearly_growth_rate
         income_model.start_age = income.start_age
+        income_model.end_age = income.end_age
         income_model.owner = owner
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             origin_attr = getattr(income_model, attr)
             setattr(income_model, attr, getattr(income, attr, origin_attr))

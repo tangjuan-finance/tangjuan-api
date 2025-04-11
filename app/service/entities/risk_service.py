@@ -6,8 +6,8 @@ from .mixin import OwnerRequiredServiceMixin
 class RiskService(OwnerRequiredServiceMixin):
     _required_fields = {
         "name",
-        "max_loss",
-        "min_loss",
+        "amount",
+        "probability",
         "start_age",
     }
     _all_fields = _required_fields | {

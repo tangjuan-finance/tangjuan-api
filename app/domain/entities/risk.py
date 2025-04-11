@@ -3,13 +3,14 @@ from typing import Callable
 from .base import ResourceDomain
 from .mixin import BaseAgeIntervalMixin
 from .account import AccountDomain
+from decimal import Decimal
 
 
 @dataclass(kw_only=True)
 class RiskDomain(ResourceDomain, BaseAgeIntervalMixin):
     owner: AccountDomain
-    max_loss: int
-    min_loss: int
+    amount: int
+    probability: Decimal
 
     def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
         return simulate_func(self.amount)

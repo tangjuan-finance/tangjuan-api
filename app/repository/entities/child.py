@@ -14,10 +14,11 @@ class ChildRepo(EntityRepo):
         child_model = Child(
             name=child.name,
             birth_age=child.birth_age,
+            independent_age=child.independent_age,
         )
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "independent_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             setattr(child_model, attr, getattr(child, attr, None))
 
@@ -53,10 +54,11 @@ class ChildRepo(EntityRepo):
         # Update Child Model
         child_model.name = child.name
         child_model.birth_age = child.birth_age
+        child_model.independent_age = child.independent_age
         child_model.parent = parent
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "independent_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             origin_attr = getattr(child_model, attr)
             setattr(child_model, attr, getattr(child, attr, origin_attr))

@@ -17,10 +17,11 @@ class AssetRepo(EntityRepo):
             max_yearly_return_rate=asset.max_yearly_return_rate,
             min_yearly_return_rate=asset.min_yearly_return_rate,
             start_age=asset.start_age,
+            end_age=asset.end_age,
         )
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             setattr(asset_model, attr, getattr(asset, attr, None))
 
@@ -59,10 +60,11 @@ class AssetRepo(EntityRepo):
         asset_model.max_yearly_return_rate = asset.max_yearly_return_rate
         asset_model.min_yearly_return_rate = asset.min_yearly_return_rate
         asset_model.start_age = asset.start_age
+        asset_model.end_age = asset.end_age
         asset_model.owner = owner
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             origin_attr = getattr(asset_model, attr)
             setattr(asset_model, attr, getattr(asset, attr, origin_attr))

@@ -186,9 +186,9 @@ class RiskDomainFactory(ResourceDomainFactory, factory.Factory):
         model = RiskDomain
 
     name = factory.Faker("text", max_nb_chars=20)
-    min_loss = factory.Faker("random_int", min=5000, max=10000)
-    max_loss = factory.LazyAttribute(
-        lambda o: o.min_loss + fake.random_int(min=0, max=500000)
+    amount = factory.Faker("random_int", min=0, max=20000)
+    probability = factory.Faker(
+        "pydecimal", left_digits=1, right_digits=2, min_value=0, max_value=0.8
     )
     start_age = factory.Faker("random_int", min=20, max=65)
     end_age = factory.LazyAttribute(

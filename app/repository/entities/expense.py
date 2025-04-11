@@ -17,10 +17,11 @@ class ExpenseRepo(EntityRepo):
             max_yearly_growth_rate=expense.max_yearly_growth_rate,
             min_yearly_growth_rate=expense.min_yearly_growth_rate,
             start_age=expense.start_age,
+            end_age=expense.end_age,
         )
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             setattr(expense_model, attr, getattr(expense, attr, None))
 
@@ -61,10 +62,11 @@ class ExpenseRepo(EntityRepo):
         expense_model.max_yearly_growth_rate = expense.max_yearly_growth_rate
         expense_model.min_yearly_growth_rate = expense.min_yearly_growth_rate
         expense_model.start_age = expense.start_age
+        expense_model.end_age = expense.end_age
         expense_model.owner = owner
 
         # Set optional attributes if present in the domain object
-        optional_attributes = ["description", "end_age"]
+        optional_attributes = ["description"]
         for attr in optional_attributes:
             origin_attr = getattr(expense_model, attr)
             setattr(expense_model, attr, getattr(expense, attr, origin_attr))

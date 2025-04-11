@@ -26,8 +26,7 @@ class ScenarioRiskRepo(AssociationRepo):
         assoc_model = ScenarioRisk(
             scenario_id=scenario_id,
             risk_id=risk_id,
-            max_loss=assoc.max_loss,
-            min_loss=assoc.min_loss,
+            probability=assoc.probability,
             start_age=assoc.start_age,
             end_age=assoc.end_age,
             memo=assoc.memo,
@@ -52,8 +51,7 @@ class ScenarioRiskRepo(AssociationRepo):
                 f"Scenario Risk Record with scenario_id {assoc.scenario_id}, risk_id {assoc.risk_id} not found"
             )
         # As existing_assoc is query by scenario_id and risk_id, both id of existing_assoc would be the same as assoc
-        existing_assoc.max_loss = assoc.max_loss
-        existing_assoc.min_loss = assoc.min_loss
+        existing_assoc.probability = assoc.probability
         existing_assoc.start_age = assoc.start_age
         existing_assoc.end_age = assoc.end_age
         existing_assoc.memo = assoc.memo
@@ -107,8 +105,7 @@ class ScenarioRiskRepo(AssociationRepo):
         return ScenarioRiskDomain(
             scenario_id=assoc_model.scenario_id,
             risk_id=assoc_model.risk_id,
-            max_loss=assoc_model.max_loss,
-            min_loss=assoc_model.min_loss,
+            probability=assoc_model.probability,
             start_age=assoc_model.start_age,
             end_age=assoc_model.end_age,
             memo=assoc_model.memo,

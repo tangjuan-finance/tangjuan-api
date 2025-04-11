@@ -7,13 +7,14 @@ from app.infrastructure.models import (
     BaseDescriptionMixin,
     BaseAgeIntervalMixin,
 )
+from decimal import Decimal
 
 
 class Risk(
     PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, BaseAgeIntervalMixin, db.Model
 ):
-    max_loss: so.Mapped[int] = so.mapped_column(sa.BigInteger)
-    min_loss: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+    amount: so.Mapped[int] = so.mapped_column(sa.BigInteger)
+    probability: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
 
     # Ownership
     owner_id: so.Mapped[int] = so.mapped_column(

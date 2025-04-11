@@ -14,6 +14,7 @@ from app.infrastructure.models import (
 from tests.conftest import TestConfig
 from .factories import create_entity
 from werkzeug.security import generate_password_hash
+from decimal import Decimal
 
 
 @pytest.fixture(scope="class", autouse=True)
@@ -44,7 +45,7 @@ def default_account_domain():
 @pytest.fixture(scope="class")
 def default_scenario(default_account_domain):
     name = "Default Scenario"
-    asset_allocation_percentage = 0.7
+    asset_allocation_percentage = Decimal("0.7")
     retire_age = 20
 
     scenario = create_entity(
@@ -60,8 +61,8 @@ def default_scenario(default_account_domain):
 @pytest.fixture(scope="class")
 def default_risk(default_account_domain):
     name = "Default Risk"
-    max_loss = 100000
-    min_loss = 50000
+    amount = 100000
+    probability = Decimal("0.2")
     start_age = 20
     end_age = 30
 
@@ -71,8 +72,8 @@ def default_risk(default_account_domain):
         name=name,
         start_age=start_age,
         end_age=end_age,
-        max_loss=max_loss,
-        min_loss=min_loss,
+        amount=amount,
+        probability=probability,
     )
     yield risk
 
@@ -81,7 +82,7 @@ def default_risk(default_account_domain):
 def default_liability(default_account_domain):
     name = "Default Liability"
     principal_amount = 50000
-    interest_rate = 0.5
+    interest_rate = Decimal("0.5")
     start_age = 20
     end_age = 50
 
@@ -101,8 +102,8 @@ def default_liability(default_account_domain):
 def default_income(default_account_domain):
     name = "Default Income"
     amount = 50000
-    max_yearly_growth_rate = 0.5
-    min_yearly_growth_rate = -0.5
+    max_yearly_growth_rate = Decimal("0.5")
+    min_yearly_growth_rate = Decimal("-0.5")
     start_age = 20
     end_age = 65
 
@@ -124,7 +125,7 @@ def default_house(default_account_domain):
     name = "Default House"
     amount = 20000000
     down_payment = 3000000
-    interest_rate = 3.0
+    interest_rate = Decimal("3.0")
     loan_term = 40
     purchase_age = 20
     sale_age = 40
@@ -147,8 +148,8 @@ def default_house(default_account_domain):
 def default_expense(default_account_domain):
     name = "Default Expense"
     amount = 50000
-    max_yearly_growth_rate = 0.5
-    min_yearly_growth_rate = -0.5
+    max_yearly_growth_rate = Decimal("0.5")
+    min_yearly_growth_rate = Decimal("-0.5")
     start_age = 20
     end_age = 100
 
@@ -185,8 +186,8 @@ def default_child(default_account_domain):
 def default_asset(default_account_domain):
     name = "Default Asset"
     amount = 50000
-    max_yearly_return_rate = 0.5
-    min_yearly_return_rate = -0.5
+    max_yearly_return_rate = Decimal("0.5")
+    min_yearly_return_rate = Decimal("-0.5")
     start_age = 20
     end_age = 100
 

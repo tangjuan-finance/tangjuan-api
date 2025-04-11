@@ -2,6 +2,7 @@
 from app.domain.associations import ScenarioRiskDomain
 from tests.factory import RiskDomainFactory
 from datetime import datetime, timezone
+from decimal import Decimal
 
 
 class TestRiskDomainCase:
@@ -9,19 +10,19 @@ class TestRiskDomainCase:
         # Arrange
         name = "risk for scenario"
 
-        default_max_loss = 100000
-        risk = RiskDomainFactory(name=name, max_loss=default_max_loss)
-        max_loss = 500000
+        default_probability = Decimal("0.2")
+        risk = RiskDomainFactory(name=name, probability=default_probability)
+        probability = Decimal("0.4")
         # Act
         scenario_risk = ScenarioRiskDomain(
             scenario_id=default_scenario_domain.id,
             risk_id=risk.id,
-            max_loss=max_loss,
+            probability=probability,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
         # Assert
         assert scenario_risk.scenario_id == default_scenario_domain.id
         assert scenario_risk.risk_id == risk.id
-        assert scenario_risk.max_loss != default_max_loss
-        assert scenario_risk.max_loss == max_loss
+        assert scenario_risk.probability != default_probability
+        assert scenario_risk.probability == probability

@@ -19,8 +19,8 @@ class TestRiskRepoCase:
         # Assert: Ensure the values match between the domain object and the saved record
         assert risk_from_repo.id == risk_from_db.id
         assert risk_from_repo.name == risk_from_db.name
-        assert risk_from_repo.max_loss == risk_from_db.max_loss
-        assert risk_from_repo.min_loss == risk_from_db.min_loss
+        assert risk_from_repo.amount == risk_from_db.amount
+        assert risk_from_repo.probability == risk_from_db.probability
         assert risk_from_repo.start_age == risk_from_db.start_age
         assert risk_from_repo.end_age == risk_from_db.end_age
         assert risk_from_repo.owner.id == risk_from_db.owner.id

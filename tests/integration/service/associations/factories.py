@@ -112,10 +112,11 @@ def create_scenario_risk_payload(scenario_id: str, risk_id: str) -> dict:
     payload = {
         "scenario_id": scenario_id,
         "risk_id": risk_id,
-        "min_loss": fake.random_int(min=5000, max=30000),
+        "probability": fake.pydecimal(
+            left_digits=1, right_digits=2, min_value=0, max_value=0.8
+        ),
         "start_age": fake.random_int(min=20, max=65),
         "memo": fake.paragraph(nb_sentences=5),
     }
-    payload["max_loss"] = payload["min_loss"] + fake.random_int(min=0, max=50000)
     payload["end_age"] = payload["start_age"] + fake.random_int(min=0, max=30)
     return payload
