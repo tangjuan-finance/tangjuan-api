@@ -1,6 +1,9 @@
+import pytest
 from app import db
 from app.infrastructure.models import Child
 import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
+from ..factories import create_entity
 
 
 class TestChildModelCase:
@@ -17,3 +20,20 @@ class TestChildModelCase:
         assert child_from_db.created_at == default_child.created_at
         assert child_from_db.updated_at == default_child.updated_at
         assert child_from_db.parent_id == default_child.parent_id
+        assert child_from_db.child_saving_plan_id == default_child.child_saving_plan_id
+
+    def test_default_child_not_set_saving_plan(self, default_account_domain):
+        name = "Default Child"
+        birth_age = 34
+        independent_age = 56
+
+        with pytest.raises(
+            IntegrityError
+        ):  # Missing child_saving_paln should raise IntegrityError
+            create_entity(
+                Child,
+                parent=default_account_domain,
+                name=name,
+                birth_age=birth_age,
+                independent_age=independent_age,
+            )

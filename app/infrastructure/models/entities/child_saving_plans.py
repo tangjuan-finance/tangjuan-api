@@ -20,7 +20,7 @@ class ChildSavingPlan(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.M
     )
 
     # One-to-Many: A plan has specific saving entries for child ages
-    child_saving_amount_entries: so.WriteOnlyMapped[list["ChildSavingAmountEntry"]] = (  # noqa: F821
+    child_saving_amount_entries: so.Mapped[list["ChildSavingAmountEntry"]] = (  # noqa: F821
         so.relationship(  # noqa: F821
             back_populates="child_saving_plan",
             cascade="all, delete-orphan",  # Delete all child_saving_amount_entries when child_saving_plan deleted

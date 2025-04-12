@@ -10,6 +10,8 @@ from app.infrastructure.models import (
     Risk,
     Asset,
     Liability,
+    ChildSavingPlan,
+    ChildSavingAmountEntry,
 )
 from tests.conftest import TestConfig
 from .factories import create_entity
@@ -167,7 +169,7 @@ def default_expense(default_account_domain):
 
 
 @pytest.fixture(scope="class")
-def default_child(default_account_domain):
+def default_child(default_account_domain, default_child_saving_plan):
     name = "Default Child"
     birth_age = 34
     independent_age = 56
@@ -178,8 +180,34 @@ def default_child(default_account_domain):
         name=name,
         birth_age=birth_age,
         independent_age=independent_age,
+        child_saving_plan=default_child_saving_plan,
     )
     yield child
+
+
+@pytest.fixture(scope="class")
+def default_child_saving_plan():
+    name = "Default Child Saving Plan"
+
+    child_saving_plan = create_entity(
+        ChildSavingPlan,
+        name=name,
+    )
+    yield child_saving_plan
+
+
+@pytest.fixture(scope="class")
+def default_child_saving_amount_entry(default_child_saving_plan):
+    age = 15
+    amount = 200000
+
+    child_saving_amount_entry = create_entity(
+        ChildSavingAmountEntry,
+        age=age,
+        amount=amount,
+        child_saving_plan=default_child_saving_plan,
+    )
+    yield child_saving_amount_entry
 
 
 @pytest.fixture(scope="class")
