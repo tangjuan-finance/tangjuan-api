@@ -20,7 +20,7 @@ class House(
     sale_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(
+    owner_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("account.id", ondelete="CASCADE"), index=True
     )
     owner: so.Mapped["Account"] = so.relationship(back_populates="houses")  # noqa: F821

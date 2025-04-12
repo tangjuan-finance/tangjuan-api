@@ -19,6 +19,8 @@ from .entities import (
     Risk,
     Asset,
     Liability,
+    ChildSavingPlan,
+    ChildSavingAmountEntry,
 )
 from .associations import (
     ScenarioExpense,
@@ -42,6 +44,8 @@ __all__ = [
     "Risk",
     "Asset",
     "Liability",
+    "ChildSavingPlan",
+    "ChildSavingAmountEntry",
     "ScenarioExpense",
     "ScenarioIncome",
     "ScenarioAsset",

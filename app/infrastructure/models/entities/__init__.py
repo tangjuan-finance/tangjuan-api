@@ -7,6 +7,8 @@ from .children import Child
 from .risks import Risk
 from .assets import Asset
 from .liabilities import Liability
+from .child_saving_plans import ChildSavingPlan
+from .child_saving_amount_entries import ChildSavingAmountEntry
 
 # Define __all__ to specify the public interface
 __all__ = [
@@ -19,4 +21,6 @@ __all__ = [
     "Risk",
     "Asset",
     "Liability",
+    "ChildSavingPlan",
+    "ChildSavingAmountEntry",
 ]

@@ -23,7 +23,7 @@ class Asset(
     min_yearly_return_rate: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(5, 2))
 
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(
+    owner_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("account.id", ondelete="CASCADE"), index=True
     )
     owner: so.Mapped["Account"] = so.relationship(back_populates="assets")  # noqa: F821

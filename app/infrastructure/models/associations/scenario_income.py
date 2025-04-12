@@ -16,11 +16,11 @@ class ScenarioIncome(
     BaseMemoMixin,
     db.Model,
 ):
-    scenario_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    income_id: so.Mapped[int] = so.mapped_column(
+    income_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("income.id", ondelete="CASCADE"),
         primary_key=True,
     )

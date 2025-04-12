@@ -21,11 +21,11 @@ class ScenarioAsset(
     )
     allocation_percentage: so.Mapped[Decimal] = so.mapped_column(sa.DECIMAL(3, 2))
 
-    scenario_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    asset_id: so.Mapped[int] = so.mapped_column(
+    asset_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("asset.id", ondelete="CASCADE"),
         primary_key=True,
     )

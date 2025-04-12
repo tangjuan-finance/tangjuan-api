@@ -21,7 +21,7 @@ class Income(
     db.Model,
 ):
     # Ownership
-    owner_id: so.Mapped[int] = so.mapped_column(
+    owner_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("account.id", ondelete="CASCADE"), index=True
     )
     owner: so.Mapped["Account"] = so.relationship(back_populates="incomes")  # noqa: F821

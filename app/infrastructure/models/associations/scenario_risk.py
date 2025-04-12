@@ -15,11 +15,11 @@ class ScenarioRisk(
 ):
     probability: so.Mapped[Optional[Decimal]] = so.mapped_column(sa.DECIMAL(5, 2))
 
-    scenario_id: so.Mapped[int] = so.mapped_column(
+    scenario_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("scenario.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    risk_id: so.Mapped[int] = so.mapped_column(
+    risk_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("risk.id", ondelete="CASCADE"),
         primary_key=True,
     )
