@@ -2,6 +2,8 @@ import factory
 from app.domain.entities import (
     AccountDomain,
     ChildDomain,
+    ChildSavingPlanDomain,
+    ChildSavingAmountEntryDomain,
     AssetDomain,
     ExpenseDomain,
     HouseDomain,
@@ -26,6 +28,9 @@ class IdDomainFactory(factory.Factory):
 
     id = factory.LazyFunction(lambda: generate(size=13))
 
+    class Params:
+        optional = False
+
 
 class ResourceDomainFactory(IdDomainFactory, factory.Factory):
     """Abstract Factory to add an optional decription field."""
@@ -33,12 +38,10 @@ class ResourceDomainFactory(IdDomainFactory, factory.Factory):
     class Meta:
         abstract = True  # This prevents instantiation without a model
 
+    name = factory.LazyAttribute(lambda o: fake.text(max_nb_chars=20).replace(".", ""))
     description = factory.LazyAttribute(
         lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
     )
-
-    class Params:
-        optional = False
 
 
 class AccountDomainFactory(IdDomainFactory, factory.Factory):
@@ -61,17 +64,47 @@ class AccountDomainFactory(IdDomainFactory, factory.Factory):
         return last_seen
 
 
+class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
+    """Factory for ChildSavingPlanDomain"""
+
+    class Meta:
+        model = ChildSavingPlanDomain
+
+    @factory.lazy_attribute
+    def child_saving_amount_entries(self):
+        return [
+            ChildSavingAmountEntryDomainFactory(child_saving_plan_id=self.id)
+            for _ in range(fake.random_int(min=1, max=10))
+        ]
+
+
+class ChildSavingAmountEntryDomainFactory(IdDomainFactory, factory.Factory):
+    """Factory for ChildSavingAmountEntryDomain"""
+
+    class Meta:
+        model = ChildSavingAmountEntryDomain
+
+    age = factory.Faker("random_int", min=0, max=18)
+    amount = factory.Faker("random_int", min=100000, max=400000)
+    # If not injected, generate a dummy id
+    child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
+    description = factory.LazyAttribute(
+        lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
+    )
+
+
 class ChildDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for ChildDomain"""
 
     class Meta:
         model = ChildDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     birth_age = factory.Faker("random_int", min=20, max=50)
     independent_age = factory.LazyAttribute(
         lambda o: o.birth_age + fake.random_int(min=20, max=30)
     )
+    # If not injected, generate a dummy id
+    child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
     parent = factory.SubFactory(AccountDomainFactory)
 
 
@@ -81,7 +114,6 @@ class AssetDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = AssetDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=10000, max=1000000)
     min_yearly_return_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-1.0, max_value=0.05
@@ -103,7 +135,6 @@ class ExpenseDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = ExpenseDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=1000, max=100000)
     min_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-0.5, max_value=0
@@ -125,7 +156,6 @@ class HouseDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = HouseDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=100000, max=50000000)
     down_payment = factory.Faker("random_int", min=10000, max=500000)
     interest_rate = factory.Faker(
@@ -145,7 +175,6 @@ class IncomeDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = IncomeDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=20000, max=200000)
     min_yearly_growth_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=-0.5, max_value=0
@@ -167,7 +196,6 @@ class LiabilityDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = LiabilityDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     principal_amount = factory.Faker("random_int", min=1000, max=1000000)
     interest_rate = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.01, max_value=0.2
@@ -185,7 +213,6 @@ class RiskDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = RiskDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     amount = factory.Faker("random_int", min=0, max=20000)
     probability = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0, max_value=0.8
@@ -203,7 +230,6 @@ class ScenarioDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = ScenarioDomain
 
-    name = factory.Faker("text", max_nb_chars=20)
     asset_allocation_percentage = factory.Faker(
         "pydecimal", left_digits=1, right_digits=2, min_value=0.0, max_value=1.0
     )

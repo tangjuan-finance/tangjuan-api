@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Callable
+
+# from typing import Callable
 from .base import ResourceDomain
 from .mixin import BaseAgeIntervalMixin
 from .account import AccountDomain
@@ -12,5 +13,5 @@ class RiskDomain(ResourceDomain, BaseAgeIntervalMixin):
     amount: int
     probability: Decimal
 
-    def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
-        return simulate_func(self.amount)
+    # def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
+    #     return simulate_func(self.amount)

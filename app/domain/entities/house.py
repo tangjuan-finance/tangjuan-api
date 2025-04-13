@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Optional  # , Callable
 from decimal import Decimal
 from .base import ResourceDomain
 from .account import AccountDomain
@@ -15,5 +15,5 @@ class HouseDomain(ResourceDomain):
     purchase_age: int
     sale_age: Optional[int] = None
 
-    def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
-        return simulate_func(self.amount)
+    # def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
+    #     return simulate_func(self.amount)

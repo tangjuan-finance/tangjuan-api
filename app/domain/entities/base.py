@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Optional, Callable
+from typing import Optional  # , Callable
 from datetime import datetime
-from abc import ABC, abstractmethod
+from abc import ABC  # , abstractmethod
 
 
 # Every Entity should have id, created_at, and updated_at
@@ -20,6 +20,6 @@ class ResourceDomain(EntityDomain):
     name: str
     description: Optional[str] = None
 
-    @abstractmethod
-    def simulate_by_year(self, simulate_func: Callable):
-        pass
+    # @abstractmethod
+    # def simulate_by_year(self, simulate_func: Callable):
+    #     pass
