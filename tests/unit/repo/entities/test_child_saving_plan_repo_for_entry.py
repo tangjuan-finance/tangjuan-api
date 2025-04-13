@@ -1,17 +1,24 @@
 from app.repository.entities import ChildSavingPlanRepo
 from app.infrastructure.models.entities import ChildSavingPlan
-from tests.factory import ChildSavingPlanDomainFactory
+from tests.factory import (
+    ChildSavingPlanDomainFactory,
+)  # , ChildSavingAmountEntryDomainFactory
 import sqlalchemy as sa
 from app import db
 
 
-class TestChildSavingPlanRepoCase:
-    def test_create_child_saving_plan_domain_through_repo(self):
+class TestChildSavingPlanRepoForEntryCase:
+    def test_create_child_saving_amount_entry_through_child_saving_plan_repo(self):
         # Arrange: Create an child_saving_plan domain using the factory
         child_saving_plan = ChildSavingPlanDomainFactory()
-
-        # Act: Save the child_saving_plan domain using the repo and return the saved entity
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
+
+        # Act: Create new amount entries
+        # NEW_AMOUNT_ENTRIES = 6
+        # for _ in range(NEW_AMOUNT_ENTRIES):
+        #     child_saving_amount_entry = ChildSavingAmountEntryDomainFactory(child_saving_plan_id=child_saving_plan_from_repo.id)
+        #     ChildSavingPlanRepo.create
+
         child_saving_plan_from_db = db.session.scalars(
             sa.select(ChildSavingPlan).where(
                 ChildSavingPlan.id == child_saving_plan_from_repo.id

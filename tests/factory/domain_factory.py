@@ -70,6 +70,9 @@ class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = ChildSavingPlanDomain
 
+    # If not injected, generate a dummy id
+    owner_id = factory.LazyFunction(lambda: generate(size=13))
+
     @factory.lazy_attribute
     def child_saving_amount_entries(self):
         return [

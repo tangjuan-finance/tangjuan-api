@@ -38,7 +38,7 @@ from app.domain.entities import (
 
 
 # Using Factory to generate domain object, so each object should be indenpendent in database record
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def init_db():
     """Initialize and clean up the database for testing."""
     app = create_app(TestConfig)
@@ -51,7 +51,7 @@ def init_db():
     app_context.pop()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def default_account() -> Generator[AccountDomain, None, None]:
     """Provides a default account used as an owner in tests."""
     account = AccountDomainFactory()
