@@ -1,4 +1,5 @@
 import sqlalchemy.orm as so
+import sqlalchemy as sa
 from app import db
 from app.infrastructure.models import (
     PrimaryIdMixin,
@@ -11,6 +12,12 @@ class ChildSavingPlan(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.M
     """
     Represents a savings plan for one or more children.
     """
+
+    # Many-to-One: An account could own many plans
+    owner_id: so.Mapped[str] = so.mapped_column(
+        sa.ForeignKey("account.id", ondelete="CASCADE"), index=True
+    )
+    owner: so.Mapped["Account"] = so.relationship(back_populates="child_saving_plans")  # noqa: F821
 
     # One-to-Many: A plan can include multiple children
     children: so.Mapped[list["Child"]] = so.relationship(  # noqa: F821

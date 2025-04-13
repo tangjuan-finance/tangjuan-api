@@ -15,6 +15,7 @@ class TestChildSavingPlanModelCase:
 
         # Assert
         assert child_saving_plan_from_db.name == default_child_saving_plan.name
+        assert child_saving_plan_from_db.owner_id == default_child_saving_plan.owner_id
         assert (
             child_saving_plan_from_db.created_at == default_child_saving_plan.created_at
         )
@@ -22,7 +23,9 @@ class TestChildSavingPlanModelCase:
             child_saving_plan_from_db.updated_at == default_child_saving_plan.updated_at
         )
 
-    def test_default_child_saving_plan_with_child(self, default_child):
+    def test_default_child_saving_plan_with_child(
+        self, default_child, default_account_domain
+    ):
         # Arrange: Given param
         name = "Another Child Saving Plan"
 
@@ -30,6 +33,7 @@ class TestChildSavingPlanModelCase:
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            owner_id=default_account_domain.id,
         )
 
         # Arrange: Add the default child to the plan
@@ -45,7 +49,7 @@ class TestChildSavingPlanModelCase:
         assert child_saving_plan_from_db.children[0] == default_child
 
     def test_default_child_saving_plan_with_amount_entry(
-        self, default_child_saving_amount_entry
+        self, default_child_saving_amount_entry, default_account_domain
     ):
         # Arrange: Given param
         name = "Child Saving Plan with amount entry"
@@ -54,6 +58,7 @@ class TestChildSavingPlanModelCase:
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            owner_id=default_account_domain.id,
         )
 
         # Arrange: Add the default child to the plan
@@ -81,6 +86,7 @@ class TestChildSavingPlanModelCase:
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            owner_id=default_account_domain.id,
         )
 
         # Arrange: Create a few of children entities and add it to child_saving_plan
@@ -111,15 +117,14 @@ class TestChildSavingPlanModelCase:
             assert child in child_saving_plan_from_db.children
 
     def test_default_child_saving_plan_with_amount_entries(
-        self,
+        self, default_account_domain
     ):
         # Arrange: Given param
         name = "Child Saving Plan with a few of amount entries"
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
-            ChildSavingPlan,
-            name=name,
+            ChildSavingPlan, name=name, owner_id=default_account_domain.id
         )
 
         # Arrange: Create a few of children entities and add it to child_saving_plan

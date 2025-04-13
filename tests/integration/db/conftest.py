@@ -188,12 +188,13 @@ def default_child(default_account_domain, default_child_saving_plan):
 
 
 @pytest.fixture(scope="function")
-def default_child_saving_plan():
+def default_child_saving_plan(default_account_domain):
     name = "Default Child Saving Plan"
 
     child_saving_plan = create_entity(
         ChildSavingPlan,
         name=name,
+        owner_id=default_account_domain.id,
     )
     yield child_saving_plan
 

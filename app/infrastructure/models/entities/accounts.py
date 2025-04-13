@@ -64,6 +64,12 @@ class Account(PrimaryIdMixin, TimestampMixin, db.Model):
         passive_deletes=True,
         back_populates="owner",
     )
+    child_saving_plans: so.WriteOnlyMapped["ChildSavingPlan"] = so.relationship(  # noqa: F821
+        cascade="all, delete-orphan",
+        order_by="ChildSavingPlan.updated_at",
+        passive_deletes=True,
+        back_populates="owner",
+    )
 
     def __repr__(self):
         return "<Account {}>".format(self.name)
