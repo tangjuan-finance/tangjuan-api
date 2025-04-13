@@ -2,7 +2,7 @@ import pytest
 from app.domain.entities import ChildSavingAmountEntryDomain
 from tests.factory import (
     ChildSavingAmountEntryDomainFactory,
-    ChildSavingPlanDomainFactory,
+    create_fake_id,
 )
 
 
@@ -13,7 +13,7 @@ class TestChildSavingAmountEntryDomainCase:
         start_age = 7
         end_age = 12
         amount = 200000
-        child_saving_plan_id = ChildSavingPlanDomainFactory().id
+        child_saving_plan_id = create_fake_id()
 
         # Act: Create the domain
         child_saving_amount_entry = ChildSavingAmountEntryDomainFactory(

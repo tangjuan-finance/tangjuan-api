@@ -1,5 +1,4 @@
 from .domain_factory import (
-    IdDomainFactory,
     AccountDomainFactory,
     ChildDomainFactory,
     ChildSavingPlanDomainFactory,
@@ -46,7 +45,6 @@ from .create_fake_id import create_fake_id
 
 # Define __all__ to specify the public interface
 __all__ = [
-    "IdDomainFactory",
     "AccountDomainFactory",
     "ChildDomainFactory",
     "ChildSavingPlanDomainFactory",

@@ -74,12 +74,12 @@ class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
     # If not injected, generate a dummy id
     owner_id = factory.LazyFunction(lambda: generate(size=13))
 
-    @factory.lazy_attribute
-    def child_saving_amount_entries(self):
-        return [
-            ChildSavingAmountEntryDomainFactory(child_saving_plan_id=self.id)
-            for _ in range(fake.random_int(min=1, max=10))
-        ]
+    # @factory.lazy_attribute
+    # def child_saving_amount_entries(self):
+    #     return [
+    #         ChildSavingAmountEntryDomainFactory()
+    #         for _ in range(fake.random_int(min=1, max=10))
+    #     ]
 
 
 class ChildSavingAmountEntryDomainFactory(ResourceDomainFactory, factory.Factory):

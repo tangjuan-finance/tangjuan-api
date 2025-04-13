@@ -1,10 +1,6 @@
 import pytest
 from app.domain.entities import ChildDomain
-from tests.factory import (
-    AccountDomainFactory,
-    ChildDomainFactory,
-    ChildSavingPlanDomainFactory,
-)
+from tests.factory import AccountDomainFactory, ChildDomainFactory, create_fake_id
 
 
 class TestChildDomainCase:
@@ -12,7 +8,7 @@ class TestChildDomainCase:
         # Arrange
         name = "Default Child Domain"
         birth_age = 34
-        child_saving_plan_id = ChildSavingPlanDomainFactory().id
+        child_saving_plan_id = create_fake_id()
 
         # Act
         child = ChildDomainFactory(
@@ -30,7 +26,7 @@ class TestChildDomainCase:
         # Arrange: Provide params
         name = "Default Child Domain"
         birth_age = 34
-        child_saving_plan_id = ChildSavingPlanDomainFactory().id
+        child_saving_plan_id = create_fake_id()
 
         # Assert: Create Child Obj without parent should raise TypeError
         with pytest.raises(TypeError):
