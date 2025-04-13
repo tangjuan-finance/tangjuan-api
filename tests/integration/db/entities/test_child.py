@@ -1,6 +1,6 @@
 import pytest
 from app import db
-from app.infrastructure.models import Child
+from app.infrastructure.models import Child, ChildSavingPlan
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 from ..factories import create_entity
@@ -37,3 +37,27 @@ class TestChildModelCase:
                 birth_age=birth_age,
                 independent_age=independent_age,
             )
+
+    def test_default_child_change_saving_plan(self, default_child):
+        # Arrange: Store the origin plan
+        origin_plan = default_child.child_saving_plan
+
+        # Arrange: Create new child_saving_plan
+        name = "Updated Child Saving Plan"
+
+        new_plan = create_entity(
+            ChildSavingPlan,
+            name=name,
+        )
+
+        # Act: Update the new plan
+        default_child.child_saving_plan = new_plan
+        db.session.commit()
+
+        # Assert: The child get from the db should own the new plan
+        child_from_db = db.session.scalar(
+            sa.select(Child).where(Child.id == default_child.id)
+        )
+
+        assert child_from_db.child_saving_plan == new_plan
+        assert child_from_db.child_saving_plan != origin_plan

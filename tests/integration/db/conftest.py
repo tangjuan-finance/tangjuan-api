@@ -19,7 +19,9 @@ from werkzeug.security import generate_password_hash
 from decimal import Decimal
 
 
-@pytest.fixture(scope="class", autouse=True)
+# @pytest.fixture(scope="class", autouse=True)
+# Restart db every function to ensure each session not affect each other
+@pytest.fixture(scope="function", autouse=True)
 def init_db():
     app = create_app(TestConfig)
     app_context = app.app_context()
@@ -31,7 +33,7 @@ def init_db():
     app_context.pop()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_account_domain():
     name = "default"
     email = "default@example.com"
@@ -44,7 +46,7 @@ def default_account_domain():
     yield u
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_scenario(default_account_domain):
     name = "Default Scenario"
     asset_allocation_percentage = Decimal("0.7")
@@ -60,7 +62,7 @@ def default_scenario(default_account_domain):
     yield scenario
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_risk(default_account_domain):
     name = "Default Risk"
     amount = 100000
@@ -80,7 +82,7 @@ def default_risk(default_account_domain):
     yield risk
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_liability(default_account_domain):
     name = "Default Liability"
     principal_amount = 50000
@@ -100,7 +102,7 @@ def default_liability(default_account_domain):
     yield liability
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_income(default_account_domain):
     name = "Default Income"
     amount = 50000
@@ -122,7 +124,7 @@ def default_income(default_account_domain):
     yield income
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_house(default_account_domain):
     name = "Default House"
     amount = 20000000
@@ -146,7 +148,7 @@ def default_house(default_account_domain):
     yield house
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_expense(default_account_domain):
     name = "Default Expense"
     amount = 50000
@@ -168,7 +170,7 @@ def default_expense(default_account_domain):
     yield expense
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_child(default_account_domain, default_child_saving_plan):
     name = "Default Child"
     birth_age = 34
@@ -185,7 +187,7 @@ def default_child(default_account_domain, default_child_saving_plan):
     yield child
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_child_saving_plan():
     name = "Default Child Saving Plan"
 
@@ -196,7 +198,7 @@ def default_child_saving_plan():
     yield child_saving_plan
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_child_saving_amount_entry(default_child_saving_plan):
     age = 15
     amount = 200000
@@ -210,7 +212,7 @@ def default_child_saving_amount_entry(default_child_saving_plan):
     yield child_saving_amount_entry
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def default_asset(default_account_domain):
     name = "Default Asset"
     amount = 50000
