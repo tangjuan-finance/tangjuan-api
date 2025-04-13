@@ -28,9 +28,6 @@ class IdDomainFactory(factory.Factory):
 
     id = factory.LazyFunction(lambda: generate(size=13))
 
-    class Params:
-        optional = False
-
 
 class ResourceDomainFactory(IdDomainFactory, factory.Factory):
     """Abstract Factory to add an optional decription field."""
@@ -42,6 +39,9 @@ class ResourceDomainFactory(IdDomainFactory, factory.Factory):
     description = factory.LazyAttribute(
         lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
     )
+
+    class Params:
+        optional = False
 
 
 class AccountDomainFactory(IdDomainFactory, factory.Factory):
@@ -81,19 +81,19 @@ class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
         ]
 
 
-class ChildSavingAmountEntryDomainFactory(IdDomainFactory, factory.Factory):
+class ChildSavingAmountEntryDomainFactory(ResourceDomainFactory, factory.Factory):
     """Factory for ChildSavingAmountEntryDomain"""
 
     class Meta:
         model = ChildSavingAmountEntryDomain
 
-    age = factory.Faker("random_int", min=0, max=18)
+    start_age = factory.Faker("random_int", min=20, max=65)
+    end_age = factory.LazyAttribute(
+        lambda o: o.start_age + fake.random_int(min=0, max=6)
+    )
     amount = factory.Faker("random_int", min=100000, max=400000)
     # If not injected, generate a dummy id
     child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
-    description = factory.LazyAttribute(
-        lambda o: fake.paragraph(nb_sentences=5) if o.optional else None
-    )
 
 
 class ChildDomainFactory(ResourceDomainFactory, factory.Factory):

@@ -201,12 +201,16 @@ def default_child_saving_plan(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_child_saving_amount_entry(default_child_saving_plan):
-    age = 15
+    name = "Default Child Saving Amount"
+    start_age = 12
+    end_age = 15
     amount = 200000
 
     child_saving_amount_entry = create_entity(
         ChildSavingAmountEntry,
-        age=age,
+        name=name,
+        start_age=start_age,
+        end_age=end_age,
         amount=amount,
         child_saving_plan=default_child_saving_plan,
     )

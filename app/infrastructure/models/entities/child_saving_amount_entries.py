@@ -1,21 +1,26 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from typing import Optional
 from app.infrastructure.models import (
     PrimaryIdMixin,
     TimestampMixin,
     BaseAmountMixin,
+    BaseAgeIntervalMixin,
+    BaseDescriptionMixin,
 )
 
 
-class ChildSavingAmountEntry(PrimaryIdMixin, TimestampMixin, BaseAmountMixin, db.Model):
+class ChildSavingAmountEntry(
+    PrimaryIdMixin,
+    BaseAmountMixin,
+    TimestampMixin,
+    BaseAgeIntervalMixin,
+    BaseDescriptionMixin,
+    db.Model,
+):
     """
     Represents a savings amount for a specific age within a saving plan.
     """
-
-    age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-    description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
 
     # Many-to-One: Entry belongs to a single saving plan
     child_saving_plan_id: so.Mapped[str] = so.mapped_column(

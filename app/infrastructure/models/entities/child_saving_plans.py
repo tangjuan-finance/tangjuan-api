@@ -32,7 +32,7 @@ class ChildSavingPlan(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.M
             back_populates="child_saving_plan",
             cascade="all, delete-orphan",  # Delete all child_saving_amount_entries when child_saving_plan deleted
             passive_deletes=True,
-            order_by="ChildSavingAmountEntry.age",
+            order_by="ChildSavingAmountEntry.start_age",
         )
     )
 

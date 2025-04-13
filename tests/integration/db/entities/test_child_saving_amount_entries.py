@@ -17,8 +17,12 @@ class TestChildSavingAmountEntryModelCase:
 
         # Assert
         assert (
-            child_saving_amount_entry_from_db.age
-            == default_child_saving_amount_entry.age
+            child_saving_amount_entry_from_db.start_age
+            == default_child_saving_amount_entry.start_age
+        )
+        assert (
+            child_saving_amount_entry_from_db.end_age
+            == default_child_saving_amount_entry.end_age
         )
         assert (
             child_saving_amount_entry_from_db.amount
@@ -38,7 +42,8 @@ class TestChildSavingAmountEntryModelCase:
         )
 
     def test_default_child_saving_amount_entry_without_saving_plan(self):
-        age = 15
+        start_age = 12
+        end_age = 15
         amount = 200000
 
         with pytest.raises(
@@ -46,11 +51,14 @@ class TestChildSavingAmountEntryModelCase:
         ):  # Missing child_saving_paln should raise IntegrityError
             create_entity(
                 ChildSavingAmountEntry,
-                age=age,
+                start_age=start_age,
+                end_age=end_age,
                 amount=amount,
             )
 
-    def test_default_child_change_saving_plan(self, default_child_saving_amount_entry):
+    def test_default_child_change_saving_plan(
+        self, default_child_saving_amount_entry, default_account_domain
+    ):
         # Arrange: Store the origin plan
         origin_plan = default_child_saving_amount_entry.child_saving_plan
 
@@ -60,6 +68,7 @@ class TestChildSavingAmountEntryModelCase:
         new_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            owner_id=default_account_domain.id,
         )
 
         # Act: Update the new plan
