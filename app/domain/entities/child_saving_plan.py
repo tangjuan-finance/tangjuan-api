@@ -10,6 +10,7 @@ class ChildSavingPlanDomain(ResourceDomain):
     Represents a child saving plan that contains a sequence of saving amount entries.
     """
 
+    independent_age: int
     owner_id: str
     child_saving_amount_entries: list[ChildSavingAmountEntryDomain] = field(
         default_factory=list

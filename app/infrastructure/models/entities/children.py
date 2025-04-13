@@ -14,7 +14,6 @@ class Child(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.Model):
     """
 
     birth_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
-    independent_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
 
     # Ownership by parent (Account)
     parent_id: so.Mapped[str] = so.mapped_column(

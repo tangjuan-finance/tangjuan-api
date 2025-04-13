@@ -16,7 +16,6 @@ class TestChildModelCase:
         # Assert
         assert child_from_db.name == default_child.name
         assert child_from_db.birth_age == default_child.birth_age
-        assert child_from_db.independent_age == default_child.independent_age
         assert child_from_db.created_at == default_child.created_at
         assert child_from_db.updated_at == default_child.updated_at
         assert child_from_db.parent_id == default_child.parent_id
@@ -25,7 +24,6 @@ class TestChildModelCase:
     def test_default_child_not_set_saving_plan(self, default_account_domain):
         name = "Default Child"
         birth_age = 34
-        independent_age = 56
 
         with pytest.raises(
             IntegrityError
@@ -35,19 +33,23 @@ class TestChildModelCase:
                 parent=default_account_domain,
                 name=name,
                 birth_age=birth_age,
-                independent_age=independent_age,
             )
 
-    def test_default_child_change_saving_plan(self, default_child):
+    def test_default_child_change_saving_plan(
+        self, default_child, default_account_domain
+    ):
         # Arrange: Store the origin plan
         origin_plan = default_child.child_saving_plan
 
         # Arrange: Create new child_saving_plan
         name = "Updated Child Saving Plan"
+        independent_age = 18
 
         new_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            owner_id=default_account_domain.id,
+            independent_age=independent_age,
         )
 
         # Act: Update the new plan

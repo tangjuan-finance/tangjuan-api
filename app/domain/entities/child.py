@@ -14,7 +14,6 @@ class ChildDomain(ResourceDomain):
     parent: AccountDomain
     child_saving_plan_id: str
     birth_age: int
-    independent_age: int
 
     # def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
     #     return simulate_func(self.amount)

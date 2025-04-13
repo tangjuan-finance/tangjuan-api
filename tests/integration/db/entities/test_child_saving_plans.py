@@ -15,6 +15,10 @@ class TestChildSavingPlanModelCase:
 
         # Assert
         assert child_saving_plan_from_db.name == default_child_saving_plan.name
+        assert (
+            child_saving_plan_from_db.independent_age
+            == default_child_saving_plan.independent_age
+        )
         assert child_saving_plan_from_db.owner_id == default_child_saving_plan.owner_id
         assert (
             child_saving_plan_from_db.created_at == default_child_saving_plan.created_at
@@ -28,11 +32,13 @@ class TestChildSavingPlanModelCase:
     ):
         # Arrange: Given param
         name = "Another Child Saving Plan"
+        independent_age = 22
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            independent_age=independent_age,
             owner_id=default_account_domain.id,
         )
 
@@ -53,11 +59,13 @@ class TestChildSavingPlanModelCase:
     ):
         # Arrange: Given param
         name = "Child Saving Plan with amount entry"
+        independent_age = 22
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            independent_age=independent_age,
             owner_id=default_account_domain.id,
         )
 
@@ -81,11 +89,13 @@ class TestChildSavingPlanModelCase:
     def test_default_child_saving_plan_with_children(self, default_account_domain):
         # Arrange: Given param
         name = "Child Saving Plan with a few of children"
+        independent_age = 22
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            independent_age=independent_age,
             owner_id=default_account_domain.id,
         )
 
@@ -95,12 +105,10 @@ class TestChildSavingPlanModelCase:
         for count in range(NEW_CHILDREN_AMOUNT):
             name = f"Child No. {count}"
             birth_age = 34 + count * 2
-            independent_age = 56 + count * 2
             new_child = create_entity(
                 Child,
                 name=name,
                 birth_age=birth_age,
-                independent_age=independent_age,
                 parent=default_account_domain,
                 child_saving_plan=child_saving_plan,
             )
@@ -121,21 +129,29 @@ class TestChildSavingPlanModelCase:
     ):
         # Arrange: Given param
         name = "Child Saving Plan with a few of amount entries"
+        independent_age = 22
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
-            ChildSavingPlan, name=name, owner_id=default_account_domain.id
+            ChildSavingPlan,
+            name=name,
+            independent_age=independent_age,
+            owner_id=default_account_domain.id,
         )
 
         # Arrange: Create a few of children entities and add it to child_saving_plan
         NEW_AMOUNT_ENTRIES = 10
         entry_list = []
         for count in range(NEW_AMOUNT_ENTRIES):
-            age = count * 2
+            name = f"Entry No. {count}"
+            start_age = count * 2
+            end_age = start_age + 1
             amount = 100000 + count * 10000
             new_amount_entry = create_entity(
                 ChildSavingAmountEntry,
-                age=age,
+                name=name,
+                start_age=start_age,
+                end_age=end_age,
                 amount=amount,
                 child_saving_plan=child_saving_plan,
             )

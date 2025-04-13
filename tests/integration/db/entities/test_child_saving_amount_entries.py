@@ -64,10 +64,12 @@ class TestChildSavingAmountEntryModelCase:
 
         # Arrange: Create new child_saving_plan
         name = "Updated Child Saving Plan"
+        independent_age = 18
 
         new_plan = create_entity(
             ChildSavingPlan,
             name=name,
+            independent_age=independent_age,
             owner_id=default_account_domain.id,
         )
 

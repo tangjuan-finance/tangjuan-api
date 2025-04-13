@@ -70,6 +70,7 @@ class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
     class Meta:
         model = ChildSavingPlanDomain
 
+    independent_age = factory.Faker("random_int", min=18, max=26)
     # If not injected, generate a dummy id
     owner_id = factory.LazyFunction(lambda: generate(size=13))
 
@@ -103,9 +104,6 @@ class ChildDomainFactory(ResourceDomainFactory, factory.Factory):
         model = ChildDomain
 
     birth_age = factory.Faker("random_int", min=20, max=50)
-    independent_age = factory.LazyAttribute(
-        lambda o: o.birth_age + fake.random_int(min=20, max=30)
-    )
     # If not injected, generate a dummy id
     child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
     parent = factory.SubFactory(AccountDomainFactory)

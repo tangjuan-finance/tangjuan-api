@@ -6,14 +6,17 @@ class TestChildSavingPlanDomainCase:
     def test_factory_child_saving_plan_domain(self):
         # Arrange: Provide params
         name = "Default Child Saving Plan Domain"
+        independent_age = 22
 
         # Act: Create domain
         child_saving_plan = ChildSavingPlanDomainFactory(
             name=name,
+            independent_age=independent_age,
         )
 
         # Assert: Check if the domain from factory get the same
         assert child_saving_plan.name == name
+        assert child_saving_plan.independent_age == independent_age
 
         # Assert: The factory should has child_saving_amount_entries
         assert isinstance(child_saving_plan.child_saving_amount_entries, list)

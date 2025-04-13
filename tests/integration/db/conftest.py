@@ -174,14 +174,12 @@ def default_expense(default_account_domain):
 def default_child(default_account_domain, default_child_saving_plan):
     name = "Default Child"
     birth_age = 34
-    independent_age = 56
 
     child = create_entity(
         Child,
         parent=default_account_domain,
         name=name,
         birth_age=birth_age,
-        independent_age=independent_age,
         child_saving_plan=default_child_saving_plan,
     )
     yield child
@@ -190,10 +188,12 @@ def default_child(default_account_domain, default_child_saving_plan):
 @pytest.fixture(scope="function")
 def default_child_saving_plan(default_account_domain):
     name = "Default Child Saving Plan"
+    independent_age = 22
 
     child_saving_plan = create_entity(
         ChildSavingPlan,
         name=name,
+        independent_age=independent_age,
         owner_id=default_account_domain.id,
     )
     yield child_saving_plan

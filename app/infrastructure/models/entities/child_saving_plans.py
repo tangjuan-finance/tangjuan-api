@@ -13,6 +13,8 @@ class ChildSavingPlan(PrimaryIdMixin, TimestampMixin, BaseDescriptionMixin, db.M
     Represents a savings plan for one or more children.
     """
 
+    independent_age: so.Mapped[int] = so.mapped_column(sa.SmallInteger)
+
     # Many-to-One: An account could own many plans
     owner_id: so.Mapped[str] = so.mapped_column(
         sa.ForeignKey("account.id", ondelete="CASCADE"), index=True
