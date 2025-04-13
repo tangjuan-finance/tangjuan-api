@@ -2,7 +2,8 @@ from app.repository.entities import ChildSavingPlanRepo
 from app.infrastructure.models.entities import ChildSavingPlan
 from tests.factory import (
     ChildSavingPlanDomainFactory,
-)  # , ChildSavingAmountEntryDomainFactory
+    # ChildSavingAmountEntryDomainFactory,
+)
 import sqlalchemy as sa
 from app import db
 
@@ -16,8 +17,10 @@ class TestChildSavingPlanRepoForEntryCase:
         # Act: Create new amount entries
         # NEW_AMOUNT_ENTRIES = 6
         # for _ in range(NEW_AMOUNT_ENTRIES):
-        #     child_saving_amount_entry = ChildSavingAmountEntryDomainFactory(child_saving_plan_id=child_saving_plan_from_repo.id)
-        #     ChildSavingPlanRepo.create
+        #     child_saving_amount_entry = ChildSavingAmountEntryDomainFactory(
+        #         child_saving_plan_id=child_saving_plan_from_repo.id
+        #     )
+        #     ChildSavingPlanRepo.create_entry
 
         child_saving_plan_from_db = db.session.scalars(
             sa.select(ChildSavingPlan).where(

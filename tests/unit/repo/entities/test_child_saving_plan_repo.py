@@ -22,6 +22,10 @@ class TestChildSavingPlanRepoCase:
         assert child_saving_plan_from_repo.id == child_saving_plan_from_db.id
         assert child_saving_plan_from_repo.name == child_saving_plan_from_db.name
         assert (
+            child_saving_plan_from_repo.independent_age
+            == child_saving_plan_from_db.independent_age
+        )
+        assert (
             child_saving_plan_from_repo.created_at
             == child_saving_plan_from_db.created_at
         )
@@ -86,6 +90,10 @@ class TestChildSavingPlanRepoCase:
         # Assert: Ensure the values match between the domain object from repo create and the domain from repo get
         assert child_saving_plan_get_by_id.id == child_saving_plan_from_repo.id
         assert child_saving_plan_get_by_id.name == child_saving_plan_from_repo.name
+        assert (
+            child_saving_plan_get_by_id.independent_age
+            == child_saving_plan_from_repo.independent_age
+        )
 
     def test_get_child_saving_plan_domain_list_through_repo(self, default_account):
         # Arrange: Define the params

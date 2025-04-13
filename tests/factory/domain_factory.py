@@ -20,16 +20,16 @@ import faker
 fake = faker.Faker()
 
 
-class IdDomainFactory(factory.Factory):
-    """Abstract Factory to add an ID field."""
+# class IdDomainFactory(factory.Factory):
+#     """Abstract Factory to add an ID field."""
 
-    class Meta:
-        abstract = True  # This prevents instantiation without a model
+#     class Meta:
+#         abstract = True  # This prevents instantiation without a model
 
-    id = factory.LazyFunction(lambda: generate(size=13))
+#     id = factory.LazyFunction(lambda: generate(size=13))
 
 
-class ResourceDomainFactory(IdDomainFactory, factory.Factory):
+class ResourceDomainFactory(factory.Factory):
     """Abstract Factory to add an optional decription field."""
 
     class Meta:
@@ -44,7 +44,7 @@ class ResourceDomainFactory(IdDomainFactory, factory.Factory):
         optional = False
 
 
-class AccountDomainFactory(IdDomainFactory, factory.Factory):
+class AccountDomainFactory(factory.Factory):
     """Factory for AccountDomain"""
 
     class Meta:
