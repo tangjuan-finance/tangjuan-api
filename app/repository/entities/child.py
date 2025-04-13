@@ -15,6 +15,7 @@ class ChildRepo(EntityRepo):
             name=child.name,
             birth_age=child.birth_age,
             independent_age=child.independent_age,
+            child_saving_plan_id=child.child_saving_plan_id,
         )
 
         # Set optional attributes if present in the domain object
@@ -55,6 +56,7 @@ class ChildRepo(EntityRepo):
         child_model.name = child.name
         child_model.birth_age = child.birth_age
         child_model.independent_age = child.independent_age
+        child_model.child_saving_plan_id = child.child_saving_plan_id
         child_model.parent = parent
 
         # Set optional attributes if present in the domain object
@@ -112,6 +114,7 @@ class ChildRepo(EntityRepo):
             created_at=child_model.created_at,
             updated_at=child_model.updated_at,
             description=child_model.description,
+            child_saving_plan_id=child_model.child_saving_plan_id,
             independent_age=child_model.independent_age,
             parent=parent_domain,
         )

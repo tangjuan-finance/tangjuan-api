@@ -22,6 +22,9 @@ class TestChildRepoCase:
         assert child_from_repo.birth_age == child_from_db.birth_age
         assert child_from_repo.independent_age == child_from_db.independent_age
         assert child_from_repo.parent.id == child_from_db.parent.id
+        assert (
+            child_from_repo.child_saving_plan_id == child_from_db.child_saving_plan_id
+        )
         assert child_from_repo.created_at == child_from_db.created_at
         assert child_from_repo.updated_at == child_from_db.updated_at
 
