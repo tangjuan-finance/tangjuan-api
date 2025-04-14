@@ -2,6 +2,7 @@ from app import db
 from app.infrastructure.models import Account
 import sqlalchemy as sa
 from ..factories import create_account
+from tests.factory import create_fake_id
 from werkzeug.security import check_password_hash
 
 
@@ -19,17 +20,19 @@ class TestAccountModelCase:
 
     def test_create_account(self):
         # Arrange
+        id = create_fake_id()
         name = "alice"
         email = "alice@example.com"
         password = "bird"
 
-        account = create_account(name=name, email=email, password=password)
+        account = create_account(id=id, name=name, email=email, password=password)
 
         # Act
         account_from_db = db.session.scalar(
             sa.select(Account).where(Account.name == account.name)
         )
         # Assert
+        assert account_from_db.id == account.id
         assert account_from_db.name == account.name
         assert account_from_db.email == account.email
         assert check_password_hash(account_from_db.password_hash, password)

@@ -15,6 +15,7 @@ from app.infrastructure.models import (
 )
 from tests.conftest import TestConfig
 from .factories import create_entity
+from tests.factory import create_fake_id
 from werkzeug.security import generate_password_hash
 from decimal import Decimal
 
@@ -35,12 +36,13 @@ def init_db():
 
 @pytest.fixture(scope="function")
 def default_account_domain():
+    id = create_fake_id()
     name = "default"
     email = "default@example.com"
     password = "default$ercet"
     password_hash = generate_password_hash(password)
 
-    u = Account(name=name, email=email, password_hash=password_hash)
+    u = Account(id=id, name=name, email=email, password_hash=password_hash)
     db.session.add(u)
     db.session.commit()
     yield u
@@ -48,6 +50,7 @@ def default_account_domain():
 
 @pytest.fixture(scope="function")
 def default_scenario(default_account_domain):
+    id = create_fake_id()
     name = "Default Scenario"
     asset_allocation_percentage = Decimal("0.7")
     retire_age = 20
@@ -55,6 +58,7 @@ def default_scenario(default_account_domain):
     scenario = create_entity(
         Scenario,
         owner=default_account_domain,
+        id=id,
         name=name,
         asset_allocation_percentage=asset_allocation_percentage,
         retire_age=retire_age,
@@ -64,6 +68,7 @@ def default_scenario(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_risk(default_account_domain):
+    id = create_fake_id()
     name = "Default Risk"
     amount = 100000
     probability = Decimal("0.2")
@@ -73,6 +78,7 @@ def default_risk(default_account_domain):
     risk = create_entity(
         Risk,
         owner=default_account_domain,
+        id=id,
         name=name,
         start_age=start_age,
         end_age=end_age,
@@ -84,6 +90,7 @@ def default_risk(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_liability(default_account_domain):
+    id = create_fake_id()
     name = "Default Liability"
     principal_amount = 50000
     interest_rate = Decimal("0.5")
@@ -93,6 +100,7 @@ def default_liability(default_account_domain):
     liability = create_entity(
         Liability,
         owner=default_account_domain,
+        id=id,
         name=name,
         principal_amount=principal_amount,
         interest_rate=interest_rate,
@@ -104,6 +112,7 @@ def default_liability(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_income(default_account_domain):
+    id = create_fake_id()
     name = "Default Income"
     amount = 50000
     max_yearly_growth_rate = Decimal("0.5")
@@ -114,6 +123,7 @@ def default_income(default_account_domain):
     income = create_entity(
         Income,
         owner=default_account_domain,
+        id=id,
         name=name,
         amount=amount,
         max_yearly_growth_rate=max_yearly_growth_rate,
@@ -126,6 +136,7 @@ def default_income(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_house(default_account_domain):
+    id = create_fake_id()
     name = "Default House"
     amount = 20000000
     down_payment = 3000000
@@ -137,6 +148,7 @@ def default_house(default_account_domain):
     house = create_entity(
         House,
         owner=default_account_domain,
+        id=id,
         name=name,
         amount=amount,
         down_payment=down_payment,
@@ -150,6 +162,7 @@ def default_house(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_expense(default_account_domain):
+    id = create_fake_id()
     name = "Default Expense"
     amount = 50000
     max_yearly_growth_rate = Decimal("0.5")
@@ -160,6 +173,7 @@ def default_expense(default_account_domain):
     expense = create_entity(
         Expense,
         owner=default_account_domain,
+        id=id,
         name=name,
         amount=amount,
         max_yearly_growth_rate=max_yearly_growth_rate,
@@ -172,12 +186,14 @@ def default_expense(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_child(default_account_domain, default_child_saving_plan):
+    id = create_fake_id()
     name = "Default Child"
     birth_age = 34
 
     child = create_entity(
         Child,
         parent=default_account_domain,
+        id=id,
         name=name,
         birth_age=birth_age,
         child_saving_plan=default_child_saving_plan,
@@ -187,11 +203,13 @@ def default_child(default_account_domain, default_child_saving_plan):
 
 @pytest.fixture(scope="function")
 def default_child_saving_plan(default_account_domain):
+    id = create_fake_id()
     name = "Default Child Saving Plan"
     independent_age = 22
 
     child_saving_plan = create_entity(
         ChildSavingPlan,
+        id=id,
         name=name,
         independent_age=independent_age,
         owner_id=default_account_domain.id,
@@ -201,6 +219,7 @@ def default_child_saving_plan(default_account_domain):
 
 @pytest.fixture(scope="function")
 def default_child_saving_amount_entry(default_child_saving_plan):
+    id = create_fake_id()
     name = "Default Child Saving Amount"
     start_age = 12
     end_age = 15
@@ -208,6 +227,7 @@ def default_child_saving_amount_entry(default_child_saving_plan):
 
     child_saving_amount_entry = create_entity(
         ChildSavingAmountEntry,
+        id=id,
         name=name,
         start_age=start_age,
         end_age=end_age,
@@ -219,6 +239,7 @@ def default_child_saving_amount_entry(default_child_saving_plan):
 
 @pytest.fixture(scope="function")
 def default_asset(default_account_domain):
+    id = create_fake_id()
     name = "Default Asset"
     amount = 50000
     max_yearly_return_rate = Decimal("0.5")
@@ -229,6 +250,7 @@ def default_asset(default_account_domain):
     asset = create_entity(
         Asset,
         owner=default_account_domain,
+        id=id,
         name=name,
         amount=amount,
         max_yearly_return_rate=max_yearly_return_rate,

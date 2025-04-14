@@ -2,6 +2,7 @@ from app import db
 from app.infrastructure.models import ChildSavingPlan, Child, ChildSavingAmountEntry
 import sqlalchemy as sa
 from ..factories import create_entity
+from tests.factory import create_fake_id
 
 
 class TestChildSavingPlanModelCase:
@@ -33,10 +34,12 @@ class TestChildSavingPlanModelCase:
         # Arrange: Given param
         name = "Another Child Saving Plan"
         independent_age = 22
+        id = create_fake_id()
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
+            id=id,
             name=name,
             independent_age=independent_age,
             owner_id=default_account_domain.id,
@@ -60,10 +63,12 @@ class TestChildSavingPlanModelCase:
         # Arrange: Given param
         name = "Child Saving Plan with amount entry"
         independent_age = 22
+        id = create_fake_id()
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
+            id=id,
             name=name,
             independent_age=independent_age,
             owner_id=default_account_domain.id,
@@ -90,10 +95,12 @@ class TestChildSavingPlanModelCase:
         # Arrange: Given param
         name = "Child Saving Plan with a few of children"
         independent_age = 22
+        id = create_fake_id()
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
+            id=id,
             name=name,
             independent_age=independent_age,
             owner_id=default_account_domain.id,
@@ -105,8 +112,10 @@ class TestChildSavingPlanModelCase:
         for count in range(NEW_CHILDREN_AMOUNT):
             name = f"Child No. {count}"
             birth_age = 34 + count * 2
+            id = create_fake_id()
             new_child = create_entity(
                 Child,
+                id=id,
                 name=name,
                 birth_age=birth_age,
                 parent=default_account_domain,
@@ -130,10 +139,12 @@ class TestChildSavingPlanModelCase:
         # Arrange: Given param
         name = "Child Saving Plan with a few of amount entries"
         independent_age = 22
+        id = create_fake_id()
 
         # Arrange: Create child_saving_plan
         child_saving_plan = create_entity(
             ChildSavingPlan,
+            id=id,
             name=name,
             independent_age=independent_age,
             owner_id=default_account_domain.id,
@@ -147,8 +158,10 @@ class TestChildSavingPlanModelCase:
             start_age = count * 2
             end_age = start_age + 1
             amount = 100000 + count * 10000
+            id = create_fake_id()
             new_amount_entry = create_entity(
                 ChildSavingAmountEntry,
+                id=id,
                 name=name,
                 start_age=start_age,
                 end_age=end_age,

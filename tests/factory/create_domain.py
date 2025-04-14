@@ -23,47 +23,47 @@ from app.repository.entities import (
 )
 
 
-def create_account() -> AccountDomain:
+def create_account(*args, **kwargs) -> AccountDomain:
     """Create a new account."""
-    account = AccountDomainFactory()
+    account = AccountDomainFactory(*args, **kwargs)
     return AccountRepo.create(account)
 
 
-def create_scenario(owner: AccountDomain):
-    scenario = ScenarioDomainFactory(owner=owner)
+def create_scenario(*args, **kwargs):
+    scenario = ScenarioDomainFactory(*args, **kwargs)
     return ScenarioRepo.create(scenario)
 
 
-def create_expense(owner: AccountDomain):
-    expense = ExpenseDomainFactory(owner=owner)
+def create_expense(*args, **kwargs):
+    expense = ExpenseDomainFactory(*args, **kwargs)
     return ExpenseRepo.create(expense)
 
 
-def create_income(owner: AccountDomain):
-    income = IncomeDomainFactory(owner=owner)
+def create_income(*args, **kwargs):
+    income = IncomeDomainFactory(*args, **kwargs)
     return IncomeRepo.create(income)
 
 
-def create_house(owner: AccountDomain):
-    house = HouseDomainFactory(owner=owner)
+def create_house(*args, **kwargs):
+    house = HouseDomainFactory(*args, **kwargs)
     return HouseRepo.create(house)
 
 
-def create_child(parent: AccountDomain):
-    child = ChildDomainFactory(parent=parent)
+def create_child(*args, **kwargs):
+    child = ChildDomainFactory(*args, **kwargs)
     return ChildRepo.create(child)
 
 
-def create_risk(owner: AccountDomain):
-    risk = RiskDomainFactory(owner=owner)
+def create_risk(*args, **kwargs):
+    risk = RiskDomainFactory(*args, **kwargs)
     return RiskRepo.create(risk)
 
 
-def create_asset(owner: AccountDomain):
-    asset = AssetDomainFactory(owner=owner)
+def create_asset(*args, **kwargs):
+    asset = AssetDomainFactory(*args, **kwargs)
     return AssetRepo.create(asset)
 
 
-def create_liability(owner: AccountDomain):
-    liability = LiabilityDomainFactory(owner=owner)
+def create_liability(*args, **kwargs):
+    liability = LiabilityDomainFactory(*args, **kwargs)
     return LiabilityRepo.create(liability)

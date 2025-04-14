@@ -4,6 +4,7 @@ from app.infrastructure.models import Child, ChildSavingPlan
 import sqlalchemy as sa
 from sqlalchemy.exc import IntegrityError
 from ..factories import create_entity
+from tests.factory import create_fake_id
 
 
 class TestChildModelCase:
@@ -24,12 +25,14 @@ class TestChildModelCase:
     def test_default_child_not_set_saving_plan(self, default_account_domain):
         name = "Default Child"
         birth_age = 34
+        id = create_fake_id()
 
         with pytest.raises(
             IntegrityError
         ):  # Missing child_saving_paln should raise IntegrityError
             create_entity(
                 Child,
+                id=id,
                 parent=default_account_domain,
                 name=name,
                 birth_age=birth_age,
@@ -44,9 +47,11 @@ class TestChildModelCase:
         # Arrange: Create new child_saving_plan
         name = "Updated Child Saving Plan"
         independent_age = 18
+        id = create_fake_id()
 
         new_plan = create_entity(
             ChildSavingPlan,
+            id=id,
             name=name,
             owner_id=default_account_domain.id,
             independent_age=independent_age,

@@ -11,9 +11,7 @@ def generate_nano_id():
 
 
 class PrimaryIdMixin:
-    id: so.Mapped[str] = so.mapped_column(
-        sa.String(length=13), primary_key=True, default=generate_nano_id
-    )
+    id: so.Mapped[str] = so.mapped_column(sa.String(length=13), primary_key=True)
 
 
 class TimestampMixin:
