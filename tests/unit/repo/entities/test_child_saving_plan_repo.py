@@ -34,17 +34,13 @@ class TestChildSavingPlanRepoCase:
             == child_saving_plan_from_db.updated_at
         )
 
-        # Assert: Ensure the child_saving_amount_entries are also saved in database
-        child_saving_amount_entry_id_list_from_db = [
-            entry.id for entry in child_saving_plan_from_db.child_saving_amount_entries
-        ]
-        for entry in child_saving_plan_from_repo.child_saving_amount_entries:
-            assert entry.id in child_saving_amount_entry_id_list_from_db
-
     def test_update_child_saving_plan_domain_through_repo(self):
         # Arrange: Create an child_saving_plan domain using the factory
         child_saving_plan = ChildSavingPlanDomainFactory()
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
+        origin_amount_entry_list = (
+            child_saving_plan_from_repo.child_saving_amount_entries
+        )
         updated_name = "Updated ChildSavingPlan Domain"
 
         # Act: Update the child_saving_plan domain object (before saving)
@@ -76,6 +72,11 @@ class TestChildSavingPlanRepoCase:
             updated_child_saving_plan.updated_at
             != child_saving_plan_from_repo.updated_at
         )
+        # Update should not drop or add any amount entry
+        assert (
+            updated_child_saving_plan.child_saving_amount_entries
+            == origin_amount_entry_list
+        )
 
     def test_get_child_saving_plan_domain_by_id_through_repo(self):
         # Arrange: Create an child_saving_plan domain using the factory
@@ -101,6 +102,7 @@ class TestChildSavingPlanRepoCase:
         NEW_PLANS_AMOUNT = 5
 
         new_child_saving_plan_list = []
+
         # Act: Create 5 new child_saving_plan domains
         for _ in range(NEW_PLANS_AMOUNT):
             new_child_saving_plan = ChildSavingPlanDomainFactory(owner_id=account_id)
