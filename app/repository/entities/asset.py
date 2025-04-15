@@ -12,6 +12,7 @@ class AssetRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         asset_model = Asset(
+            id=asset.id,
             name=asset.name,
             amount=asset.amount,
             max_yearly_return_rate=asset.max_yearly_return_rate,
@@ -112,7 +113,7 @@ class AssetRepo(EntityRepo):
         """Helper method to map the Asset model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return AssetDomain(
-            id=asset_model.id,
+            _id=asset_model.id,
             name=asset_model.name,
             amount=asset_model.amount,
             max_yearly_return_rate=asset_model.max_yearly_return_rate,

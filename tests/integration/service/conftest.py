@@ -48,46 +48,46 @@ def default_account() -> Generator[AccountDomain, None, None]:
 @pytest.fixture(scope="function")
 def default_scenario(default_account) -> Generator[ScenarioDomain, None, None]:
     """Provides a default scenario for scenario resource tests."""
-    yield create_scenario(default_account)
+    yield create_scenario(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_expense(default_account) -> Generator[ExpenseDomain, None, None]:
     """Provides a default expense for expense resource tests."""
-    yield create_expense(default_account)
+    yield create_expense(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_income(default_account) -> Generator[IncomeDomain, None, None]:
     """Provides a default income for income resource tests."""
-    yield create_income(default_account)
+    yield create_income(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_house(default_account) -> Generator[HouseDomain, None, None]:
     """Provides a default house for house resource tests."""
-    yield create_house(default_account)
+    yield create_house(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_child(default_account) -> Generator[ChildDomain, None, None]:
     """Provides a default child for child resource tests."""
-    yield create_child(default_account)
+    yield create_child(parent=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_risk(default_account) -> Generator[RiskDomain, None, None]:
     """Provides a default risk for risk resource tests."""
-    yield create_risk(default_account)
+    yield create_risk(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_asset(default_account) -> Generator[AssetDomain, None, None]:
     """Provides a default asset for asset resource tests."""
-    yield create_asset(default_account)
+    yield create_asset(owner=default_account)
 
 
 @pytest.fixture(scope="function")
 def default_liability(default_account) -> Generator[LiabilityDomain, None, None]:
     """Provides a default liability for liability resource tests."""
-    yield create_liability(default_account)
+    yield create_liability(owner=default_account)

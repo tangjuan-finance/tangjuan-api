@@ -105,7 +105,7 @@ class TestScenarioAssetServiceCase:
                 account_id,
                 create_scenario_asset_payload(
                     scenario_id=default_scenario_id,
-                    asset_id=create_asset(default_account).id,
+                    asset_id=create_asset(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -271,7 +271,7 @@ class TestScenarioAssetServiceCase:
                 account_id,
                 create_scenario_asset_payload(
                     scenario_id=default_scenario_id,
-                    asset_id=create_asset(default_account).id,
+                    asset_id=create_asset(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

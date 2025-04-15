@@ -263,7 +263,7 @@ class TestScenarioIncomeSimulationServiceCase:
         new_incomes_list = []
         for _ in range(NEW_ASSET_COUNT):
             # Create the income
-            income = create_income(default_account)
+            income = create_income(owner=default_account)
 
             # Create the assoc
             create_scenario_income(scenario_id=default_scenario.id, income_id=income.id)
@@ -326,7 +326,7 @@ class TestScenarioIncomeSimulationServiceCase:
         new_incomes_list = []
         for _ in range(NEW_ASSET_COUNT):
             # Create the income
-            income = create_income(default_account)
+            income = create_income(owner=default_account)
 
             # Create the assoc
             assoc = create_scenario_income(

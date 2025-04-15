@@ -119,7 +119,7 @@ class TestHouseRepoCase:
 
         # Act: Create 5 new house domains
         for _ in range(5):
-            new_house = create_house(default_account)
+            new_house = create_house(owner=default_account)
             self._create_assoc(
                 house_id=new_house.id,
                 scenario_id=new_scenario.id,
@@ -215,7 +215,7 @@ class TestHouseRepoCase:
         assoc = self._create_assoc(house_id=house_id, scenario_id=scenario_id)
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

@@ -11,6 +11,7 @@ class ChildSavingPlanRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         child_saving_plan_model = ChildSavingPlan(
+            id=child_saving_plan.id,
             name=child_saving_plan.name,
             independent_age=child_saving_plan.independent_age,
         )
@@ -108,7 +109,7 @@ class ChildSavingPlanRepo(EntityRepo):
             child_saving_plan_id=child_saving_plan_model.id
         )
         return ChildSavingPlanDomain(
-            id=child_saving_plan_model.id,
+            _id=child_saving_plan_model.id,
             owner_id=child_saving_plan_model.owner_id,
             name=child_saving_plan_model.name,
             independent_age=child_saving_plan_model.independent_age,

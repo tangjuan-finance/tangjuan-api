@@ -5,7 +5,7 @@ from .base import ResourceDomain
 from .account import AccountDomain
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class ChildDomain(ResourceDomain):
     """
     Represents a child entity tied to an account and a savings plan.

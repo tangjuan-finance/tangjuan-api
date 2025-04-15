@@ -7,7 +7,7 @@ from .account import AccountDomain
 from decimal import Decimal
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class RiskDomain(ResourceDomain, BaseAgeIntervalMixin):
     owner: AccountDomain
     amount: int

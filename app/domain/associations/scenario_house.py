@@ -12,3 +12,7 @@ class ScenarioHouseDomain(BaseAssociationDomain):
     loan_term: Optional[int] = None
     purchase_age: Optional[int] = None
     sale_age: Optional[int] = None
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"{class_name}(scenario_id={self.scenario_id}, house_id={self.house_id})"

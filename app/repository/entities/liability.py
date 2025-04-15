@@ -12,6 +12,7 @@ class LiabilityRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         liability_model = Liability(
+            id=liability.id,
             name=liability.name,
             principal_amount=liability.principal_amount,
             interest_rate=liability.interest_rate,
@@ -116,7 +117,7 @@ class LiabilityRepo(EntityRepo):
         """Helper method to map the Liability model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return LiabilityDomain(
-            id=liability_model.id,
+            _id=liability_model.id,
             name=liability_model.name,
             principal_amount=liability_model.principal_amount,
             interest_rate=liability_model.interest_rate,

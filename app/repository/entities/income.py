@@ -12,6 +12,7 @@ class IncomeRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         income_model = Income(
+            id=income.id,
             name=income.name,
             amount=income.amount,
             max_yearly_growth_rate=income.max_yearly_growth_rate,
@@ -118,7 +119,7 @@ class IncomeRepo(EntityRepo):
         """Helper method to map the Income model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return IncomeDomain(
-            id=income_model.id,
+            _id=income_model.id,
             name=income_model.name,
             amount=income_model.amount,
             max_yearly_growth_rate=income_model.max_yearly_growth_rate,

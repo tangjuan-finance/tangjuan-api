@@ -12,6 +12,7 @@ class ChildRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         child_model = Child(
+            id=child.id,
             name=child.name,
             birth_age=child.birth_age,
             child_saving_plan_id=child.child_saving_plan_id,
@@ -106,7 +107,7 @@ class ChildRepo(EntityRepo):
         """Helper method to map the Child model to a Domain Object."""
         parent_domain = AccountRepo.get_by_id(parent_id)
         return ChildDomain(
-            id=child_model.id,
+            _id=child_model.id,
             name=child_model.name,
             birth_age=child_model.birth_age,
             created_at=child_model.created_at,

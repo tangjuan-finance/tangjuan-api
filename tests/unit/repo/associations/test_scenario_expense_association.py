@@ -153,7 +153,7 @@ class TestExpenseRepoCase:
 
         # Act: Create 5 new expense domains
         for _ in range(5):
-            new_expense = create_expense(default_account)
+            new_expense = create_expense(owner=default_account)
             self._create_assoc(
                 expense_id=new_expense.id,
                 scenario_id=new_scenario.id,
@@ -253,7 +253,7 @@ class TestExpenseRepoCase:
         assoc = self._create_assoc(expense_id=expense_id, scenario_id=scenario_id)
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

@@ -135,7 +135,7 @@ class TestIncomeRepoCase:
 
         # Act: Create 5 new income domains
         for _ in range(5):
-            new_income = create_income(default_account)
+            new_income = create_income(owner=default_account)
             self._create_assoc(
                 income_id=new_income.id,
                 scenario_id=new_scenario.id,
@@ -231,7 +231,7 @@ class TestIncomeRepoCase:
         assoc = self._create_assoc(income_id=income_id, scenario_id=scenario_id)
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

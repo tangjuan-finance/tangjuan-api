@@ -7,7 +7,7 @@ from .mixin import BaseAgeIntervalMixin
 from .account import AccountDomain
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class ExpenseDomain(ResourceDomain, BaseAgeIntervalMixin):
     owner: AccountDomain
     amount: int

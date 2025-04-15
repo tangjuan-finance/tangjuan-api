@@ -12,6 +12,7 @@ class ScenarioRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         scenario_model = Scenario(
+            id=scenario.id,
             name=scenario.name,
             asset_allocation_percentage=scenario.asset_allocation_percentage,
             retire_age=scenario.retire_age,
@@ -114,7 +115,7 @@ class ScenarioRepo(EntityRepo):
         """Helper method to map the Scenario model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return ScenarioDomain(
-            id=scenario_model.id,
+            _id=scenario_model.id,
             name=scenario_model.name,
             asset_allocation_percentage=scenario_model.asset_allocation_percentage,
             retire_age=scenario_model.retire_age,

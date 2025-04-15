@@ -6,7 +6,7 @@ from .base import ResourceDomain
 from .account import AccountDomain
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class LiabilityDomain(ResourceDomain):
     owner: AccountDomain
     principal_amount: int

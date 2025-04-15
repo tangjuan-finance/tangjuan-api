@@ -263,7 +263,7 @@ class TestScenarioAssetSimulationServiceCase:
         new_assets_list = []
         for _ in range(NEW_ASSET_COUNT):
             # Create the asset
-            asset = create_asset(default_account)
+            asset = create_asset(owner=default_account)
 
             # Create the assoc
             create_scenario_asset(scenario_id=default_scenario.id, asset_id=asset.id)
@@ -326,7 +326,7 @@ class TestScenarioAssetSimulationServiceCase:
         new_assets_list = []
         for _ in range(NEW_ASSET_COUNT):
             # Create the asset
-            asset = create_asset(default_account)
+            asset = create_asset(owner=default_account)
 
             # Create the assoc
             assoc = create_scenario_asset(

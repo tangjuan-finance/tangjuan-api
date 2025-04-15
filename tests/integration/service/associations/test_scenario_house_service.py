@@ -105,7 +105,7 @@ class TestScenarioHouseServiceCase:
                 account_id,
                 create_scenario_house_payload(
                     scenario_id=default_scenario_id,
-                    house_id=create_house(default_account).id,
+                    house_id=create_house(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -271,7 +271,7 @@ class TestScenarioHouseServiceCase:
                 account_id,
                 create_scenario_house_payload(
                     scenario_id=default_scenario_id,
-                    house_id=create_house(default_account).id,
+                    house_id=create_house(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

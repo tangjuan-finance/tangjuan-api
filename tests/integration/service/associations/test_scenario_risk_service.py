@@ -103,7 +103,7 @@ class TestScenarioRiskServiceCase:
                 account_id,
                 create_scenario_risk_payload(
                     scenario_id=default_scenario_id,
-                    risk_id=create_risk(default_account).id,
+                    risk_id=create_risk(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -263,7 +263,7 @@ class TestScenarioRiskServiceCase:
                 account_id,
                 create_scenario_risk_payload(
                     scenario_id=default_scenario_id,
-                    risk_id=create_risk(default_account).id,
+                    risk_id=create_risk(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

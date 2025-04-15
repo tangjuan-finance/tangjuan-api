@@ -105,7 +105,7 @@ class TestScenarioLiabilityServiceCase:
                 account_id,
                 create_scenario_liability_payload(
                     scenario_id=default_scenario_id,
-                    liability_id=create_liability(default_account).id,
+                    liability_id=create_liability(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -271,7 +271,7 @@ class TestScenarioLiabilityServiceCase:
                 account_id,
                 create_scenario_liability_payload(
                     scenario_id=default_scenario_id,
-                    liability_id=create_liability(default_account).id,
+                    liability_id=create_liability(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

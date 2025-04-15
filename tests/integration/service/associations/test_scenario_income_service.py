@@ -105,7 +105,7 @@ class TestScenarioIncomeServiceCase:
                 account_id,
                 create_scenario_income_payload(
                     scenario_id=default_scenario_id,
-                    income_id=create_income(default_account).id,
+                    income_id=create_income(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -271,7 +271,7 @@ class TestScenarioIncomeServiceCase:
                 account_id,
                 create_scenario_income_payload(
                     scenario_id=default_scenario_id,
-                    income_id=create_income(default_account).id,
+                    income_id=create_income(owner=default_account).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

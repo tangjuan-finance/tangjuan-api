@@ -112,7 +112,7 @@ class TestRiskRepoCase:
 
         # Act: Create 5 new risk domains
         for _ in range(5):
-            new_risk = create_risk(default_account)
+            new_risk = create_risk(owner=default_account)
             self._create_assoc(
                 risk_id=new_risk.id,
                 scenario_id=new_scenario.id,
@@ -206,7 +206,7 @@ class TestRiskRepoCase:
         assoc = self._create_assoc(risk_id=risk_id, scenario_id=scenario_id)
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

@@ -113,7 +113,7 @@ class TestChildRepoCase:
 
         # Act: Create 5 new child domains
         for _ in range(5):
-            new_child = create_child(default_account)
+            new_child = create_child(parent=default_account)
             self._create_assoc(
                 child_id=new_child.id,
                 scenario_id=new_scenario.id,
@@ -209,7 +209,7 @@ class TestChildRepoCase:
         assoc = self._create_assoc(child_id=child_id, scenario_id=scenario_id)
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

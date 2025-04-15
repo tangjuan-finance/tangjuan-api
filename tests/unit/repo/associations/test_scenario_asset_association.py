@@ -137,7 +137,7 @@ class TestAssetRepoCase:
 
         # Act: Create 5 new asset domains
         for _ in range(5):
-            new_asset = create_asset(default_account)
+            new_asset = create_asset(owner=default_account)
             self._create_assoc(
                 asset_id=new_asset.id,
                 scenario_id=new_scenario.id,
@@ -242,7 +242,7 @@ class TestAssetRepoCase:
         )
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

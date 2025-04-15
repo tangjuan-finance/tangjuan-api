@@ -4,7 +4,7 @@ from .mixin import BaseAgeIntervalMixin
 from .base import ResourceDomain
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class ChildSavingAmountEntryDomain(ResourceDomain, BaseAgeIntervalMixin):
     """
     Represents a saving amount entry at a specific age for a child savings plan.

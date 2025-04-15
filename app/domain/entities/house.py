@@ -5,7 +5,7 @@ from .base import ResourceDomain
 from .account import AccountDomain
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class HouseDomain(ResourceDomain):
     owner: AccountDomain
     amount: int

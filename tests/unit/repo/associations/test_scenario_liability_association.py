@@ -176,7 +176,7 @@ class TestLiabilityRepoCase:
 
         # Act: Create 5 new liability domains
         for _ in range(5):
-            new_liability = create_liability(default_account)
+            new_liability = create_liability(owner=default_account)
             self._create_assoc(
                 liability_id=new_liability.id,
                 scenario_id=new_scenario.id,
@@ -289,7 +289,7 @@ class TestLiabilityRepoCase:
         )
 
         # Arrange: Create another scenario
-        another_scenario = create_scenario(default_account)
+        another_scenario = create_scenario(owner=default_account)
         another_scenario_id = another_scenario.id
 
         # Act: Change the assoc to another scenario id

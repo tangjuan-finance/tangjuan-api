@@ -12,6 +12,7 @@ class HouseRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         house_model = House(
+            id=house.id,
             name=house.name,
             amount=house.amount,
             down_payment=house.down_payment,
@@ -114,7 +115,7 @@ class HouseRepo(EntityRepo):
         """Helper method to map the House model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return HouseDomain(
-            id=house_model.id,
+            _id=house_model.id,
             name=house_model.name,
             amount=house_model.amount,
             down_payment=house_model.down_payment,

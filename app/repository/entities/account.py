@@ -11,6 +11,7 @@ class AccountRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         account_model = Account(
+            id=account.id,
             name=account.name,
             email=account.email,
             password_hash=account.password_hash,
@@ -23,7 +24,7 @@ class AccountRepo(EntityRepo):
 
         # Return the domain object with attributes populated from the database
         return AccountDomain(
-            id=account_model.id,
+            _id=account_model.id,
             name=account_model.name,
             email=account_model.email,
             password_hash=account_model.password_hash,
@@ -51,7 +52,7 @@ class AccountRepo(EntityRepo):
         db.session.commit()
         # Return the domain object with attributes populated from the database
         return AccountDomain(
-            id=account_model.id,
+            _id=account_model.id,
             name=account_model.name,
             email=account_model.email,
             password_hash=account_model.password_hash,
@@ -71,7 +72,7 @@ class AccountRepo(EntityRepo):
             return None
 
         return AccountDomain(
-            id=account_model.id,
+            _id=account_model.id,
             name=account_model.name,
             email=account_model.email,
             password_hash=account_model.password_hash,
@@ -86,7 +87,7 @@ class AccountRepo(EntityRepo):
         account_model_list = db.session.scalars(sa.select(Account)).all()
         return [
             AccountDomain(
-                id=exp.id,
+                _id=exp.id,
                 name=exp.name,
                 email=exp.email,
                 password_hash=exp.password_hash,

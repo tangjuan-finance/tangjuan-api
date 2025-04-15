@@ -12,6 +12,7 @@ class RiskRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         risk_model = Risk(
+            id=risk.id,
             name=risk.name,
             amount=risk.amount,
             probability=risk.probability,
@@ -103,7 +104,7 @@ class RiskRepo(EntityRepo):
         """Helper method to map the Risk model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return RiskDomain(
-            id=risk_model.id,
+            _id=risk_model.id,
             name=risk_model.name,
             amount=risk_model.amount,
             probability=risk_model.probability,

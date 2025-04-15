@@ -5,7 +5,7 @@ from .child_saving_amount_entry import ChildSavingAmountEntryDomain
 from typing import Optional
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, repr=False)
 class ChildSavingPlanDomain(ResourceDomain):
     """
     Represents a child saving plan that contains a sequence of saving amount entries.

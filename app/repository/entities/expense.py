@@ -12,6 +12,7 @@ class ExpenseRepo(EntityRepo):
         """Given a DomainObject, store it in the database and return the stored object."""
         # Instance with required attr
         expense_model = Expense(
+            id=expense.id,
             name=expense.name,
             amount=expense.amount,
             max_yearly_growth_rate=expense.max_yearly_growth_rate,
@@ -117,7 +118,7 @@ class ExpenseRepo(EntityRepo):
         """Helper method to map the Expense model to a Domain Object."""
         owner_domain = AccountRepo.get_by_id(owner_id)
         return ExpenseDomain(
-            id=expense_model.id,
+            _id=expense_model.id,
             name=expense_model.name,
             amount=expense_model.amount,
             max_yearly_growth_rate=expense_model.max_yearly_growth_rate,
