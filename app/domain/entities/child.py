@@ -17,3 +17,11 @@ class ChildDomain(ResourceDomain):
 
     # def simulate_by_year(self, simulate_func: Callable[[int], int]) -> int:
     #     return simulate_func(self.amount)
+    def __repr__(self) -> str:
+        return (
+            f"ChildDomain("
+            f"id={self.id}, "
+            f"parent_id={self.parent.id}, "
+            f"child_saving_plan_id={self.child_saving_plan_id}, "
+            f"birth_age={self.birth_age})"
+        )

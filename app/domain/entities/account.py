@@ -11,7 +11,10 @@ class AccountDomain(EntityDomain):
     name: str
     last_seen: Optional[datetime] = None
 
-    def __repr__(self):
-        class_name = self.__class__.__name__
-
-        return f"{class_name}(id={self.id}, name={self.name})"
+    def __repr__(self) -> str:
+        return (
+            f"AccountDomain("
+            f"id={self.id}, "
+            f"name={self.name}, "
+            f"last_seen={self.last_seen.strftime('%Y-%m-%d %H:%M:%S')})"
+        )

@@ -16,3 +16,13 @@ class LiabilityDomain(ResourceDomain):
 
     # def simulate_by_year(self, simulate_func: Callable[[int, int], int]) -> int:
     #     return simulate_func(self.amount)
+    def __repr__(self) -> str:
+        return (
+            f"IncomeDomain("
+            f"id={self.id}, "
+            f"owner_id={self.owner.id}, "
+            f"principal_amount={self.principal_amount}, "
+            f"interest_rate={self.interest_rate}%, "
+            f"start_age={self.start_age}, "
+            f"end_age={self.end_age})"
+        )

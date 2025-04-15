@@ -17,6 +17,15 @@ class ChildSavingPlanDomain(ResourceDomain):
         default_factory=list
     )
 
+    def __repr__(self) -> str:
+        return (
+            f"ChildSavingPlanDomain("
+            f"id={self.id}, "
+            f"owner_id={self.owner_id}, "
+            f"independent_age={self.independent_age}, "
+            f"entries={len(self.child_saving_amount_entries)})"
+        )
+
     def add_entry(
         self,
         name: str,
@@ -24,7 +33,7 @@ class ChildSavingPlanDomain(ResourceDomain):
         end_age: int,
         amount: int,
         description: Optional[str] = None,
-    ):  # -> None:
+    ) -> ChildSavingAmountEntryDomain:
         # Domain rule validation
         if start_age > end_age:
             raise ValueError(
@@ -45,9 +54,8 @@ class ChildSavingPlanDomain(ResourceDomain):
         )
 
         # Add the entry to the object
-        # self.child_saving_amount_entries.append(new_entry)
+        self.child_saving_amount_entries.append(new_entry)
 
-        # return None
         return new_entry
 
     def update_entry(
