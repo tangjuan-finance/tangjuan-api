@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from .base import ResourceDomain
 from .child_saving_amount_entry import ChildSavingAmountEntryDomain
-from typing import Optional
+from typing import Optional, Any
 
 
 @dataclass(kw_only=True, repr=False)
@@ -34,15 +34,7 @@ class ChildSavingPlanDomain(ResourceDomain):
         amount: int,
         description: Optional[str] = None,
     ) -> ChildSavingAmountEntryDomain:
-        # Domain rule validation
-        if start_age > end_age:
-            raise ValueError(
-                f"start_age should less than end_age, get {start_age} > {end_age} instead"
-            )
-
-        if not self.id:
-            raise ValueError("Should save this plan to database first to get plan id.")
-
+        """Create a new entry and attach it to the plan."""
         # Create the entry based on the given attr
         new_entry = ChildSavingAmountEntryDomain(
             name=name,
@@ -58,21 +50,54 @@ class ChildSavingPlanDomain(ResourceDomain):
 
         return new_entry
 
-    def update_entry(
+    def get_entry_by_id(self, entry_id: str) -> Optional[ChildSavingAmountEntryDomain]:
+        """Return entry by ID or None if not found."""
+        return next(
+            (
+                entry
+                for entry in self.child_saving_amount_entries
+                if entry_id == entry_id
+            ),
+            None,
+        )
+
+    def list_entries(
+        self,
+    ) -> list[ChildSavingAmountEntryDomain]:
+        """Return a shallow copy of the entry list to prevent external mutation."""
+        # return copy to avoid mutation
+        return list(self.child_saving_amount_entries)
+
+    def update_entry_by_id(
+        self,
         entry_id: str,
-        name: Optional[str] = None,
-        start_age: Optional[int] = None,
-        end_age: Optional[int] = None,
-        amount: Optional[int] = None,
-        description: Optional[str] = None,
-    ):
-        pass
+        **kwargs: Any,
+    ) -> Optional[ChildSavingAmountEntryDomain]:
+        """
+        Update entry attributes by ID. Raises ValueError if not found.
+        Only updates known attributes.
+        """
+        entry = self.get_entry_by_id(entry_id)
+        if not entry:
+            raise ValueError(f"Entry with id {entry_id} not found.")
 
-    def remove_entry(entry_id: str):
-        pass
+        unknown_fields = set(kwargs.keys()) - entry._updatable_attrs
+        if unknown_fields:
+            raise ValueError(f"Unknown fields: {unknown_fields}")
 
-    def get_entry(entry_id: str):
-        pass
+        for attr_name, attr_value in kwargs.items():
+            if attr_name in entry._updatable_attrs:
+                setattr(entry, attr_name, attr_value)
 
-    def list_entries():
-        pass
+        return entry
+
+    def remove_entry_by_id(self, entry_id: str) -> None:
+        """
+        Remove an entry from the plan by ID.
+        Raises ValueError if not found.
+        """
+        entry = self.get_entry_by_id(entry_id=entry_id)
+        if not entry:
+            raise ValueError(f"Entry with id {entry_id} not found.")
+
+        self.child_saving_amount_entries.remove(entry)

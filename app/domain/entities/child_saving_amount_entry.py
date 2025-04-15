@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import ClassVar
 from .mixin import BaseAgeIntervalMixin
 from .base import ResourceDomain
 
@@ -12,6 +12,13 @@ class ChildSavingAmountEntryDomain(ResourceDomain, BaseAgeIntervalMixin):
 
     amount: int
     child_saving_plan_id: str
+    _updatable_attrs: ClassVar[set[str]] = {
+        "name",
+        "start_age",
+        "end_age",
+        "amount",
+        "description",
+    }
 
     def __repr__(self) -> str:
         return (
