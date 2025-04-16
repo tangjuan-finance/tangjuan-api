@@ -12,122 +12,114 @@ from app import db
 
 
 class TestChildSavingPlanRepoForEntryCase:
-    def test_create_child_saving_amount_entry_through_child_saving_plan_repo(self):
+    def test_create_child_saving_amount_entry_through_child_saving_plan_repo(
+        self, default_account
+    ):
         # Arrange: Create an child_saving_plan domain using the factory
-        child_saving_plan_from_repo = self._create_new_child_saving_plan_by_repo()
+        child_saving_plan_from_repo = self._create_new_child_saving_plan_by_repo(
+            owner_id=default_account.id
+        )
 
         # Act: Create and save new amount entries to database
         NEW_AMOUNT_ENTRIES = 6
-        entry_list = self._create_amount_entries_by_repo(
-            child_saving_plan_id=child_saving_plan_from_repo.id,
-            length=NEW_AMOUNT_ENTRIES,
-        )
+        entry_list = []
+        for idx in range(NEW_AMOUNT_ENTRIES):
+            # Create the payload from the factory
+            payload = ChildSavingAmountEntryDomainFactory()
+
+            # Save tne entry to the plan by domain service
+            new_entry = child_saving_plan_from_repo.add_entry(
+                name=payload.name,
+                start_age=payload.start_age,
+                end_age=payload.end_age,
+                amount=payload.amount,
+                description=payload.description,
+            )
+
+            entry_list.append(new_entry)
+
+        # Act: Save the update to database by repo
+        ChildSavingPlanRepo.save(child_saving_plan_from_repo)
 
         # Assert: Get the plan from database, the new added amount entries should be there
         plan_from_repo = ChildSavingPlanRepo.get_by_id(
             child_saving_plan_id=child_saving_plan_from_repo.id
         )
+        entry_id_list_from_repo = [
+            entry.id for entry in plan_from_repo.child_saving_amount_entries
+        ]
 
         for entry in entry_list:
-            assert entry in plan_from_repo.child_saving_amount_entries
+            assert entry.id in entry_id_list_from_repo
 
-    def test_update_child_saving_plan_domain_through_repo(self):
+    def test_update_child_saving_plan_domain_through_repo(self, default_account):
         # Arrange: Create a plan with multiple entries
-        child_saving_plan_from_repo = self._create_plan_with_amount_entries()
-        plan_id = child_saving_plan_from_repo.id
+        child_saving_plan_from_repo = self._create_plan_with_amount_entries(
+            owner_id=default_account.id
+        )
 
         # Arrange: Get one entry
         target_entry = child_saving_plan_from_repo.child_saving_amount_entries[0]
         entry_id = target_entry.id
 
-        # Act: Update the child_saving_amount_entry domain object (before saving)
+        # Arrange: Create the update attrs for the targeted entry
         update_end_age = target_entry.end_age + 2
         update_amount = target_entry.amount + 15000
+        update_attrs = {
+            "end_age": update_end_age,
+            "amount": update_amount,
+        }
 
-        target_entry.end_age = update_end_age
-        target_entry.amount = update_amount
+        # Act: Update the entry by the plan domain with the update attrs
+        child_saving_plan_from_repo.update_entry_by_id(
+            entry_id=entry_id, **update_attrs
+        )
 
-        ChildSavingPlanRepo.update_entry(entry=target_entry)
+        # Act: Save the change
+        # breakpoint()
+        ChildSavingPlanRepo.save(child_saving_plan=child_saving_plan_from_repo)
 
         # Assert: Plan get from database should reflect this update
         updated_child_saving_plan = ChildSavingPlanRepo.get_by_id(
-            child_saving_plan_id=plan_id
-        )
-
-        entry_in_planfrom_repo = [
-            entry
-            for entry in updated_child_saving_plan.child_saving_amount_entries
-            if entry.id == entry_id
-        ][0]
-
-        # Assert: Check the id is the same
-        assert entry_in_planfrom_repo.id == entry_id
-
-        # Assert: Check the non-updated field should be the same
-        assert entry_in_planfrom_repo.start_age == target_entry.start_age
-
-        # Assert: Check the non-updated field as updated
-        assert entry_in_planfrom_repo.end_age == update_end_age
-        assert entry_in_planfrom_repo.amount == update_amount
-
-    def test_get_child_saving_plan_domain_by_id_through_repo(self):
-        # Arrange: Create a plan with multiple entries
-        child_saving_plan_from_repo = self._create_plan_with_amount_entries()
-
-        # Arrange: Get entry id
-        entry = child_saving_plan_from_repo.child_saving_amount_entries[0]
-        entry_id = entry.id
-
-        # Act: Get entry by repo service
-        entry_from_repo = ChildSavingPlanRepo.get_entry_by_id(entry_id=entry_id)
-
-        # Assert: Both entry should be the same
-        assert entry.id == entry_from_repo.id
-        assert entry.amount == entry_from_repo.amount
-        assert entry == entry_from_repo
-
-    def test_get_child_saving_plan_domain_list_through_repo(self):
-        # Arrange: Define the params
-        NEW_AMOUNT_ENTRIES = 6
-
-        # Arrange: Create a plan with multiple entries
-        child_saving_plan_from_repo = self._create_plan_with_amount_entries(
-            length=NEW_AMOUNT_ENTRIES
-        )
-        entry_list = child_saving_plan_from_repo.child_saving_amount_entries
-
-        # Act: Get entries by repo
-        entry_list_from_repo = ChildSavingPlanRepo.list_entries(
             child_saving_plan_id=child_saving_plan_from_repo.id
         )
 
-        # Assert: Entry list from repo should be the same as the created one
-        assert len(entry_list) == NEW_AMOUNT_ENTRIES
-        assert len(entry_list_from_repo) == len(entry_list)
+        entry_from_repo = updated_child_saving_plan.get_entry_by_id(entry_id=entry_id)
 
-        for entry in entry_list:
-            assert entry in entry_list_from_repo
+        # Assert: Check the non-updated field should be the same
+        assert entry_from_repo.start_age == target_entry.start_age
 
-    def test_delete_child_saving_plan_domain_through_repo(self):
+        # Assert: Check the updated field as updated
+        assert entry_from_repo.end_age == update_end_age
+        assert entry_from_repo.amount == update_amount
+
+    def test_delete_child_saving_plan_domain_through_repo(self, default_account):
         # Arrange: Create a plan with multiple entries
-        child_saving_plan_from_repo = self._create_plan_with_amount_entries()
-        plan_id = child_saving_plan_from_repo.id
+        child_saving_plan_from_repo = self._create_plan_with_amount_entries(
+            owner_id=default_account.id
+        )
 
         # Arrange: Get one entry
         target_entry = child_saving_plan_from_repo.child_saving_amount_entries[0]
         entry_id = target_entry.id
 
-        # Act: Delete the entry
-        ChildSavingPlanRepo.delete_entry_by_id(entry_id=entry_id)
+        # Act: Remove the entry by the plan domain with the update attrs
+        child_saving_plan_from_repo.remove_entry_by_id(entry_id=entry_id)
 
-        # Assert: The deleted entry should not in plan
-        plan_form_repo = ChildSavingPlanRepo.get_by_id(child_saving_plan_id=plan_id)
-        entry_id_list_from_repo = [
-            entry.id for entry in plan_form_repo.child_saving_amount_entries
-        ]
-        assert entry_id not in entry_id_list_from_repo
+        # Act: Save the change
+        ChildSavingPlanRepo.save(child_saving_plan=child_saving_plan_from_repo)
 
-        # Assert: THe deleted entry is not in database as well
+        # Assert: Plan get from database should reflect this update
+        updated_child_saving_plan = ChildSavingPlanRepo.get_by_id(
+            child_saving_plan_id=child_saving_plan_from_repo.id
+        )
+        # Assert: Get removed id from the plan should return None
+        entry_from_repo = updated_child_saving_plan.get_entry_by_id(entry_id=entry_id)
+
+        # Assert: Check the non-updated field should be the same
+        assert entry_from_repo is None
+
+        # Assert: The deleted entry is not in database as well
         assert (
             db.session.scalar(
                 sa.select(ChildSavingAmountEntry).where(
@@ -142,13 +134,14 @@ class TestChildSavingPlanRepoForEntryCase:
     ) -> ChildSavingPlanDomain:
         # Create plan
         plan = self._create_new_child_saving_plan_by_repo(owner_id=owner_id)
-        plan_id = plan.id
 
-        # Create amount entries
-        self._create_amount_entries_by_repo(child_saving_plan_id=plan_id, length=length)
-
-        # Get updated plan
-        return ChildSavingPlanRepo.get_by_id(child_saving_plan_id=plan_id)
+        # Create amount entries and return the update plan
+        if length is None:
+            return self._add_amount_entries_by_repo(child_saving_plan=plan)
+        else:
+            return self._add_amount_entries_by_repo(
+                child_saving_plan=plan, length=length
+            )
 
     def _create_new_child_saving_plan_by_repo(
         self, owner_id: Optional[str] = None
@@ -158,23 +151,21 @@ class TestChildSavingPlanRepoForEntryCase:
 
         return ChildSavingPlanRepo.create(child_saving_plan)
 
-    def _create_amount_entries_by_repo(
-        self, child_saving_plan_id: str, length: int = 3
+    def _add_amount_entries_by_repo(
+        self, child_saving_plan: ChildSavingPlanDomain, length: int = 3
     ) -> list[ChildSavingAmountEntryDomain]:
-        entry_list = []
         for idx in range(length):
-            new_entry = self._create_amount_entry_by_repo(
-                child_saving_plan_id=child_saving_plan_id
+            # Create the payload from the factory
+            payload = ChildSavingAmountEntryDomainFactory()
+
+            # Save tne entry to the plan by domain service
+            child_saving_plan.add_entry(
+                name=payload.name,
+                start_age=payload.start_age,
+                end_age=payload.end_age,
+                amount=payload.amount,
+                description=payload.description,
             )
-            entry_list.append(new_entry)
 
-        return entry_list
-
-    def _create_amount_entry_by_repo(
-        self,
-        child_saving_plan_id: str,
-    ) -> ChildSavingAmountEntryDomain:
-        entry = ChildSavingAmountEntryDomainFactory(
-            child_saving_plan_id=child_saving_plan_id,
-        )
-        return ChildSavingPlanRepo.add_entry(entry)
+        # Save the update to database by repo, and return the update plan
+        return ChildSavingPlanRepo.save(child_saving_plan)

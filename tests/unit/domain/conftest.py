@@ -25,8 +25,8 @@ def default_child_domain(default_account_domain):
 
 
 @pytest.fixture(scope="function")
-def default_child_saving_plan_domain():
-    yield ChildSavingPlanDomainFactory()
+def default_child_saving_plan_domain(default_account_domain):
+    yield ChildSavingPlanDomainFactory(owner_id=default_account_domain.id)
 
 
 @pytest.fixture(scope="function")

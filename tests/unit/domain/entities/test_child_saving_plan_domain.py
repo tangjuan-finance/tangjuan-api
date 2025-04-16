@@ -228,3 +228,36 @@ class TestChildSavingPlanDomainCase:
         # Assert: Delete not existed entry should raise ValueError
         with pytest.raises(ValueError):
             default_child_saving_plan_domain.remove_entry_by_id(entry_id=fake_id)
+
+    def test_get_entry_when_the_entry_deleted_before(
+        self, default_child_saving_plan_domain
+    ):
+        # Arrange: Create a few of fake saving amount entries and add to the plan
+        NEW_ENTRIES = 5
+        for _ in range(NEW_ENTRIES):
+            new_entry = ChildSavingAmountEntryDomainFactory(
+                child_saving_plan_id=default_child_saving_plan_domain.id
+            )
+            default_child_saving_plan_domain.child_saving_amount_entries.append(
+                new_entry
+            )
+
+        # Arrange: Get the first entry as target
+        target_entry = default_child_saving_plan_domain.child_saving_amount_entries[0]
+        entry_id = target_entry.id
+        # Arrange: Delete the entry
+        default_child_saving_plan_domain.remove_entry_by_id(entry_id=entry_id)
+
+        # Assert: Ensure the entry is not in the plan
+        assert (
+            target_entry
+            not in default_child_saving_plan_domain.child_saving_amount_entries
+        )
+
+        # Act: Get the removed entry
+        entry_from_plan = default_child_saving_plan_domain.get_entry_by_id(
+            entry_id=entry_id
+        )
+
+        # Act: Ensure the removed entry could not be get from plan
+        assert entry_from_plan is None

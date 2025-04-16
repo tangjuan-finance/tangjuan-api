@@ -56,7 +56,7 @@ class ChildSavingPlanDomain(ResourceDomain):
             (
                 entry
                 for entry in self.child_saving_amount_entries
-                if entry_id == entry_id
+                if entry.id == entry_id
             ),
             None,
         )

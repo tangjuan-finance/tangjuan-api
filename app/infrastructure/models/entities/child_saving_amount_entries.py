@@ -31,4 +31,4 @@ class ChildSavingAmountEntry(
     )
 
     def __repr__(self):
-        return f"<ChildSavingAmountEntry age={self.age} amount={self.amount}>"
+        return f"<ChildSavingAmountEntry start_age={self.start_age} end_age={self.end_age} amount={self.amount}>"
