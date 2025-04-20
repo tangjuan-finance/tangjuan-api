@@ -6,6 +6,8 @@ from tests.factory import (
     IncomeDomainFactory,
     HouseDomainFactory,
     ChildDomainFactory,
+    ChildSavingPlanDomainFactory,
+    # ChildSavingAmountEntryDomainFactory,
     RiskDomainFactory,
     AssetDomainFactory,
     LiabilityDomainFactory,
@@ -17,6 +19,7 @@ from app.repository.entities import (
     IncomeRepo,
     HouseRepo,
     ChildRepo,
+    ChildSavingPlanRepo,
     RiskRepo,
     AssetRepo,
     LiabilityRepo,
@@ -67,3 +70,8 @@ def create_asset(*args, **kwargs):
 def create_liability(*args, **kwargs):
     liability = LiabilityDomainFactory(*args, **kwargs)
     return LiabilityRepo.create(liability)
+
+
+def create_child_saving_plan(*args, **kwargs):
+    child_saving_plan = ChildSavingPlanDomainFactory(*args, **kwargs)
+    return ChildSavingPlanRepo.create(child_saving_plan)

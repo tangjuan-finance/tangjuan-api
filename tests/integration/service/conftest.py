@@ -20,6 +20,7 @@ from tests.factory import (
     create_income,
     create_house,
     create_child,
+    create_child_saving_plan,
     create_risk,
     create_asset,
     create_liability,
@@ -39,7 +40,7 @@ def init_db():
     app_context.pop()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def default_account() -> Generator[AccountDomain, None, None]:
     """Provides a default account used as an owner in tests."""
     yield create_account()
@@ -70,9 +71,19 @@ def default_house(default_account) -> Generator[HouseDomain, None, None]:
 
 
 @pytest.fixture(scope="function")
-def default_child(default_account) -> Generator[ChildDomain, None, None]:
+def default_child(
+    default_account, default_child_saving_plan
+) -> Generator[ChildDomain, None, None]:
     """Provides a default child for child resource tests."""
-    yield create_child(parent=default_account)
+    yield create_child(
+        parent=default_account, child_saving_plan_id=default_child_saving_plan.id
+    )
+
+
+@pytest.fixture(scope="function")
+def default_child_saving_plan(default_account) -> Generator[ChildDomain, None, None]:
+    """Provides a default child saving plan for child-related resource tests."""
+    yield create_child_saving_plan(owner_id=default_account.id)
 
 
 @pytest.fixture(scope="function")

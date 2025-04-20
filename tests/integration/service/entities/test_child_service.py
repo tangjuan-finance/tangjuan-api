@@ -8,14 +8,23 @@ import pytest
 class TestChildServiceCase:
     """Test cases for ChildService."""
 
-    def test_create_child_service(self, default_account):
+    def _create_child_domain(self, account_id: str, plan_id: str):
+        payload = create_child_payload(
+            parent_id=account_id, child_saving_plan_id=plan_id
+        )
+        return ChildService.create_child(account_id=account_id, payload=payload)
+
+    def test_create_child_service(self, default_account, default_child_saving_plan):
         """Test creating an child using ChildService"""
 
         # Arrange: Given parameters for child creation
         account_id = default_account.id
+        child_saving_plan_id = default_child_saving_plan.id
 
         # Arrange: Define the expected fields that should be part of the ChildDomain
-        payload = create_child_payload(account_id)
+        payload = create_child_payload(
+            parent_id=account_id, child_saving_plan_id=child_saving_plan_id
+        )
         fields = {
             "name",
             "birth_age",
@@ -40,13 +49,14 @@ class TestChildServiceCase:
             child_domain.parent.id == account_id
         ), "Owner ID does not match the provided account ID"
 
-    def test_get_child_by_id_service(self, default_account):
+    def test_get_child_by_id_service(self, default_account, default_child_saving_plan):
         """Test retrieving an child by ID"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define payload for retrieval
@@ -62,17 +72,23 @@ class TestChildServiceCase:
         assert get_child_by_id_domain.id == child_id
         assert get_child_by_id_domain == child_domain
 
-    def test_get_children_service(self, default_account):
+    def test_get_children_service(self, default_account, default_child_saving_plan):
         """Test retrieving a list of children"""
 
         # Arrange: Get the initial count of children
         account_id = default_account.id
+        child_saving_plan_id = default_child_saving_plan.id
         original_child_count = len(ChildService.get_children(account_id))
 
         # Arrange: Create multiple children
         new_child_count = 5
         created_children = [
-            ChildService.create_child(account_id, create_child_payload(account_id))
+            ChildService.create_child(
+                account_id,
+                create_child_payload(
+                    parent_id=account_id, child_saving_plan_id=child_saving_plan_id
+                ),
+            )
             for _ in range(new_child_count)
         ]
 
@@ -86,13 +102,14 @@ class TestChildServiceCase:
         # Assert: Ensure the total count has increased by the created number
         assert updated_child_count == original_child_count + new_child_count
 
-    def test_update_child_service(self, default_account):
+    def test_update_child_service(self, default_account, default_child_saving_plan):
         """Test updating an child using ChildService"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define updated parameters
@@ -112,13 +129,16 @@ class TestChildServiceCase:
         assert updated_child_domain.id == child_id
         assert updated_child_domain.name == updated_name
 
-    def test_delete_child_by_id_service(self, default_account):
+    def test_delete_child_by_id_service(
+        self, default_account, default_child_saving_plan
+    ):
         """Test deleting an child by ID"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define payload for deletion
@@ -136,29 +156,37 @@ class TestChildServiceCase:
         with pytest.raises(ValueError):
             ChildService.get_child_by_id(account_id=account_id, payload=delete_payload)
 
-    def test_create_child_service_parent_account_not_match(self, default_account):
+    def test_create_child_service_parent_account_not_match(
+        self, default_account, default_child_saving_plan
+    ):
         """Test creating an child when parent and account are not match"""
 
         account_id = default_account.id
+        child_saving_plan_id = default_child_saving_plan.id
 
         # Arrange: Create a different account
         another_account_id = create_account().id
 
         # Arrange: Given parameters for child creation
-        payload = create_child_payload(another_account_id)
+        payload = create_child_payload(
+            parent_id=another_account_id, child_saving_plan_id=child_saving_plan_id
+        )
 
         # Act: Given unmatch account_id and parent_id, it should raise Error
 
         with pytest.raises(PermissionError):
             ChildService.create_child(account_id=account_id, payload=payload)
 
-    def test_get_child_by_id_service_parent_account_not_match(self, default_account):
+    def test_get_child_by_id_service_parent_account_not_match(
+        self, default_account, default_child_saving_plan
+    ):
         """Test getting an child when parent and account are not match"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define payload for retrieval
@@ -175,13 +203,16 @@ class TestChildServiceCase:
                 payload=get_payload,
             )
 
-    def test_update_child_service_parent_account_not_match(self, default_account):
+    def test_update_child_service_parent_account_not_match(
+        self, default_account, default_child_saving_plan
+    ):
         """Test updating an child when parent and account are not match"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define updated parameters
@@ -200,13 +231,16 @@ class TestChildServiceCase:
                 account_id=another_account_id, payload=updated_payload
             )
 
-    def test_delete_child_service_parent_account_not_match(self, default_account):
+    def test_delete_child_service_parent_account_not_match(
+        self, default_account, default_child_saving_plan
+    ):
         """Test deleting an child when parent and account are not match"""
 
         # Arrange: Create an child first
         account_id = default_account.id
-        payload = create_child_payload(account_id)
-        child_domain = ChildService.create_child(account_id=account_id, payload=payload)
+        child_domain = self._create_child_domain(
+            account_id=account_id, plan_id=default_child_saving_plan.id
+        )
         child_id = child_domain.id
 
         # Arrange: Define payload for retrieval
@@ -222,7 +256,9 @@ class TestChildServiceCase:
                 account_id=another_account_id, payload=delete_payload
             )
 
-    def test_get_child_by_id_service_with_not_existed_child(self, default_account):
+    def test_get_child_by_id_service_with_not_existed_child(
+        self, default_account, default_child_saving_plan
+    ):
         """Test getting a not_existed child"""
 
         # Arrange: Generate an child id
@@ -240,7 +276,9 @@ class TestChildServiceCase:
                 payload=get_payload,
             )
 
-    def test_update_child_service_with_not_existed_child(self, default_account):
+    def test_update_child_service_with_not_existed_child(
+        self, default_account, default_child_saving_plan
+    ):
         """Test updating a not_existed child"""
 
         # Arrange: Generate an child id
@@ -260,7 +298,9 @@ class TestChildServiceCase:
                 account_id=default_account.id, payload=updated_payload
             )
 
-    def test_delete_child_service_with_not_existed_child(self, default_account):
+    def test_delete_child_service_with_not_existed_child(
+        self, default_account, default_child_saving_plan
+    ):
         """Test deleting a not_existed child"""
 
         # Arrange: Generate an child id
@@ -277,12 +317,17 @@ class TestChildServiceCase:
                 account_id=default_account.id, payload=delete_payload
             )
 
-    def test_create_child_service_with_invalid_field(self, default_account):
+    def test_create_child_service_with_invalid_field(
+        self, default_account, default_child_saving_plan
+    ):
         """Test creating an child with invalid field using ChildService"""
 
         # Arrange: Given parameters for child creation
         account_id = default_account.id
-        payload = create_child_payload(account_id)
+        child_saving_plan_id = default_child_saving_plan.id
+        payload = create_child_payload(
+            parent_id=account_id, child_saving_plan_id=child_saving_plan_id
+        )
 
         # Arrange: Add an invalid field
         invalid_field_name = "invalid_field"
@@ -294,12 +339,17 @@ class TestChildServiceCase:
         # Assert: The invalid field is not added
         assert hasattr(child_domain, invalid_field_name) is False
 
-    def test_update_child_service_with_invalid_field(self, default_account):
+    def test_update_child_service_with_invalid_field(
+        self, default_account, default_child_saving_plan
+    ):
         """Test updating an child with invalid field using ChildService"""
 
         # Arrange: Given parameters for child creation
         account_id = default_account.id
-        payload = create_child_payload(account_id)
+        child_saving_plan_id = default_child_saving_plan.id
+        payload = create_child_payload(
+            parent_id=account_id, child_saving_plan_id=child_saving_plan_id
+        )
 
         # Arrange: Given parameters for child creation
         child_domain = ChildService.create_child(account_id=account_id, payload=payload)
@@ -324,14 +374,17 @@ class TestChildServiceCase:
 
         assert hasattr(updated_child, invalid_field_name) is False
 
-    def test_create_child_service_miss_required_field(self, default_account):
+    def test_create_child_service_miss_required_field(
+        self, default_account, default_child_saving_plan
+    ):
         """Test creating an child using ChildService"""
 
         # Arrange: Given parameters for child creation
         account_id = default_account.id
-
-        # Arrange: Define the expected fields that should be part of the ChildDomain
-        payload = create_child_payload(account_id)
+        child_saving_plan_id = default_child_saving_plan.id
+        payload = create_child_payload(
+            parent_id=account_id, child_saving_plan_id=child_saving_plan_id
+        )
 
         # Arrange: Remove required field
         del payload["name"]

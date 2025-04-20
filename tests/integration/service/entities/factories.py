@@ -13,14 +13,14 @@ def create_account_payload() -> dict:
     return payload
 
 
-def create_child_payload(parent_id: str) -> dict:
+def create_child_payload(parent_id: str, child_saving_plan_id: str) -> dict:
     payload = {
         "name": fake.text(max_nb_chars=20),
         "description": fake.paragraph(nb_sentences=5),
         "birth_age": fake.random_int(min=20, max=50),
         "parent_id": parent_id,
+        "child_saving_plan_id": child_saving_plan_id,
     }
-    payload["independent_age"] = payload["birth_age"] + fake.random_int(min=20, max=30)
 
     return payload
 

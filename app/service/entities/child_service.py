@@ -7,10 +7,10 @@ class ChildService(OwnerRequiredServiceMixin):
     _required_fields = {
         "name",
         "birth_age",
+        "child_saving_plan_id",
     }
     _all_fields = _required_fields | {
         "description",
-        "independent_age",
     }
 
     @staticmethod

@@ -34,9 +34,9 @@ class TestChildSavingPlanRepoCase:
             == child_saving_plan_from_db.updated_at
         )
 
-    def test_update_child_saving_plan_domain_through_repo(self):
+    def test_update_child_saving_plan_domain_through_repo(self, default_account):
         # Arrange: Create an child_saving_plan domain using the factory
-        child_saving_plan = ChildSavingPlanDomainFactory()
+        child_saving_plan = ChildSavingPlanDomainFactory(owner_id=default_account.id)
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
         origin_amount_entry_list = (
             child_saving_plan_from_repo.child_saving_amount_entries
