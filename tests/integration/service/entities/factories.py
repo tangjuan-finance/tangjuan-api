@@ -25,6 +25,33 @@ def create_child_payload(parent_id: str, child_saving_plan_id: str) -> dict:
     return payload
 
 
+def create_child_saving_plan_payload(owner_id: str) -> dict:
+    payload = {
+        "name": fake.text(max_nb_chars=20),
+        "description": fake.paragraph(nb_sentences=5),
+        "independent_age": fake.random_int(min=18, max=26),
+        "owner_id": owner_id,
+    }
+
+    return payload
+
+
+def child_saving_amount_entries_payload(
+    owner_id: str, child_saving_plan_id: str
+) -> dict:
+    payload = {
+        "name": fake.text(max_nb_chars=20),
+        "description": fake.paragraph(nb_sentences=5),
+        "amount": fake.random_int(min=100000, max=400000),
+        "start_age": fake.random_int(min=0, max=15),
+        "owner_id": owner_id,
+        "child_saving_plan_id": child_saving_plan_id,
+    }
+    payload["end_age"] = payload["start_age"] + fake.random_int(min=0, max=3)
+
+    return payload
+
+
 def create_asset_payload(owner_id: str) -> dict:
     payload = {
         "name": fake.text(max_nb_chars=20),

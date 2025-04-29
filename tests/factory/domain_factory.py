@@ -88,9 +88,9 @@ class ChildSavingAmountEntryDomainFactory(ResourceDomainFactory, factory.Factory
     class Meta:
         model = ChildSavingAmountEntryDomain
 
-    start_age = factory.Faker("random_int", min=20, max=65)
+    start_age = factory.Faker("random_int", min=0, max=15)
     end_age = factory.LazyAttribute(
-        lambda o: o.start_age + fake.random_int(min=0, max=6)
+        lambda o: o.start_age + fake.random_int(min=0, max=3)
     )
     amount = factory.Faker("random_int", min=100000, max=400000)
     # If not injected, generate a dummy id
