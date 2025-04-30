@@ -1,4 +1,4 @@
-from app.domain.entities import ChildSavingPlanDomain
+from app.domain.entities import ChildSavingPlanDomain, ChildSavingAmountEntryDomain
 from app.repository.entities import ChildSavingPlanRepo
 from .mixin import OwnerRequiredServiceMixin
 
@@ -9,6 +9,16 @@ class ChildSavingPlanService(OwnerRequiredServiceMixin):
         "independent_age",
     }
     _all_fields = _required_fields | {
+        "description",
+    }
+
+    _entry_required_fields = {
+        "name",
+        "start_age",
+        "end_age",
+        "amount",
+    }
+    _entry_all_fields = _entry_required_fields | {
         "description",
     }
 
@@ -95,3 +105,116 @@ class ChildSavingPlanService(OwnerRequiredServiceMixin):
         )  # Raises if not found or unauthorized
         ChildSavingPlanRepo.delete_by_id(child_saving_plan.id)
         return f"ChildSavingPlan {child_saving_plan.id} deleted successfully"
+
+    # === The following is for the amount entry
+
+    @staticmethod
+    def _get_plan_by_id(account_id: str, plan_id: str) -> ChildSavingPlanDomain:
+        return ChildSavingPlanService.get_child_saving_plan_by_id(
+            account_id,
+            {
+                "id": plan_id,
+            },
+        )
+
+    @staticmethod
+    def add_amount_entry(
+        account_id: str, plan_id: str, payload: dict
+    ) -> ChildSavingAmountEntryDomain:
+        """Create a new entry with validated owner and plan"""
+
+        # Get plan by service to ensure validation
+        plan = ChildSavingPlanService._get_plan_by_id(account_id, plan_id)
+
+        # Validate required fields
+        missing_fields = ChildSavingPlanService._entry_required_fields - payload.keys()
+        if missing_fields:
+            raise ValueError(f"Missing required fields: {', '.join(missing_fields)}")
+
+        # Filter payload to only include allowed fields
+        entry_payload = {
+            field: payload[field]
+            for field in ChildSavingPlanService._entry_all_fields
+            if field in payload
+        }
+
+        entry = plan.add_entry(**entry_payload)
+
+        # Save the entry to the db
+        updated_plan = ChildSavingPlanRepo.save(plan)
+
+        # Return the saved entry
+        return updated_plan.get_entry_by_id(entry.id)
+
+    @staticmethod
+    def get_amount_entry_by_id(
+        account_id: str, plan_id: str, entry_id: str
+    ) -> ChildSavingAmountEntryDomain:
+        """Get an entry by id"""
+
+        # Get plan by service to ensure validation
+        plan = ChildSavingPlanService._get_plan_by_id(account_id, plan_id)
+        entry = plan.get_entry_by_id(entry_id)
+
+        # Raise Value Error of entry not existed
+        if not entry:
+            raise ValueError(f"Entry with ID {entry_id} not existed")
+
+        return entry
+
+    @staticmethod
+    def list_amount_entries(
+        account_id: str, plan_id: str
+    ) -> list[ChildSavingAmountEntryDomain]:
+        """Get entries belongs to given plan"""
+
+        # Get plan by service to ensure validation
+        plan = ChildSavingPlanService._get_plan_by_id(account_id, plan_id)
+
+        return plan.list_entries()
+
+    @staticmethod
+    def update_amount_entry_by_id(
+        account_id: str, plan_id: str, entry_id: str, payload: dict
+    ) -> ChildSavingAmountEntryDomain:
+        """Update an entry by id"""
+        # Get plan by service to ensure validation
+        plan = ChildSavingPlanService._get_plan_by_id(account_id, plan_id)
+        entry = plan.get_entry_by_id(entry_id)
+
+        # Raise Value Error of entry not existed
+        if not entry:
+            raise ValueError(f"Entry with ID {entry_id} not existed")
+
+        valid_payload = {
+            field: payload[field]
+            for field in ChildSavingPlanService._entry_all_fields
+            if field in payload
+        }
+
+        plan.update_entry_by_id(entry.id, **valid_payload)
+
+        # Save the updated plan to the db
+        updated_plan = ChildSavingPlanRepo.save(plan)
+
+        # Return the saved entry
+        return updated_plan.get_entry_by_id(entry.id)
+
+    @staticmethod
+    def remove_amount_entry_by_id(account_id: str, plan_id: str, entry_id: str) -> None:
+        """Remove an entry by id"""
+        # Get plan by service to ensure validation
+        plan = ChildSavingPlanService._get_plan_by_id(account_id, plan_id)
+        entry = plan.get_entry_by_id(entry_id)
+
+        # Raise Value Error of entry not existed
+        if not entry:
+            raise ValueError(f"Entry with ID {entry_id} not existed")
+
+        plan.remove_entry_by_id(entry.id)
+
+        # Save the updated plan to the db
+        updated_plan = ChildSavingPlanRepo.save(plan)
+
+        # Return the saved entry
+        return updated_plan.get_entry_by_id(entry.id)
