@@ -6,9 +6,9 @@ from app import db
 
 
 class TestChildSavingPlanRepoCase:
-    def test_create_child_saving_plan_domain_through_repo(self):
+    def test_create_child_saving_plan_domain_through_repo(self, default_account):
         # Arrange: Create an child_saving_plan domain using the factory
-        child_saving_plan = ChildSavingPlanDomainFactory()
+        child_saving_plan = ChildSavingPlanDomainFactory(owner_id=default_account.id)
 
         # Act: Save the child_saving_plan domain using the repo and return the saved entity
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
@@ -78,9 +78,9 @@ class TestChildSavingPlanRepoCase:
             == origin_amount_entry_list
         )
 
-    def test_get_child_saving_plan_domain_by_id_through_repo(self):
+    def test_get_child_saving_plan_domain_by_id_through_repo(self, default_account):
         # Arrange: Create an child_saving_plan domain using the factory
-        child_saving_plan = ChildSavingPlanDomainFactory()
+        child_saving_plan = ChildSavingPlanDomainFactory(owner_id=default_account.id)
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
 
         # Act: Update the child_saving_plan domain object (before saving)
@@ -120,9 +120,9 @@ class TestChildSavingPlanRepoCase:
         for plan in child_saving_plans_from_repo:
             assert plan in new_child_saving_plan_list
 
-    def test_delete_child_saving_plan_domain_through_repo(self):
+    def test_delete_child_saving_plan_domain_through_repo(self, default_account):
         # Arrange: Create an child_saving_plan domain using the factory
-        child_saving_plan = ChildSavingPlanDomainFactory()
+        child_saving_plan = ChildSavingPlanDomainFactory(owner_id=default_account.id)
         child_saving_plan_from_repo = ChildSavingPlanRepo.create(child_saving_plan)
 
         # Act: Delete the child_saving_plan domain object

@@ -14,7 +14,6 @@ from app.domain.entities import (
 )
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
-from nanoid import generate
 import faker
 
 fake = faker.Faker()
@@ -71,8 +70,7 @@ class ChildSavingPlanDomainFactory(ResourceDomainFactory, factory.Factory):
         model = ChildSavingPlanDomain
 
     independent_age = factory.Faker("random_int", min=18, max=26)
-    # If not injected, generate a dummy id
-    owner_id = factory.LazyFunction(lambda: generate(size=13))
+    owner_id = factory.LazyFunction(lambda: AccountDomainFactory().id)
 
     # @factory.lazy_attribute
     # def child_saving_amount_entries(self):
@@ -93,8 +91,9 @@ class ChildSavingAmountEntryDomainFactory(ResourceDomainFactory, factory.Factory
         lambda o: o.start_age + fake.random_int(min=0, max=3)
     )
     amount = factory.Faker("random_int", min=100000, max=400000)
-    # If not injected, generate a dummy id
-    child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
+    child_saving_plan_id = factory.LazyFunction(
+        lambda: ChildSavingPlanDomainFactory(owner_id=AccountDomainFactory().id).id
+    )
 
 
 class ChildDomainFactory(ResourceDomainFactory, factory.Factory):
@@ -104,9 +103,10 @@ class ChildDomainFactory(ResourceDomainFactory, factory.Factory):
         model = ChildDomain
 
     birth_age = factory.Faker("random_int", min=20, max=50)
-    # If not injected, generate a dummy id
-    child_saving_plan_id = factory.LazyFunction(lambda: generate(size=13))
     parent = factory.SubFactory(AccountDomainFactory)
+    child_saving_plan_id = factory.LazyAttribute(
+        lambda o: ChildSavingPlanDomainFactory(owner_id=o.parent.id).id
+    )
 
 
 class AssetDomainFactory(ResourceDomainFactory, factory.Factory):

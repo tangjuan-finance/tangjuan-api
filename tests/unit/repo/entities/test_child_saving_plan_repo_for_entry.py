@@ -76,7 +76,6 @@ class TestChildSavingPlanRepoForEntryCase:
         )
 
         # Act: Save the change
-        # breakpoint()
         ChildSavingPlanRepo.save(child_saving_plan=child_saving_plan_from_repo)
 
         # Assert: Plan get from database should reflect this update

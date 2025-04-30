@@ -104,7 +104,5 @@ class TestChildSavingAmountEntryModelCase:
             db.session.delete(plan)
             db.session.commit()
 
-        # breakpoint()
-
         # Assert: default_child_saving_amount_entry should not be accessed
         assert db.session.get(ChildSavingAmountEntry, entry_id) is None

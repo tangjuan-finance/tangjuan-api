@@ -9,6 +9,7 @@ from tests.factory import (
     IncomeDomainFactory,
     HouseDomainFactory,
     ChildDomainFactory,
+    ChildSavingPlanDomainFactory,
     RiskDomainFactory,
     AssetDomainFactory,
     LiabilityDomainFactory,
@@ -20,6 +21,7 @@ from app.repository.entities import (
     IncomeRepo,
     HouseRepo,
     ChildRepo,
+    ChildSavingPlanRepo,
     RiskRepo,
     AssetRepo,
     LiabilityRepo,
@@ -31,6 +33,7 @@ from app.domain.entities import (
     IncomeDomain,
     HouseDomain,
     ChildDomain,
+    ChildSavingPlanDomain,
     RiskDomain,
     AssetDomain,
     LiabilityDomain,
@@ -87,9 +90,22 @@ def new_house(default_account) -> Generator[HouseDomain, None, None]:
 
 
 @pytest.fixture(scope="function")
-def new_child(default_account) -> Generator[ChildDomain, None, None]:
+def new_child_saving_plan(
+    default_account,
+) -> Generator[ChildSavingPlanDomain, None, None]:
+    """Creates a new child saving plan associated with the default account."""
+    plan = ChildSavingPlanDomainFactory(owner_id=default_account.id)
+    yield ChildSavingPlanRepo.create(plan)
+
+
+@pytest.fixture(scope="function")
+def new_child(
+    default_account, new_child_saving_plan
+) -> Generator[ChildDomain, None, None]:
     """Creates a new child associated with the default account."""
-    child = ChildDomainFactory(parent=default_account)
+    child = ChildDomainFactory(
+        parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+    )
     yield ChildRepo.create(child)
 
 

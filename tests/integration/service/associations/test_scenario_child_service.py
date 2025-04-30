@@ -81,7 +81,9 @@ class TestScenarioChildServiceCase:
         # Assert: Check id of child is as given
         assert child.id == default_child_id
 
-    def test_get_children_service(self, default_account, default_scenario_id):
+    def test_get_children_service(
+        self, default_account, default_child_saving_plan, default_scenario_id
+    ):
         """Test retrieving a list of Scenario Child Assoc using ScenarioChildService"""
 
         # Arrange: Get the initial count of children
@@ -105,7 +107,10 @@ class TestScenarioChildServiceCase:
                 account_id,
                 create_scenario_child_payload(
                     scenario_id=default_scenario_id,
-                    child_id=create_child(parent=default_account).id,
+                    child_id=create_child(
+                        parent=default_account,
+                        child_saving_plan_id=default_child_saving_plan.id,
+                    ).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)
@@ -252,7 +257,7 @@ class TestScenarioChildServiceCase:
             )
 
     def test_get_children_service_when_owner_account_not_match(
-        self, default_account, default_scenario_id
+        self, default_account, default_child_saving_plan, default_scenario_id
     ):
         """Test retrieving a list of Scenario Child Assoc using ScenarioChildService when resource owner and account are not match"""
 
@@ -271,7 +276,10 @@ class TestScenarioChildServiceCase:
                 account_id,
                 create_scenario_child_payload(
                     scenario_id=default_scenario_id,
-                    child_id=create_child(parent=default_account).id,
+                    child_id=create_child(
+                        parent=default_account,
+                        child_saving_plan_id=default_child_saving_plan.id,
+                    ).id,
                 ),
             ).get("association")
             for _ in range(new_assoc_count)

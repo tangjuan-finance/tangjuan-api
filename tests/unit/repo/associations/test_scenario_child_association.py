@@ -104,7 +104,7 @@ class TestChildRepoCase:
         assert scenario_child_get_by_id.child_id == scenario_child_from_repo.child_id
 
     def test_get_scenario_child_assoc_list_through_repo(
-        self, default_account, new_scenario
+        self, default_account, new_scenario, new_child_saving_plan
     ):
         # Arrange: Create an child domain using the factory
         origin_repo_list_length = len(
@@ -113,7 +113,9 @@ class TestChildRepoCase:
 
         # Act: Create 5 new child domains
         for _ in range(5):
-            new_child = create_child(parent=default_account)
+            new_child = create_child(
+                parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+            )
             self._create_assoc(
                 child_id=new_child.id,
                 scenario_id=new_scenario.id,
