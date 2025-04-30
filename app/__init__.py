@@ -1,30 +1,15 @@
 from flask import Flask
 from config import Config
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
-from sqlalchemy import MetaData
-from sqlalchemy.orm import DeclarativeBase
+from app.db_helper import db, enable_sqlite_foreign_keys
 import logging
 from logging.handlers import RotatingFileHandler
 import os
 from flask_cors import CORS
 
 
-class Base(DeclarativeBase):
-    metadata = MetaData(
-        naming_convention={
-            "ix": "ix_%(column_0_label)s",
-            "uq": "uq_%(table_name)s_%(column_0_name)s",
-            "ck": "ck_%(table_name)s_%(constraint_name)s",
-            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-            "pk": "pk_%(table_name)s",
-        }
-    )
-
-
-db = SQLAlchemy(model_class=Base)
 migrate = Migrate(db)
 login = LoginManager()
 login.login_view = "auth.login"
@@ -36,8 +21,11 @@ cors = CORS()  # Enable CORS for all routes
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-
     db.init_app(app)
+
+    # For enable sqlite fk constraint
+    enable_sqlite_foreign_keys(app)
+
     migrate.init_app(app, db)
     login.init_app(app)
     moment.init_app(app)
@@ -74,7 +62,7 @@ def create_app(config_class=Config):
         app.logger.addHandler(file_handler)
 
         app.logger.setLevel(logging.INFO)
-        app.logger.info("F4lazylifes startup")
+        app.logger.info("TangJuan startup")
 
     return app
 
