@@ -6,9 +6,13 @@ from app import db
 
 
 class TestChildRepoCase:
-    def test_create_child_domain_through_repo(self, default_account):
+    def test_create_child_domain_through_repo(
+        self, default_account, new_child_saving_plan
+    ):
         # Arrange: Create an child domain using the factory
-        child = ChildDomainFactory(parent=default_account)
+        child = ChildDomainFactory(
+            parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+        )
 
         # Act: Save the child domain using the repo and return the saved entity
         child_from_repo = ChildRepo.create(child)
@@ -27,9 +31,13 @@ class TestChildRepoCase:
         assert child_from_repo.created_at == child_from_db.created_at
         assert child_from_repo.updated_at == child_from_db.updated_at
 
-    def test_update_child_domain_through_repo(self, default_account):
+    def test_update_child_domain_through_repo(
+        self, default_account, new_child_saving_plan
+    ):
         # Arrange: Create an child domain using the factory
-        child = ChildDomainFactory(parent=default_account)
+        child = ChildDomainFactory(
+            parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+        )
         child_from_repo = ChildRepo.create(child)
         updated_name = "Updated Child Domain"
 
@@ -52,9 +60,13 @@ class TestChildRepoCase:
         # Update_at from updated_child should be different from the previous child domain (the one before update)
         assert updated_child.updated_at != child_from_repo.updated_at
 
-    def test_get_child_domain_by_id_through_repo(self, default_account):
+    def test_get_child_domain_by_id_through_repo(
+        self, default_account, new_child_saving_plan
+    ):
         # Arrange: Create an child domain using the factory
-        child = ChildDomainFactory(parent=default_account)
+        child = ChildDomainFactory(
+            parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+        )
         child_from_repo = ChildRepo.create(child)
 
         # Act: Update the child domain object (before saving)
@@ -64,14 +76,18 @@ class TestChildRepoCase:
         assert child_get_by_id.id == child_from_repo.id
         assert child_get_by_id.name == child_from_repo.name
 
-    def test_get_child_domain_list_through_repo(self, default_account):
+    def test_get_child_domain_list_through_repo(
+        self, default_account, new_child_saving_plan
+    ):
         # Arrange: Create an child domain using the factory
         account_id = default_account.id
         origin_child_list_length = len(ChildRepo.get_list(account_id=account_id))
 
         # Act: Create 5 new child domains
         for _ in range(5):
-            child = ChildDomainFactory(parent=default_account)
+            child = ChildDomainFactory(
+                parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+            )
             ChildRepo.create(child)
 
         # Act: Retrieve the updated child list
@@ -80,9 +96,13 @@ class TestChildRepoCase:
         # Assert: Ensure the list length is increased by 5
         assert updated_child_list_length == (origin_child_list_length + 5)
 
-    def test_delete_child_domain_through_repo(self, default_account):
+    def test_delete_child_domain_through_repo(
+        self, default_account, new_child_saving_plan
+    ):
         # Arrange: Create an child domain using the factory
-        child = ChildDomainFactory(parent=default_account)
+        child = ChildDomainFactory(
+            parent=default_account, child_saving_plan_id=new_child_saving_plan.id
+        )
         child_from_repo = ChildRepo.create(child)
 
         # Act: Delete the child domain object
