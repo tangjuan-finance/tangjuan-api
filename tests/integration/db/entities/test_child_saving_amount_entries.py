@@ -91,3 +91,20 @@ class TestChildSavingAmountEntryModelCase:
 
         assert child_saving_amount_entry_from_db.child_saving_plan == new_plan
         assert child_saving_amount_entry_from_db.child_saving_plan != origin_plan
+
+    def test_delete_plan(self, default_child_saving_amount_entry):
+        # Arrange: Get entry  id
+        entry_id = default_child_saving_amount_entry.id
+
+        # Act: Remove default plan from default_child_saving_amount_entry
+        plan = db.session.get_one(
+            ChildSavingPlan, default_child_saving_amount_entry.child_saving_plan.id
+        )
+        if plan:
+            db.session.delete(plan)
+            db.session.commit()
+
+        # breakpoint()
+
+        # Assert: default_child_saving_amount_entry should not be accessed
+        assert db.session.get(ChildSavingAmountEntry, entry_id) is None

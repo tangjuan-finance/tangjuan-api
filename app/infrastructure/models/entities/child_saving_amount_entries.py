@@ -27,7 +27,7 @@ class ChildSavingAmountEntry(
         sa.ForeignKey("child_saving_plan.id", ondelete="CASCADE"), index=True
     )
     child_saving_plan: so.Mapped["ChildSavingPlan"] = so.relationship(  # noqa: F821
-        back_populates="child_saving_amount_entries"
+        back_populates="child_saving_amount_entries",
     )
 
     def __repr__(self):

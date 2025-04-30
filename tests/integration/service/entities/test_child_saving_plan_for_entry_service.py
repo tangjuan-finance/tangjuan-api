@@ -373,3 +373,38 @@ class TestChildSavingPlanServiceForEntryCase:
             ChildSavingPlanService.add_amount_entry(
                 account_id, plan_id, payload=payload
             )
+
+    # SAD plan-related test
+    def test_create_child_saving_amount_entry_service_with_non_existed_plan(
+        self, default_account
+    ):
+        """Test creating an amount_entry using ChildSavingPlanService"""
+
+        # Arrange: Define the entry with invalid plan_id
+        fake_id = generate(size=13)
+        payload = create_child_saving_amount_entry_payload(fake_id)
+
+        # Assert: Create amount_entry with invalid plan should raise ValueError
+        with pytest.raises(ValueError):
+            ChildSavingPlanService.add_amount_entry(
+                default_account.id, fake_id, payload=payload
+            )
+
+    def test_get_child_saving_amount_entry_service_with_deleted_plan(
+        self, default_account, default_child_saving_plan
+    ):
+        # Arrange: Create entry
+        account_id = default_account.id
+        plan_id = default_child_saving_plan.id
+        entry = self._create_entry(account_id, plan_id)
+
+        payload = {"id": plan_id}
+
+        # Act: Delete the plan
+        ChildSavingPlanService.delete_child_saving_plan_by_id(
+            account_id, payload=payload
+        )
+
+        # Assert: Entry should not be get, raise ValueError
+        with pytest.raises(ValueError):
+            ChildSavingPlanService.get_amount_entry_by_id(account_id, plan_id, entry.id)
